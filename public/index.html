@@ -1,248 +1,498 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lichess UI/UX Workbench</title>
-  
-  <!-- Lila CSS Core -->
-  <link id="theme-css" rel="stylesheet" href="/css/lib.theme.all.cf4d47b9.css">
-  <link id="site-css" rel="stylesheet" href="/css/site.f43e7804.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Master Chess HTML5</title>
   
   <style>
-    /* Workbench helper styling */
-    .workbench-bar {
-      position: fixed;
-      bottom: 12px;
-      right: 12px;
-      background: rgba(22, 21, 18, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(8px);
-      border-radius: 8px;
-      padding: 12px 16px;
-      z-index: 9999;
-      color: #bababa;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-size: 13px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .workbench-bar h4 {
+    /* CSS Reset and Font Setup */
+    * {
+      box-sizing: border-box;
       margin: 0;
-      color: #fff;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      padding: 0;
+      user-select: none; /* Prevent text selection in games */
     }
-    .workbench-controls {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .wb-btn {
-      background: #363431;
-      color: #ddd;
-      border: 1px solid #504e4a;
-      border-radius: 4px;
-      padding: 4px 10px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .wb-btn:hover {
-      background: #45433f;
-      color: #fff;
-    }
-    .wb-vars {
-      font-family: monospace;
-      font-size: 11px;
-      background: #111;
-      padding: 6px 8px;
-      border-radius: 4px;
-      line-height: 1.4;
-      color: #629924;
-    }
-    .mock-board {
-      width: 440px;
-      height: 440px;
-      background: #b58863;
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-      border-radius: 3px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }
-    .mock-board .sq {
+
+    body {
+      background-color: #1a1a2e;
+      font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden; /* No scrolling allowed */
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      user-select: none;
     }
-    .mock-board .sq.light {
-      background: #f0d9b5;
+
+    /* The Game Container - scales to fit screen but maintains aspect ratio */
+    #game-container {
+      width: 100%;
+      height: 100%;
+      max-width: 800px; /* Typical portrait/square-ish max for mobile/desktop blend */
+      max-height: 1000px;
+      position: relative;
+      background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%);
+      box-shadow: 0 0 50px rgba(0,0,0,0.8);
+      overflow: hidden;
     }
-    .mock-board .sq.dark {
-      background: #b58863;
+
+    /* Screen Management */
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95);
     }
+    
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    /* =========================================
+       MAIN MENU SCREEN
+       ========================================= */
+    #menu-screen {
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Floating Chess Pieces Background Effect */
+    .bg-pieces {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.1;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="%23ffffff"/></svg>');
+      background-size: 150px;
+      background-position: center;
+      animation: floatBg 30s linear infinite;
+    }
+
+    @keyframes floatBg {
+      0% { background-position: 0px 0px; }
+      100% { background-position: 150px 150px; }
+    }
+
+    /* Game Logo */
+    .game-logo {
+      z-index: 10;
+      text-align: center;
+      margin-bottom: 60px;
+      animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .game-logo h1 {
+      font-size: 64px;
+      font-weight: 900;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 6px 0 #0f4c81, 0 12px 15px rgba(0,0,0,0.5);
+      margin: 0;
+      line-height: 1;
+    }
+    .game-logo span {
+      display: block;
+      font-size: 24px;
+      color: #ffd700;
+      text-shadow: 0 3px 0 #b38f00, 0 6px 10px rgba(0,0,0,0.4);
+      margin-top: -5px;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Chunky Game Buttons */
+    .menu-buttons {
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .btn-game {
+      background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
+      border: 4px solid #fff;
+      border-radius: 20px;
+      padding: 18px 24px;
+      color: #fff;
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #0088cc, 0 15px 20px rgba(0,0,0,0.4);
+      transition: all 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .btn-game:active {
+      transform: translateY(8px);
+      box-shadow: 0 0px 0 #0088cc, 0 5px 10px rgba(0,0,0,0.4);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(to bottom, #f6d365 0%, #fda085 100%);
+      box-shadow: 0 8px 0 #d97745, 0 15px 20px rgba(0,0,0,0.4);
+    }
+    .btn-secondary:active {
+      box-shadow: 0 0px 0 #d97745, 0 5px 10px rgba(0,0,0,0.4);
+    }
+    
+    .btn-tertiary {
+      background: linear-gradient(to bottom, #43e97b 0%, #38f9d7 100%);
+      box-shadow: 0 8px 0 #28b463, 0 15px 20px rgba(0,0,0,0.4);
+    }
+    .btn-tertiary:active {
+      box-shadow: 0 0px 0 #28b463, 0 5px 10px rgba(0,0,0,0.4);
+    }
+
+    /* Audio Toggle */
+    .audio-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: rgba(255,255,255,0.2);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 20;
+      font-size: 24px;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+    }
+    .audio-toggle:active {
+      transform: translateY(4px);
+      box-shadow: 0 0px 0 rgba(0,0,0,0.2);
+    }
+
+
+    /* =========================================
+       IN-GAME SCREEN
+       ========================================= */
+    #game-screen {
+      padding: 20px;
+      justify-content: space-between;
+    }
+
+    /* Top HUD */
+    .hud-top {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .btn-pause {
+      background: #ff4757;
+      border: 3px solid #fff;
+      border-radius: 12px;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #c0392b, 0 10px 10px rgba(0,0,0,0.3);
+    }
+    .btn-pause:active {
+      transform: translateY(5px);
+      box-shadow: 0 0px 0 #c0392b, 0 5px 10px rgba(0,0,0,0.3);
+    }
+
+    .player-hud {
+      display: flex;
+      align-items: center;
+      background: rgba(0,0,0,0.5);
+      border-radius: 30px;
+      padding: 5px 15px 5px 5px;
+      border: 2px solid rgba(255,255,255,0.2);
+      gap: 10px;
+    }
+    .player-avatar {
+      width: 40px;
+      height: 40px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .player-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .player-name {
+      color: #fff;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .player-score {
+      color: #ffd700;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* Board Area */
+    .board-wrapper {
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 1/1;
+      background: #739552;
+      border: 8px solid #3c2a21;
+      border-radius: 8px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      position: relative;
+    }
+    .board-sq {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .board-sq.light { background: #ebecd0; }
+    .board-sq.dark { background: #739552; }
+    
+    .board-sq img.piece {
+      width: 90%;
+      height: 90%;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4));
+    }
+
+    /* Bottom HUD */
+    .hud-bottom {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      z-index: 10;
+    }
+
+    /* Pause Menu Overlay */
+    #pause-menu {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    #pause-menu.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .pause-box {
+      background: #2e2e4f;
+      border: 4px solid #fff;
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      transform: scale(0.8);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    #pause-menu.active .pause-box {
+      transform: scale(1);
+    }
+
   </style>
 </head>
-<body class="theme-dark">
+<body>
 
-  <!-- Header -->
-  <header id="top" class="site-header">
-    <div class="site-title-nav">
-      <a href="/" class="site-title" style="font-weight: bold; font-size: 22px; text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px; padding-left: 12px;">
-        <span>♞ lichess<span style="opacity: 0.6; font-weight: normal; font-size: 14px;">.dev UI</span></span>
-      </a>
-      <nav id="topnav" class="hover" style="display: flex; gap: 16px; margin-left: 24px;">
-        <section><a href="#" class="active" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Play</a></section>
-        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Puzzles</a></section>
-        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Learn</a></section>
-        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Watch</a></section>
-        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Community</a></section>
-        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Tools</a></section>
-      </nav>
-    </div>
-    <div class="site-buttons" style="display: flex; align-items: center; gap: 10px; padding-right: 16px;">
-      <button class="button button-empty" style="padding: 6px 12px; font-size: 13px;">Sign In</button>
-    </div>
-  </header>
+  <div id="game-container">
+    
+    <!-- AUDIO TOGGLE -->
+    <div class="audio-toggle" id="btn-audio" onclick="toggleAudio()">🔊</div>
 
-  <!-- Main Content Wrap -->
-  <div id="main-wrap" class="main-wrap is2d">
-    <main class="round">
-      <div class="round__app" style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; padding: 20px 0;">
-        
-        <!-- Board Container -->
-        <div class="round__app__board main-board">
-          <div class="cg-wrap">
-            <div class="mock-board" id="board">
-              <!-- Rendered via JS -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Sidebar / Move list / Actions -->
-        <div class="round__app__side" style="width: 320px; display: flex; flex-direction: column; gap: 12px;">
-          <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 16px;">
-            <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 12px;">Live UI Variable Inspector</h3>
-            <p style="font-size: 13px; opacity: 0.8; margin-bottom: 12px;">
-              Values actively loaded from <code>_base.scss</code>:
-            </p>
-            <div class="wb-vars" id="var-dump">
-              Loading variables...
-            </div>
-          </div>
-
-          <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
-            <h3 style="margin: 0 0 8px 0; font-size: 15px;">UI Component Test</h3>
-            <button class="button" style="width: 100%;">Primary Action Button</button>
-            <button class="button button-secondary" style="width: 100%;">Secondary Button</button>
-            <button class="button button-red" style="width: 100%;">Resign / Warning</button>
-          </div>
-        </div>
-
+    <!-- =========================================
+         MAIN MENU SCREEN
+         ========================================= -->
+    <div id="menu-screen" class="screen active">
+      <div class="bg-pieces"></div>
+      
+      <div class="game-logo">
+        <h1>Master</h1>
+        <span>CHESS</span>
       </div>
-    </main>
-  </div>
 
-  <!-- Float Workbench Panel -->
-  <div class="workbench-bar">
-    <h4>
-      <span>⚡ Lila UI Workbench</span>
-      <span style="font-size: 10px; background: #235c2b; color: #a4f5b0; padding: 2px 6px; border-radius: 10px;">Connected</span>
-    </h4>
-    <div class="workbench-controls">
-      <button class="wb-btn" onclick="toggleTheme()">Toggle Theme</button>
-      <button class="wb-btn" onclick="toggleHeaderMargin()">Toggle header-margin</button>
-      <button class="wb-btn" onclick="refreshCSS()">Reload CSS</button>
+      <div class="menu-buttons">
+        <button class="btn-game" onclick="startGame('bot')">
+          <span>🤖</span> Play vs Bot
+        </button>
+        <button class="btn-game btn-secondary" onclick="startGame('online')">
+          <span>🌍</span> Multiplayer
+        </button>
+        <button class="btn-game btn-tertiary" onclick="startGame('puzzles')">
+          <span>🧩</span> Puzzles
+        </button>
+      </div>
     </div>
-    <div style="font-size: 11px; opacity: 0.7;">
-      Watching: <code>ui/lib/css/layout/_base.scss</code>
+
+
+    <!-- =========================================
+         IN-GAME SCREEN
+         ========================================= -->
+    <div id="game-screen" class="screen">
+      
+      <!-- Top HUD (Opponent) -->
+      <div class="hud-top">
+        <div class="player-hud">
+          <div class="player-avatar">🤖</div>
+          <div class="player-info">
+            <span class="player-name">Grandmaster Bot</span>
+            <span class="player-score">Level 10</span>
+          </div>
+        </div>
+        <button class="btn-pause" onclick="togglePause()">II</button>
+      </div>
+
+      <!-- Chess Board -->
+      <div class="board-wrapper" id="main-board">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Bottom HUD (Player) -->
+      <div class="hud-bottom">
+        <div class="player-hud">
+          <div class="player-info" style="text-align: right;">
+            <span class="player-name">You</span>
+            <span class="player-score">Beginner</span>
+          </div>
+          <div class="player-avatar">👤</div>
+        </div>
+      </div>
+
     </div>
+
+    <!-- PAUSE MENU OVERLAY -->
+    <div id="pause-menu">
+      <div class="pause-box">
+        <h2 style="color: #fff; text-align: center; margin-bottom: 10px; font-size: 32px;">PAUSED</h2>
+        <button class="btn-game" style="font-size: 20px; padding: 12px 20px;" onclick="togglePause()">Resume</button>
+        <button class="btn-game btn-secondary" style="font-size: 20px; padding: 12px 20px;" onclick="returnToMenu()">Quit Game</button>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    // Generate chessboard squares
-    const board = document.getElementById('board');
-    const pieces = {
-      0: '♜', 1: '♞', 2: '♝', 3: '♛', 4: '♚', 5: '♝', 6: '♞', 7: '♜',
-      8: '♟', 9: '♟', 10: '♟', 11: '♟', 12: '♟', 13: '♟', 14: '♟', 15: '♟',
-      48: '♙', 49: '♙', 50: '♙', 51: '♙', 52: '♙', 53: '♙', 54: '♙', 55: '♙',
-      56: '♖', 57: '♘', 58: '♗', 59: '♕', 60: '♔', 61: '♗', 62: '♘', 63: '♖',
-    };
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const idx = r * 8 + c;
-        const sq = document.createElement('div');
-        sq.className = 'sq ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
-        sq.textContent = pieces[idx] || '';
-        board.appendChild(sq);
-      }
+    // Screen Management
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
     }
 
-    // Inspect CSS Custom properties on body
-    function updateVars() {
-      const style = getComputedStyle(document.body);
-      const headerH = style.getPropertyValue('---site-header-height').trim() || '(default)';
-      const headerM = style.getPropertyValue('---site-header-margin').trim() || '(default)';
-      const stickyG = style.getPropertyValue('---sticky-gap').trim() || '(default)';
-      const blockG = style.getPropertyValue('---block-gap').trim() || '(default)';
-      const boxP = style.getPropertyValue('---box-padding').trim() || '(default)';
-
-      document.getElementById('var-dump').innerHTML = 
-        `---site-header-height: <b style="color:#fff">${headerH}</b><br>` +
-        `---site-header-margin: <b style="color:#fff">${headerM}</b><br>` +
-        `---sticky-gap: <b style="color:#fff">${stickyG}</b><br>` +
-        `---block-gap: <b style="color:#fff">${blockG}</b><br>` +
-        `---box-padding: <b style="color:#fff">${boxP}</b>`;
+    function startGame(mode) {
+      // In a real game, initialize engine/socket here based on mode
+      switchScreen('game-screen');
+      // Small delay to ensure rendering before drawing board (optional, but safe)
+      setTimeout(() => renderBoard('main-board'), 100);
     }
 
-    function toggleTheme() {
-      const isDark = document.documentElement.classList.contains('dark');
-      if (isDark) {
-        document.documentElement.className = 'light';
-        document.body.className = 'theme-light';
+    function returnToMenu() {
+      document.getElementById('pause-menu').classList.remove('active');
+      switchScreen('menu-screen');
+    }
+
+    // Pause Menu
+    function togglePause() {
+      const pm = document.getElementById('pause-menu');
+      if (pm.classList.contains('active')) {
+        pm.classList.remove('active');
       } else {
-        document.documentElement.className = 'dark';
-        document.body.className = 'theme-dark';
-      }
-      updateVars();
-    }
-
-    function toggleHeaderMargin() {
-      document.body.classList.toggle('header-margin');
-      updateVars();
-    }
-
-    // Reload latest compiled CSS files
-    async function refreshCSS() {
-      try {
-        const res = await fetch('/css/');
-        const html = await res.text();
-        const siteMatch = html.match(/site\.[a-f0-9]+\.css/g);
-        const themeMatch = html.match(/lib\.theme\.all\.[a-f0-9]+\.css/g);
-        if (siteMatch) {
-          const latestSite = siteMatch[siteMatch.length - 1];
-          document.getElementById('site-css').href = '/css/' + latestSite + '?t=' + Date.now();
-        }
-        if (themeMatch) {
-          const latestTheme = themeMatch[themeMatch.length - 1];
-          document.getElementById('theme-css').href = '/css/' + latestTheme + '?t=' + Date.now();
-        }
-        setTimeout(updateVars, 200);
-      } catch (e) {
-        location.reload();
+        pm.classList.add('active');
       }
     }
 
-    window.addEventListener('load', () => {
-      refreshCSS();
-      updateVars();
-    });
+    // Audio Toggle Mock
+    let audioOn = true;
+    function toggleAudio() {
+      audioOn = !audioOn;
+      document.getElementById('btn-audio').innerHTML = audioOn ? '🔊' : '🔇';
+    }
+
+    // Render 8x8 Board with SVG piece images
+    function renderBoard(elementId) {
+      const container = document.getElementById(elementId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      // SVG Piece mapping using /piece/cburnett/ directory
+      const pieceMap = {
+        'r': 'bR', 'n': 'bN', 'b': 'bB', 'q': 'bQ', 'k': 'bK', 'p': 'bP',
+        'R': 'wR', 'N': 'wN', 'B': 'wB', 'Q': 'wQ', 'K': 'wK', 'P': 'wP'
+      };
+
+      const defaultBoard = [
+        ['r','n','b','q','k','b','n','r'],
+        ['p','p','p','p','p','p','p','p'],
+        ['.','.','.','.','.','.','.','.'],
+        ['.','.','.','.','.','.','.','.'],
+        ['.','.','.','.','P','.','.','.'],
+        ['.','.','.','.','.','N','.','.'],
+        ['P','P','P','P','.','P','P','P'],
+        ['R','N','B','Q','K','B','.','R']
+      ];
+
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const sq = document.createElement('div');
+          const isLight = (r + c) % 2 === 0;
+          sq.className = 'board-sq ' + (isLight ? 'light' : 'dark');
+
+          const pChar = defaultBoard[r][c];
+          if (pChar !== '.' && pieceMap[pChar]) {
+            const img = document.createElement('img');
+            img.className = 'piece';
+            img.src = '/piece/cburnett/' + pieceMap[pChar] + '.svg';
+            img.alt = pChar;
+            sq.appendChild(img);
+          }
+
+          container.appendChild(sq);
+        }
+      }
+    }
   </script>
 </body>
 </html>
