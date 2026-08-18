@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lichess UI/UX Workbench</title>
+  
+  <!-- Lila CSS Core -->
+  <link id="theme-css" rel="stylesheet" href="/css/lib.theme.all.cf4d47b9.css">
+  <link id="site-css" rel="stylesheet" href="/css/site.f43e7804.css">
+  
+  <style>
+    /* Workbench helper styling */
+    .workbench-bar {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(22, 21, 18, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      padding: 12px 16px;
+      z-index: 9999;
+      color: #bababa;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .workbench-bar h4 {
+      margin: 0;
+      color: #fff;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .workbench-controls {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .wb-btn {
+      background: #363431;
+      color: #ddd;
+      border: 1px solid #504e4a;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .wb-btn:hover {
+      background: #45433f;
+      color: #fff;
+    }
+    .wb-vars {
+      font-family: monospace;
+      font-size: 11px;
+      background: #111;
+      padding: 6px 8px;
+      border-radius: 4px;
+      line-height: 1.4;
+      color: #629924;
+    }
+    .mock-board {
+      width: 440px;
+      height: 440px;
+      background: #b58863;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      border-radius: 3px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .mock-board .sq {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      user-select: none;
+    }
+    .mock-board .sq.light {
+      background: #f0d9b5;
+    }
+    .mock-board .sq.dark {
+      background: #b58863;
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+  <!-- Header -->
+  <header id="top" class="site-header">
+    <div class="site-title-nav">
+      <a href="/" class="site-title" style="font-weight: bold; font-size: 22px; text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px; padding-left: 12px;">
+        <span>♞ lichess<span style="opacity: 0.6; font-weight: normal; font-size: 14px;">.dev UI</span></span>
+      </a>
+      <nav id="topnav" class="hover" style="display: flex; gap: 16px; margin-left: 24px;">
+        <section><a href="#" class="active" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Play</a></section>
+        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Puzzles</a></section>
+        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Learn</a></section>
+        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Watch</a></section>
+        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Community</a></section>
+        <section><a href="#" style="text-decoration: none; color: inherit; padding: 10px 8px; display: inline-block;">Tools</a></section>
+      </nav>
+    </div>
+    <div class="site-buttons" style="display: flex; align-items: center; gap: 10px; padding-right: 16px;">
+      <button class="button button-empty" style="padding: 6px 12px; font-size: 13px;">Sign In</button>
+    </div>
+  </header>
+
+  <!-- Main Content Wrap -->
+  <div id="main-wrap" class="main-wrap is2d">
+    <main class="round">
+      <div class="round__app" style="display: flex; gap: 20px; align-items: flex-start; justify-content: center; padding: 20px 0;">
+        
+        <!-- Board Container -->
+        <div class="round__app__board main-board">
+          <div class="cg-wrap">
+            <div class="mock-board" id="board">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar / Move list / Actions -->
+        <div class="round__app__side" style="width: 320px; display: flex; flex-direction: column; gap: 12px;">
+          <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 16px;">
+            <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 12px;">Live UI Variable Inspector</h3>
+            <p style="font-size: 13px; opacity: 0.8; margin-bottom: 12px;">
+              Values actively loaded from <code>_base.scss</code>:
+            </p>
+            <div class="wb-vars" id="var-dump">
+              Loading variables...
+            </div>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <h3 style="margin: 0 0 8px 0; font-size: 15px;">UI Component Test</h3>
+            <button class="button" style="width: 100%;">Primary Action Button</button>
+            <button class="button button-secondary" style="width: 100%;">Secondary Button</button>
+            <button class="button button-red" style="width: 100%;">Resign / Warning</button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Float Workbench Panel -->
+  <div class="workbench-bar">
+    <h4>
+      <span>⚡ Lila UI Workbench</span>
+      <span style="font-size: 10px; background: #235c2b; color: #a4f5b0; padding: 2px 6px; border-radius: 10px;">Connected</span>
+    </h4>
+    <div class="workbench-controls">
+      <button class="wb-btn" onclick="toggleTheme()">Toggle Theme</button>
+      <button class="wb-btn" onclick="toggleHeaderMargin()">Toggle header-margin</button>
+      <button class="wb-btn" onclick="refreshCSS()">Reload CSS</button>
+    </div>
+    <div style="font-size: 11px; opacity: 0.7;">
+      Watching: <code>ui/lib/css/layout/_base.scss</code>
+    </div>
+  </div>
+
+  <script>
+    // Generate chessboard squares
+    const board = document.getElementById('board');
+    const pieces = {
+      0: '♜', 1: '♞', 2: '♝', 3: '♛', 4: '♚', 5: '♝', 6: '♞', 7: '♜',
+      8: '♟', 9: '♟', 10: '♟', 11: '♟', 12: '♟', 13: '♟', 14: '♟', 15: '♟',
+      48: '♙', 49: '♙', 50: '♙', 51: '♙', 52: '♙', 53: '♙', 54: '♙', 55: '♙',
+      56: '♖', 57: '♘', 58: '♗', 59: '♕', 60: '♔', 61: '♗', 62: '♘', 63: '♖',
+    };
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const idx = r * 8 + c;
+        const sq = document.createElement('div');
+        sq.className = 'sq ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
+        sq.textContent = pieces[idx] || '';
+        board.appendChild(sq);
+      }
+    }
+
+    // Inspect CSS Custom properties on body
+    function updateVars() {
+      const style = getComputedStyle(document.body);
+      const headerH = style.getPropertyValue('---site-header-height').trim() || '(default)';
+      const headerM = style.getPropertyValue('---site-header-margin').trim() || '(default)';
+      const stickyG = style.getPropertyValue('---sticky-gap').trim() || '(default)';
+      const blockG = style.getPropertyValue('---block-gap').trim() || '(default)';
+      const boxP = style.getPropertyValue('---box-padding').trim() || '(default)';
+
+      document.getElementById('var-dump').innerHTML = 
+        `---site-header-height: <b style="color:#fff">${headerH}</b><br>` +
+        `---site-header-margin: <b style="color:#fff">${headerM}</b><br>` +
+        `---sticky-gap: <b style="color:#fff">${stickyG}</b><br>` +
+        `---block-gap: <b style="color:#fff">${blockG}</b><br>` +
+        `---box-padding: <b style="color:#fff">${boxP}</b>`;
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.className = 'light';
+        document.body.className = 'theme-light';
+      } else {
+        document.documentElement.className = 'dark';
+        document.body.className = 'theme-dark';
+      }
+      updateVars();
+    }
+
+    function toggleHeaderMargin() {
+      document.body.classList.toggle('header-margin');
+      updateVars();
+    }
+
+    // Reload latest compiled CSS files
+    async function refreshCSS() {
+      try {
+        const res = await fetch('/css/');
+        const html = await res.text();
+        const siteMatch = html.match(/site\.[a-f0-9]+\.css/g);
+        const themeMatch = html.match(/lib\.theme\.all\.[a-f0-9]+\.css/g);
+        if (siteMatch) {
+          const latestSite = siteMatch[siteMatch.length - 1];
+          document.getElementById('site-css').href = '/css/' + latestSite + '?t=' + Date.now();
+        }
+        if (themeMatch) {
+          const latestTheme = themeMatch[themeMatch.length - 1];
+          document.getElementById('theme-css').href = '/css/' + latestTheme + '?t=' + Date.now();
+        }
+        setTimeout(updateVars, 200);
+      } catch (e) {
+        location.reload();
+      }
+    }
+
+    window.addEventListener('load', () => {
+      refreshCSS();
+      updateVars();
+    });
+  </script>
+</body>
+</html>

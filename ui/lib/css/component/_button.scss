@@ -1,0 +1,178 @@
+.button {
+  @extend %roboto, %box-radius;
+  @include prevent-select;
+  @include transition;
+  @include backdrop-blur-if-transparent;
+
+  font-weight: 500;
+  background: $c-primary;
+  text-transform: uppercase;
+  padding: 0.8em 1em;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  display: inline-block;
+  text-shadow: none;
+
+  @include if-light {
+    text-shadow: none;
+  }
+
+  background: linear-gradient(180deg, hsl(from $c-primary h s calc(l + 5)), $c-primary);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 hsl(from $c-primary h s calc(l + 12));
+  border-radius: 6px;
+
+  &,
+  &:visited,
+  &:focus {
+    color: $c-over;
+  }
+
+  &:not(.disabled):hover {
+    color: $c-over;
+    filter: brightness(1.10);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 1px 0 hsl(from $c-primary h s calc(l + 12));
+  }
+
+  &:not(.disabled):active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2), inset 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  &:not(.disabled):focus-visible {
+    @extend %focus-shadow;
+  }
+
+  &-no-upper {
+    text-transform: none;
+  }
+
+  &-thin {
+    padding: 0.1em 1em;
+    font-size: 90%;
+  }
+
+  &-fat {
+    font-size: 1.6rem;
+  }
+
+  &-green {
+    background: linear-gradient(180deg, hsl(from $c-secondary h s calc(l + 5)), $c-secondary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 hsl(from $c-secondary h s calc(l + 12));
+
+    background: $c-secondary;
+
+    &:not(.disabled):hover {
+      background: hsl(from $c-secondary h s calc(l + 4));
+    }
+  }
+
+  &-red {
+    background: linear-gradient(180deg, hsl(from $c-bad h s calc(l + 5)), $c-bad);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 hsl(from $c-bad h s calc(l + 12));
+    
+    &:not(.disabled):hover {
+      background: linear-gradient(180deg, hsl(from $c-bad h s calc(l + 10)), hsl(from $c-bad h s calc(l + 5)));
+    }
+  }
+
+  &-link {
+    color: $c-link;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: $c-link-hover;
+    }
+  }
+
+  &.button-empty {
+    transition: none;
+    background: none;
+    box-shadow: none;
+
+    @include if-light {
+      box-shadow: none;
+      text-shadow: 0.5px 0.5px 0 rgb(from $c-dimmer r g b / calc(alpha * 0.8));
+    }
+
+    &,
+    &:hover {
+      color: $c-primary;
+    }
+
+    &:not(.disabled):hover {
+      @extend %button-shadow;
+    }
+
+    &,
+    &.button-green,
+    &.button-red {
+      &:not(.disabled):hover {
+        @extend %metal;
+      }
+    }
+
+    &.button-red,
+    &.button-red:hover {
+      color: $c-error;
+    }
+
+    &.button-green,
+    &.button-green:hover {
+      color: $c-secondary;
+    }
+
+    &.button-brag,
+    &.button-brag:hover {
+      color: $c-brag;
+    }
+
+    &.button-dim,
+    &.button-dim:hover {
+      color: $c-font-dim;
+    }
+  }
+
+  &.button-metal {
+    @extend %metal;
+
+    &,
+    &:not(.disabled):hover {
+      color: $c-font;
+    }
+  }
+
+  &.button-inverse {
+    @extend %metal-inverse;
+
+    &:not(.disabled):hover {
+      @extend %metal-inverse-hover;
+    }
+  }
+
+  &.disabled,
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.active {
+    @extend %active;
+
+    color: #fff;
+  }
+
+  &.active:not(.disabled):hover {
+    @extend %active-hover;
+
+    color: #fff;
+  }
+}
+
+.button-set {
+  @extend %flex-center;
+
+  gap: 1.5em;
+}
