@@ -555,9 +555,11 @@
           </div>
 
           <div class="menu-buttons">
-            <button class="btn-game" onclick="startGame('bot')">
-              Play vs Bot
-            </button>
+            <div style="display: flex; gap: 10px; width: 100%;">
+              <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_easy')">Easy Bot</button>
+              <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_medium')">Med Bot</button>
+              <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_hard')">Hard Bot</button>
+            </div>
             <button class="btn-game btn-secondary" onclick="startGame('online')">
               Multiplayer
             </button>
@@ -746,16 +748,42 @@
     }
 
     let game = new Chess();
+    let currentOpponentRating = 1200;
+    let currentGameMode = '';
+
+    function configureEngine(targetElo) {
+      engine.postMessage('setoption name UCI_LimitStrength value true');
+      engine.postMessage('setoption name UCI_Elo value ' + Math.min(2850, Math.max(1350, targetElo)));
+    }
 
     function startGame(mode) {
       game.reset();
       updateMoveHistory();
+      currentGameMode = mode;
       
       if (mode === 'online') {
         startFakeMultiplayer();
-      } else {
-        document.getElementById('opp-name-top').innerText = 'Grandmaster Bot';
-        document.getElementById('opp-rating-top').innerText = 'Level 10';
+      } else if (mode.startsWith('bot_')) {
+        let oppName = 'Bot';
+        let diff = 0;
+        
+        if (mode === 'bot_easy') {
+          oppName = 'Beginner Bot';
+          diff = -200; // Easier than user
+        } else if (mode === 'bot_medium') {
+          oppName = 'Club Bot';
+          diff = 0; // Same as user
+        } else if (mode === 'bot_hard') {
+          oppName = 'Master Bot';
+          diff = +400; // Harder than user
+        }
+        
+        currentOpponentRating = Math.max(800, userProfile.rating + diff);
+        document.getElementById('opp-name-top').innerText = oppName;
+        document.getElementById('opp-rating-top').innerText = currentOpponentRating;
+        
+        configureEngine(currentOpponentRating);
+        
         switchScreen('game-screen');
         setTimeout(() => renderBoard('main-board'), 100);
       }
@@ -774,6 +802,9 @@
         // Generate Opponent
         const oppName = 'Anonymous ' + Math.floor(1000 + Math.random() * 9000);
         const oppRating = userProfile.rating + Math.floor(Math.random() * 100) - 50;
+        currentOpponentRating = oppRating;
+        
+        configureEngine(currentOpponentRating);
         
         // Show Match
         document.getElementById('pairing-status').innerText = 'Match Found!';
@@ -799,12 +830,30 @@
     }
 
     function endFakeGame(result) {
+      const diff = currentOpponentRating - userProfile.rating;
+      let winReward = 25;
+      let lossPenalty = 20;
+      
+      if (currentGameMode === 'bot_easy') {
+        winReward = 10;
+        lossPenalty = 25;
+      } else if (currentGameMode === 'bot_medium') {
+        winReward = 25;
+        lossPenalty = 20;
+      } else if (currentGameMode === 'bot_hard') {
+        winReward = 40;
+        lossPenalty = 10;
+      } else if (currentGameMode === 'online') {
+        winReward = Math.max(10, 25 + Math.floor(diff / 20));
+        lossPenalty = Math.max(10, 20 - Math.floor(diff / 20));
+      }
+
       if (result === 'win') {
-        userProfile.rating += 25;
-        alert('You won! +25 ELO. Your new rating is ' + userProfile.rating);
+        userProfile.rating += winReward;
+        alert(`You won! +${winReward} ELO. Your new rating is ` + userProfile.rating);
       } else if (result === 'loss') {
-        userProfile.rating = Math.max(0, userProfile.rating - 20); // Prevent negative
-        alert('You resigned! -20 ELO. Your new rating is ' + userProfile.rating);
+        userProfile.rating = Math.max(0, userProfile.rating - lossPenalty); // Prevent negative
+        alert(`You resigned or lost! -${lossPenalty} ELO. Your new rating is ` + userProfile.rating);
       }
       
       // Save and re-render
@@ -908,15 +957,55 @@
       return false;
     }
 
+    let engineReady = false;
+    let engine = new Worker('/npm/stockfish.js/stockfish.js');
+    
+    engine.onmessage = function(event) {
+      const line = event.data;
+      if (line === 'uciok') {
+        engineReady = true;
+      } else if (line.startsWith('bestmove')) {
+        const parts = line.split(' ');
+        const moveStr = parts[1]; // e.g. "e2e4"
+        
+        if (moveStr && moveStr !== '(none)') {
+          const source = moveStr.substring(0, 2);
+          const target = moveStr.substring(2, 4);
+          const promotion = moveStr.length > 4 ? moveStr.charAt(4) : 'q';
+          
+          game.move({
+            from: source,
+            to: target,
+            promotion: promotion
+          });
+          
+          renderBoard('main-board');
+          updateMoveHistory();
+          checkGameOver();
+        }
+      }
+    };
+    
+    // Boot up engine
+    engine.postMessage('uci');
+    engine.postMessage('ucinewgame');
+
     function makeBotMove() {
-      const moves = game.moves();
-      if (moves.length === 0) return;
+      if (!engineReady) {
+        setTimeout(makeBotMove, 500);
+        return;
+      }
       
-      const idx = Math.floor(Math.random() * moves.length);
-      game.move(moves[idx]);
-      renderBoard('main-board');
-      updateMoveHistory();
-      checkGameOver();
+      const history = game.history({ verbose: true });
+      let moves = '';
+      if (history.length > 0) {
+        moves = ' moves ' + history.map(m => m.from + m.to + (m.promotion ? m.promotion : '')).join(' ');
+      }
+      
+      engine.postMessage('position startpos' + moves);
+      
+      // Depth 10 provides a strong, fast response (1800+ ELO equivalent)
+      engine.postMessage('go depth 10');
     }
 
     function checkGameOver() {
