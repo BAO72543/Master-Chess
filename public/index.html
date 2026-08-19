@@ -25,6 +25,22 @@
       justify-content: center;
     }
 
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
     /* The Game Container - scales to fit screen but maintains aspect ratio */
     #game-container {
       width: 100vw;
@@ -125,6 +141,7 @@
       flex-direction: column;
       gap: 12px;
       overflow-y: auto;
+      padding-right: 12px; /* Prevent scrollbar sticking */
     }
     .lb-item {
       display: flex;
@@ -146,6 +163,7 @@
       background: rgba(0, 0, 0, 0.3);
       border-radius: 8px;
       margin-bottom: 16px;
+      padding-right: 12px; /* Prevent scrollbar sticking */
     }
     .move-row {
       display: flex;
@@ -247,8 +265,9 @@
       padding: 18px 24px;
       color: #fff;
       font-size: 24px;
-      font-weight: 800;
+      font-weight: 900;
       text-transform: uppercase;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
       cursor: pointer;
       box-shadow: 0 8px 0 #0088cc, 0 15px 20px rgba(0,0,0,0.4);
       transition: all 0.1s ease;
@@ -303,6 +322,56 @@
       box-shadow: 0 0px 0 #0088cc, 0 5px 10px rgba(0,0,0,0.3);
     }
 
+
+    /* Pairing Screen */
+    .pairing-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 60px 40px 40px 40px;
+      border-radius: 20px;
+      border: 2px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+    .pairing-container h2 {
+      color: #fff;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .pairing-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255,255,255,0.2);
+      border-top-color: #4facfe;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    
+    .pairing-match {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+    .match-player {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+      font-weight: bold;
+      gap: 10px;
+    }
+    .match-player .player-avatar {
+      width: 60px; height: 60px; font-size: 32px;
+    }
+    .match-vs {
+      font-size: 24px; color: #ffd700; font-weight: 900; font-style: italic;
+    }
+    .match-rating {
+      color: #ffd700; font-size: 14px;
+    }
 
     /* =========================================
        IN-GAME SCREEN
@@ -497,12 +566,33 @@
 
         <div class="side-panel leaderboard-panel">
           <h3>🏆 Top Players</h3>
-          <div class="leaderboard-list">
-            <div class="lb-item"><span>1. GM Hikaru</span><span class="lb-score">3240</span></div>
-            <div class="lb-item"><span>2. GM Magnus</span><span class="lb-score">3215</span></div>
-            <div class="lb-item"><span>3. IM LevyRozman</span><span class="lb-score">2890</span></div>
-            <div class="lb-item"><span>4. ChessBot9000</span><span class="lb-score">2750</span></div>
-            <div class="lb-item"><span>5. RookieKing</span><span class="lb-score">1850</span></div>
+          <div class="leaderboard-list" id="lb-list-container">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- =========================================
+         PAIRING SCREEN
+         ========================================= -->
+    <div id="pairing-screen" class="screen" style="justify-content: center;">
+      <div class="bg-pieces"></div>
+      <div class="pairing-container">
+        <h2 id="pairing-status">Searching for Opponent...</h2>
+        <div class="pairing-spinner" id="pairing-spinner"></div>
+        <div class="pairing-match" id="pairing-match" style="display: none;">
+          <div class="match-player">
+            <div class="player-avatar">👤</div>
+            <span id="match-user-name">You</span>
+            <span class="match-rating" id="match-user-rating">1200</span>
+          </div>
+          <div class="match-vs">VS</div>
+          <div class="match-player">
+            <div class="player-avatar">🤖</div>
+            <span id="match-opp-name">Opponent</span>
+            <span class="match-rating" id="match-opp-rating">1200</span>
           </div>
         </div>
       </div>
@@ -521,8 +611,8 @@
             <div class="player-hud">
               <div class="player-avatar">🤖</div>
               <div class="player-info">
-                <span class="player-name">Grandmaster Bot</span>
-                <span class="player-score">Level 10</span>
+                <span class="player-name" id="opp-name-top">Grandmaster Bot</span>
+                <span class="player-score" id="opp-rating-top">Level 10</span>
               </div>
             </div>
           </div>
@@ -536,8 +626,8 @@
           <div class="hud-bottom">
             <div class="player-hud">
               <div class="player-info" style="text-align: right;">
-                <span class="player-name">You</span>
-                <span class="player-score">Beginner</span>
+                <span class="player-name" id="user-name-bottom">You</span>
+                <span class="player-score" id="user-rating-bottom">Beginner</span>
               </div>
               <div class="player-avatar">👤</div>
             </div>
@@ -553,8 +643,8 @@
             <div class="move-row"><span class="move-num">4.</span><span class="move-white">c3</span><span class="move-black">Nf6</span></div>
           </div>
           <div class="match-controls">
-            <button class="btn-game btn-secondary" style="font-size: 14px; padding: 10px;">🏳 Resign</button>
-            <button class="btn-game" style="font-size: 14px; padding: 10px;">🤝 Draw</button>
+            <button class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('win')">🏆 Win (Test)</button>
+            <button class="btn-game btn-secondary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('loss')">🏳 Resign</button>
           </div>
         </div>
       </div>
@@ -572,6 +662,83 @@
   </div>
 
   <script>
+    // User Identity & Leaderboard Logic
+    let userProfile = { name: 'Anonymous', rating: 1200 };
+    
+    function initUser() {
+      const stored = localStorage.getItem('chess_user');
+      if (stored) {
+        userProfile = JSON.parse(stored);
+      } else {
+        userProfile.name = 'Anonymous ' + Math.floor(1000 + Math.random() * 9000);
+        userProfile.rating = 1200;
+        localStorage.setItem('chess_user', JSON.stringify(userProfile));
+      }
+      document.getElementById('user-name-bottom').innerText = userProfile.name;
+      document.getElementById('user-rating-bottom').innerText = userProfile.rating;
+      renderLeaderboard();
+    }
+
+    function generateFakePlayers() {
+      const gms = [
+        {name: "GM Magnus", score: 3215},
+        {name: "GM Hikaru", score: 3200},
+        {name: "GM DingLiren", score: 3110},
+        {name: "GM Fabiano", score: 3095},
+        {name: "GM Gukesh", score: 3080},
+        {name: "IM LevyRozman", score: 2890},
+        {name: "ChessBot9000", score: 2750},
+        {name: "RookieKing", score: 1850}
+      ];
+      
+      const list = [...gms];
+      for (let i = 1; i <= 992; i++) {
+        let score = Math.floor(800 + Math.random() * 1400); // 800 to 2200 ELO
+        list.push({
+          name: 'Anonymous ' + Math.floor(1000 + Math.random() * 9000),
+          score: score
+        });
+      }
+      return list;
+    }
+
+    function getLeaderboard() {
+      let stored = localStorage.getItem('chess_leaderboard');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      let players = generateFakePlayers();
+      localStorage.setItem('chess_leaderboard', JSON.stringify(players));
+      return players;
+    }
+
+    function renderLeaderboard() {
+      const lbContainer = document.getElementById('lb-list-container');
+      const allPlayers = getLeaderboard();
+      
+      let list = allPlayers.filter(p => p.name !== userProfile.name);
+      list.push({ name: userProfile.name, score: userProfile.rating, isUser: true });
+      
+      list.sort((a,b) => b.score - a.score);
+      
+      const userRank = list.findIndex(p => p.isUser) + 1;
+      
+      let html = '';
+      const displayCount = Math.min(10, list.length);
+      for (let i = 0; i < displayCount; i++) {
+        const p = list[i];
+        const bg = p.isUser ? 'background: rgba(79, 172, 254, 0.2); border: 1px solid #4facfe;' : '';
+        html += `<div class="lb-item" style="${bg}"><span>${i+1}. ${p.name}</span><span class="lb-score">${p.score}</span></div>`;
+      }
+      
+      if (userRank > 10) {
+        html += `<div style="text-align: center; color: rgba(255,255,255,0.4); font-weight: bold; margin: 4px 0;">...</div>`;
+        html += `<div class="lb-item" style="background: rgba(79, 172, 254, 0.2); border: 1px solid #4facfe;"><span>${userRank}. ${userProfile.name}</span><span class="lb-score">${userProfile.rating}</span></div>`;
+      }
+      
+      lbContainer.innerHTML = html;
+    }
+
     // Screen Management
     function switchScreen(screenId) {
       document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
@@ -579,11 +746,72 @@
     }
 
     function startGame(mode) {
-      // In a real game, initialize engine/socket here based on mode
-      switchScreen('game-screen');
-      // Small delay to ensure rendering before drawing board (optional, but safe)
-      setTimeout(() => renderBoard('main-board'), 100);
+      if (mode === 'online') {
+        startFakeMultiplayer();
+      } else {
+        document.getElementById('opp-name-top').innerText = 'Grandmaster Bot';
+        document.getElementById('opp-rating-top').innerText = 'Level 10';
+        switchScreen('game-screen');
+        setTimeout(() => renderBoard('main-board'), 100);
+      }
     }
+
+    function startFakeMultiplayer() {
+      switchScreen('pairing-screen');
+      
+      // Reset pairing UI
+      document.getElementById('pairing-status').innerText = 'Searching for Opponent...';
+      document.getElementById('pairing-spinner').style.display = 'block';
+      document.getElementById('pairing-match').style.display = 'none';
+
+      // Simulate matchmaking delay
+      setTimeout(() => {
+        // Generate Opponent
+        const oppName = 'Anonymous ' + Math.floor(1000 + Math.random() * 9000);
+        const oppRating = userProfile.rating + Math.floor(Math.random() * 100) - 50;
+        
+        // Show Match
+        document.getElementById('pairing-status').innerText = 'Match Found!';
+        document.getElementById('pairing-spinner').style.display = 'none';
+        document.getElementById('pairing-match').style.display = 'flex';
+        
+        document.getElementById('match-user-name').innerText = userProfile.name;
+        document.getElementById('match-user-rating').innerText = userProfile.rating;
+        document.getElementById('match-opp-name').innerText = oppName;
+        document.getElementById('match-opp-rating').innerText = oppRating;
+        
+        // Set Game HUD
+        document.getElementById('opp-name-top').innerText = oppName;
+        document.getElementById('opp-rating-top').innerText = oppRating;
+
+        // Transition to game
+        setTimeout(() => {
+          switchScreen('game-screen');
+          setTimeout(() => renderBoard('main-board'), 100);
+        }, 2000);
+
+      }, 2000 + Math.random() * 2000); // 2-4 seconds delay
+    }
+
+    function endFakeGame(result) {
+      if (result === 'win') {
+        userProfile.rating += 25;
+        alert('You won! +25 ELO. Your new rating is ' + userProfile.rating);
+      } else if (result === 'loss') {
+        userProfile.rating = Math.max(0, userProfile.rating - 20); // Prevent negative
+        alert('You resigned! -20 ELO. Your new rating is ' + userProfile.rating);
+      }
+      
+      // Save and re-render
+      localStorage.setItem('chess_user', JSON.stringify(userProfile));
+      document.getElementById('user-rating-bottom').innerText = userProfile.rating;
+      renderLeaderboard();
+      
+      returnToMenu();
+    }
+
+    // Initialize on load
+    window.onload = initUser;
 
     function returnToMenu() {
       document.getElementById('pause-menu').classList.remove('active');
