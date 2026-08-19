@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Master Chess HTML5</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   
   <style>
     /* CSS Reset and Font Setup */
@@ -637,10 +638,7 @@
         <div class="side-panel move-history-panel">
           <h3>Move History</h3>
           <div class="move-list">
-            <div class="move-row"><span class="move-num">1.</span><span class="move-white">e4</span><span class="move-black">e5</span></div>
-            <div class="move-row"><span class="move-num">2.</span><span class="move-white">Nf3</span><span class="move-black">Nc6</span></div>
-            <div class="move-row"><span class="move-num">3.</span><span class="move-white">Bc4</span><span class="move-black">Bc5</span></div>
-            <div class="move-row"><span class="move-num">4.</span><span class="move-white">c3</span><span class="move-black">Nf6</span></div>
+            <!-- Rendered via JS -->
           </div>
           <div class="match-controls">
             <button class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('win')">🏆 Win (Test)</button>
@@ -745,7 +743,12 @@
       document.getElementById(screenId).classList.add('active');
     }
 
+    let game = new Chess();
+
     function startGame(mode) {
+      game.reset();
+      updateMoveHistory();
+      
       if (mode === 'online') {
         startFakeMultiplayer();
       } else {
@@ -837,41 +840,125 @@
       document.getElementById('btn-audio').innerHTML = audioOn ? svgAudioOn : svgAudioOff;
     }
 
+    let draggedPieceSq = null;
+
+    function handleDragStart(e, sq) {
+      draggedPieceSq = sq;
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+    }
+
+    function handleDrop(e, targetSq) {
+      e.preventDefault();
+      if (!draggedPieceSq || draggedPieceSq === targetSq) return;
+      
+      const move = game.move({
+        from: draggedPieceSq,
+        to: targetSq,
+        promotion: 'q'
+      });
+
+      if (move) {
+        renderBoard('main-board');
+        updateMoveHistory();
+        checkGameOver();
+        
+        if (!game.game_over()) {
+          setTimeout(makeBotMove, 400);
+        }
+      }
+      draggedPieceSq = null;
+    }
+
+    function makeBotMove() {
+      const moves = game.moves();
+      if (moves.length === 0) return;
+      
+      const idx = Math.floor(Math.random() * moves.length);
+      game.move(moves[idx]);
+      renderBoard('main-board');
+      updateMoveHistory();
+      checkGameOver();
+    }
+
+    function checkGameOver() {
+      if (game.game_over()) {
+        setTimeout(() => {
+          if (game.in_checkmate()) {
+            if (game.turn() === 'w') {
+              endFakeGame('loss'); 
+            } else {
+              endFakeGame('win');
+            }
+          } else {
+            alert('Game Over: Draw');
+            returnToMenu();
+          }
+        }, 500);
+      }
+    }
+
+    function updateMoveHistory() {
+      const histContainer = document.querySelector('.move-list');
+      if (!histContainer) return;
+      
+      const history = game.history();
+      let html = '';
+      for (let i = 0; i < history.length; i += 2) {
+        const moveNum = Math.floor(i / 2) + 1;
+        const wMove = history[i];
+        const bMove = history[i+1] || '';
+        html += `<div class="move-row"><span class="move-num">${moveNum}.</span><span class="move-white">${wMove}</span><span class="move-black">${bMove}</span></div>`;
+      }
+      histContainer.innerHTML = html;
+      histContainer.scrollTop = histContainer.scrollHeight;
+    }
+
     // Render 8x8 Board with SVG piece images
     function renderBoard(elementId) {
       const container = document.getElementById(elementId);
       if (!container) return;
       container.innerHTML = '';
 
-      // SVG Piece mapping using /piece/cburnett/ directory
       const pieceMap = {
         'r': 'bR', 'n': 'bN', 'b': 'bB', 'q': 'bQ', 'k': 'bK', 'p': 'bP',
         'R': 'wR', 'N': 'wN', 'B': 'wB', 'Q': 'wQ', 'K': 'wK', 'P': 'wP'
       };
 
-      const defaultBoard = [
-        ['r','n','b','q','k','b','n','r'],
-        ['p','p','p','p','p','p','p','p'],
-        ['.','.','.','.','.','.','.','.'],
-        ['.','.','.','.','.','.','.','.'],
-        ['.','.','.','.','P','.','.','.'],
-        ['.','.','.','.','.','N','.','.'],
-        ['P','P','P','P','.','P','P','P'],
-        ['R','N','B','Q','K','B','.','R']
-      ];
+      const files = ['a','b','c','d','e','f','g','h'];
+      const boardState = game.board();
 
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
           const sq = document.createElement('div');
           const isLight = (r + c) % 2 === 0;
           sq.className = 'board-sq ' + (isLight ? 'light' : 'dark');
+          
+          const rank = 8 - r;
+          const file = files[c];
+          const sqName = file + rank;
 
-          const pChar = defaultBoard[r][c];
-          if (pChar !== '.' && pieceMap[pChar]) {
+          sq.addEventListener('dragover', handleDragOver);
+          sq.addEventListener('drop', (e) => handleDrop(e, sqName));
+
+          const pObj = boardState[r][c];
+          if (pObj) {
+            const pChar = pObj.color === 'w' ? pObj.type.toUpperCase() : pObj.type;
             const img = document.createElement('img');
             img.className = 'piece';
             img.src = '/piece/cburnett/' + pieceMap[pChar] + '.svg';
             img.alt = pChar;
+            
+            if (pObj.color === 'w') {
+              img.draggable = true;
+              img.addEventListener('dragstart', (e) => handleDragStart(e, sqName));
+              img.style.cursor = 'grab';
+            } else {
+              img.draggable = false;
+            }
+            
             sq.appendChild(img);
           }
 
