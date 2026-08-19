@@ -32,6 +32,7 @@
     "typescript above just to allow manual tsc. ui/.build/package.json's typescript version is the truth"
   ],
   "scripts": {
+    "start": "npx serve public -p 8080",
     "format": "oxfmt",
     "format:scala": "./lila.sh scalafmtAll",
     "check-format": "oxfmt --check",

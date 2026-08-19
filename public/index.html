@@ -472,9 +472,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
     }
     .board-sq.light { background: #ebecd0; }
     .board-sq.dark { background: #739552; }
+    .board-sq.selected { background: #f5f682 !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); }
     
     .board-sq img.piece {
       width: 90%;
@@ -841,9 +843,14 @@
     }
 
     let draggedPieceSq = null;
+    let selectedPieceSq = null;
 
     function handleDragStart(e, sq) {
       draggedPieceSq = sq;
+      if (e.dataTransfer) {
+        e.dataTransfer.setData('text/plain', sq);
+        e.dataTransfer.effectAllowed = 'move';
+      }
     }
 
     function handleDragOver(e) {
@@ -853,10 +860,38 @@
     function handleDrop(e, targetSq) {
       e.preventDefault();
       if (!draggedPieceSq || draggedPieceSq === targetSq) return;
-      
+      attemptMove(draggedPieceSq, targetSq);
+      draggedPieceSq = null;
+      selectedPieceSq = null;
+    }
+
+    function handleSquareClick(sq) {
+      // If a square is already selected, try to move there
+      if (selectedPieceSq) {
+        const success = attemptMove(selectedPieceSq, sq);
+        if (!success && game.get(sq) && game.get(sq).color === 'w') {
+          // If invalid move but clicked another own piece, select it instead
+          selectedPieceSq = sq;
+          renderBoard('main-board');
+        } else {
+          // Valid move or clicked empty space/enemy piece (invalid), deselect
+          selectedPieceSq = null;
+          renderBoard('main-board');
+        }
+      } else {
+        // Select own piece
+        const piece = game.get(sq);
+        if (piece && piece.color === 'w') {
+          selectedPieceSq = sq;
+          renderBoard('main-board');
+        }
+      }
+    }
+
+    function attemptMove(fromSq, toSq) {
       const move = game.move({
-        from: draggedPieceSq,
-        to: targetSq,
+        from: fromSq,
+        to: toSq,
         promotion: 'q'
       });
 
@@ -868,8 +903,9 @@
         if (!game.game_over()) {
           setTimeout(makeBotMove, 400);
         }
+        return true;
       }
-      draggedPieceSq = null;
+      return false;
     }
 
     function makeBotMove() {
@@ -940,8 +976,13 @@
           const file = files[c];
           const sqName = file + rank;
 
+          if (sqName === selectedPieceSq) {
+            sq.classList.add('selected');
+          }
+
           sq.addEventListener('dragover', handleDragOver);
           sq.addEventListener('drop', (e) => handleDrop(e, sqName));
+          sq.addEventListener('click', () => handleSquareClick(sqName));
 
           const pObj = boardState[r][c];
           if (pObj) {
