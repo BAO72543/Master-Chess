@@ -27,14 +27,15 @@
 
     /* The Game Container - scales to fit screen but maintains aspect ratio */
     #game-container {
-      width: 100%;
-      height: 100%;
-      max-width: 800px; /* Typical portrait/square-ish max for mobile/desktop blend */
-      max-height: 1000px;
+      width: 100vw;
+      height: 100vh;
       position: relative;
       background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%);
-      box-shadow: 0 0 50px rgba(0,0,0,0.8);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Screen Management */
@@ -63,8 +64,112 @@
        MAIN MENU SCREEN
        ========================================= */
     #menu-screen {
-      justify-content: center;
       padding: 20px;
+    }
+
+    /* Layout Containers */
+    .screen-content {
+      display: flex;
+      width: 100%;
+      max-width: 1000px;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .main-column {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 600px;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #game-screen .main-column {
+      justify-content: space-between;
+    }
+
+    /* Side Panels */
+    .side-panel {
+      display: none; /* Hidden by default on mobile */
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.45);
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      padding: 24px;
+      width: 320px;
+      height: min(80vh, 600px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      color: #fff;
+      z-index: 10;
+    }
+
+    .side-panel h3 {
+      margin: 0 0 16px 0;
+      font-size: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ffd700;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+    }
+
+    /* Leaderboard Styles */
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+    .lb-item {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .lb-score { color: #4facfe; }
+
+    /* Move History Styles */
+    .move-list {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .move-row {
+      display: flex;
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: monospace;
+      font-size: 16px;
+    }
+    .move-row:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+    .move-num { width: 40px; color: #888; }
+    .move-white { flex: 1; color: #fff; font-weight: bold; }
+    .move-black { flex: 1; color: #aaa; font-weight: bold; }
+
+    .match-controls {
+      display: flex;
+      gap: 10px;
+    }
+    .match-controls .btn-game { flex: 1; }
+
+    /* Show side panels on wide screens */
+    @media (min-width: 900px) {
+      .side-panel {
+        display: flex;
+      }
     }
 
     /* Floating Chess Pieces Background Effect */
@@ -204,7 +309,6 @@
        ========================================= */
     #game-screen {
       padding: 20px;
-      justify-content: space-between;
     }
 
     /* Top HUD */
@@ -282,8 +386,8 @@
 
     /* Board Area */
     .board-wrapper {
-      width: 100%;
-      max-width: 500px;
+      width: min(90vw, 60vh);
+      height: min(90vw, 60vh);
       aspect-ratio: 1/1;
       background: #739552;
       border: 8px solid #3c2a21;
@@ -371,21 +475,36 @@
     <div id="menu-screen" class="screen active">
       <div class="bg-pieces"></div>
       
-      <div class="game-logo">
-        <h1>Master</h1>
-        <span>CHESS</span>
-      </div>
+      <div class="screen-content">
+        <div class="main-column">
+          <div class="game-logo">
+            <h1>Master</h1>
+            <span>CHESS</span>
+          </div>
 
-      <div class="menu-buttons">
-        <button class="btn-game" onclick="startGame('bot')">
-          Play vs Bot
-        </button>
-        <button class="btn-game btn-secondary" onclick="startGame('online')">
-          Multiplayer
-        </button>
-        <button class="btn-game btn-tertiary" onclick="startGame('puzzles')">
-          Puzzles
-        </button>
+          <div class="menu-buttons">
+            <button class="btn-game" onclick="startGame('bot')">
+              Play vs Bot
+            </button>
+            <button class="btn-game btn-secondary" onclick="startGame('online')">
+              Multiplayer
+            </button>
+            <button class="btn-game btn-tertiary" onclick="startGame('puzzles')">
+              Puzzles
+            </button>
+          </div>
+        </div>
+
+        <div class="side-panel leaderboard-panel">
+          <h3>🏆 Top Players</h3>
+          <div class="leaderboard-list">
+            <div class="lb-item"><span>1. GM Hikaru</span><span class="lb-score">3240</span></div>
+            <div class="lb-item"><span>2. GM Magnus</span><span class="lb-score">3215</span></div>
+            <div class="lb-item"><span>3. IM LevyRozman</span><span class="lb-score">2890</span></div>
+            <div class="lb-item"><span>4. ChessBot9000</span><span class="lb-score">2750</span></div>
+            <div class="lb-item"><span>5. RookieKing</span><span class="lb-score">1850</span></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -394,35 +513,51 @@
          IN-GAME SCREEN
          ========================================= -->
     <div id="game-screen" class="screen">
-      
-      <!-- Top HUD (Opponent) -->
-      <div class="hud-top" style="justify-content: flex-start; gap: 15px;">
-        <button class="btn-back" onclick="returnToMenu()">◀ Return</button>
-        <div class="player-hud">
-          <div class="player-avatar">🤖</div>
-          <div class="player-info">
-            <span class="player-name">Grandmaster Bot</span>
-            <span class="player-score">Level 10</span>
+      <div class="screen-content">
+        <div class="main-column">
+          <!-- Top HUD (Opponent) -->
+          <div class="hud-top" style="justify-content: flex-start; gap: 15px;">
+            <button class="btn-back" onclick="returnToMenu()">◀ Return</button>
+            <div class="player-hud">
+              <div class="player-avatar">🤖</div>
+              <div class="player-info">
+                <span class="player-name">Grandmaster Bot</span>
+                <span class="player-score">Level 10</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chess Board -->
+          <div class="board-wrapper" id="main-board">
+            <!-- Rendered via JS -->
+          </div>
+
+          <!-- Bottom HUD (Player) -->
+          <div class="hud-bottom">
+            <div class="player-hud">
+              <div class="player-info" style="text-align: right;">
+                <span class="player-name">You</span>
+                <span class="player-score">Beginner</span>
+              </div>
+              <div class="player-avatar">👤</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-panel move-history-panel">
+          <h3>Move History</h3>
+          <div class="move-list">
+            <div class="move-row"><span class="move-num">1.</span><span class="move-white">e4</span><span class="move-black">e5</span></div>
+            <div class="move-row"><span class="move-num">2.</span><span class="move-white">Nf3</span><span class="move-black">Nc6</span></div>
+            <div class="move-row"><span class="move-num">3.</span><span class="move-white">Bc4</span><span class="move-black">Bc5</span></div>
+            <div class="move-row"><span class="move-num">4.</span><span class="move-white">c3</span><span class="move-black">Nf6</span></div>
+          </div>
+          <div class="match-controls">
+            <button class="btn-game btn-secondary" style="font-size: 14px; padding: 10px;">🏳 Resign</button>
+            <button class="btn-game" style="font-size: 14px; padding: 10px;">🤝 Draw</button>
           </div>
         </div>
       </div>
-
-      <!-- Chess Board -->
-      <div class="board-wrapper" id="main-board">
-        <!-- Rendered via JS -->
-      </div>
-
-      <!-- Bottom HUD (Player) -->
-      <div class="hud-bottom">
-        <div class="player-hud">
-          <div class="player-info" style="text-align: right;">
-            <span class="player-name">You</span>
-            <span class="player-score">Beginner</span>
-          </div>
-          <div class="player-avatar">👤</div>
-        </div>
-      </div>
-
     </div>
 
     <!-- PAUSE MENU OVERLAY -->
