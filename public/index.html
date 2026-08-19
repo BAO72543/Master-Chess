@@ -93,23 +93,31 @@
       text-align: center;
       margin-bottom: 60px;
       animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: rgba(0, 0, 0, 0.45);
+      padding: 24px 48px;
+      border-radius: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
     }
     .game-logo h1 {
       font-size: 64px;
       font-weight: 900;
       color: #fff;
       text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 0 6px 0 #0f4c81, 0 12px 15px rgba(0,0,0,0.5);
+      letter-spacing: 3px;
+      text-shadow: 0 6px 0 #161625, 0 12px 20px rgba(0,0,0,0.8);
       margin: 0;
       line-height: 1;
     }
     .game-logo span {
       display: block;
-      font-size: 24px;
+      font-size: 28px;
+      font-weight: 800;
       color: #ffd700;
-      text-shadow: 0 3px 0 #b38f00, 0 6px 10px rgba(0,0,0,0.4);
-      margin-top: -5px;
+      letter-spacing: 8px;
+      text-shadow: 0 3px 0 #996515, 0 6px 15px rgba(0,0,0,0.6);
+      margin-top: 5px;
     }
 
     @keyframes bounceIn {
@@ -173,20 +181,21 @@
       right: 20px;
       width: 50px;
       height: 50px;
-      background: rgba(255,255,255,0.2);
+      background: #4facfe;
       border: 3px solid #fff;
-      border-radius: 50%;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       z-index: 20;
-      font-size: 24px;
-      box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+      color: #fff;
+      box-shadow: 0 5px 0 #0088cc, 0 10px 10px rgba(0,0,0,0.3);
+      transition: all 0.1s ease;
     }
     .audio-toggle:active {
-      transform: translateY(4px);
-      box-shadow: 0 0px 0 rgba(0,0,0,0.2);
+      transform: translateY(5px);
+      box-shadow: 0 0px 0 #0088cc, 0 5px 10px rgba(0,0,0,0.3);
     }
 
 
@@ -208,23 +217,29 @@
     }
 
     .btn-pause {
-      background: #ff4757;
-      border: 3px solid #fff;
-      border-radius: 12px;
-      width: 50px;
-      height: 50px;
+      display: none; /* Hide pause button from main screen layout */
+    }
+
+    .btn-back {
+      background: linear-gradient(to bottom, #747d8c 0%, #2f3542 100%) !important;
+      box-shadow: 0 4px 0 #1e222b, 0 8px 10px rgba(0,0,0,0.3) !important;
+      padding: 8px 14px !important;
+      font-size: 14px !important;
+      font-weight: 800;
+      text-transform: uppercase;
+      border-radius: 12px !important;
+      border: 3px solid #fff !important;
+      margin: 0;
+      color: #fff;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 5px 0 #c0392b, 0 10px 10px rgba(0,0,0,0.3);
+      transition: all 0.1s ease;
     }
-    .btn-pause:active {
-      transform: translateY(5px);
-      box-shadow: 0 0px 0 #c0392b, 0 5px 10px rgba(0,0,0,0.3);
+    .btn-back:active {
+      transform: translateY(4px) !important;
+      box-shadow: 0 0px 0 #1e222b, 0 4px 5px rgba(0,0,0,0.3) !important;
     }
 
     .player-hud {
@@ -232,33 +247,37 @@
       align-items: center;
       background: rgba(0,0,0,0.5);
       border-radius: 30px;
-      padding: 5px 15px 5px 5px;
+      padding: 6px 16px;
       border: 2px solid rgba(255,255,255,0.2);
-      gap: 10px;
+      gap: 12px;
+      height: 52px;
     }
     .player-avatar {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       background: #fff;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 20px;
     }
     .player-info {
       display: flex;
       flex-direction: column;
+      justify-content: center;
     }
     .player-name {
       color: #fff;
       font-size: 14px;
       font-weight: bold;
+      line-height: 1.2;
     }
     .player-score {
       color: #ffd700;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
+      line-height: 1.2;
     }
 
     /* Board Area */
@@ -342,7 +361,9 @@
   <div id="game-container">
     
     <!-- AUDIO TOGGLE -->
-    <div class="audio-toggle" id="btn-audio" onclick="toggleAudio()">🔊</div>
+    <div class="audio-toggle" id="btn-audio" onclick="toggleAudio()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+    </div>
 
     <!-- =========================================
          MAIN MENU SCREEN
@@ -357,13 +378,13 @@
 
       <div class="menu-buttons">
         <button class="btn-game" onclick="startGame('bot')">
-          <span>🤖</span> Play vs Bot
+          Play vs Bot
         </button>
         <button class="btn-game btn-secondary" onclick="startGame('online')">
-          <span>🌍</span> Multiplayer
+          Multiplayer
         </button>
         <button class="btn-game btn-tertiary" onclick="startGame('puzzles')">
-          <span>🧩</span> Puzzles
+          Puzzles
         </button>
       </div>
     </div>
@@ -375,7 +396,8 @@
     <div id="game-screen" class="screen">
       
       <!-- Top HUD (Opponent) -->
-      <div class="hud-top">
+      <div class="hud-top" style="justify-content: flex-start; gap: 15px;">
+        <button class="btn-back" onclick="returnToMenu()">◀ Return</button>
         <div class="player-hud">
           <div class="player-avatar">🤖</div>
           <div class="player-info">
@@ -383,7 +405,6 @@
             <span class="player-score">Level 10</span>
           </div>
         </div>
-        <button class="btn-pause" onclick="togglePause()">II</button>
       </div>
 
       <!-- Chess Board -->
@@ -445,10 +466,12 @@
     }
 
     // Audio Toggle Mock
+    const svgAudioOn = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+    const svgAudioOff = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
     let audioOn = true;
     function toggleAudio() {
       audioOn = !audioOn;
-      document.getElementById('btn-audio').innerHTML = audioOn ? '🔊' : '🔇';
+      document.getElementById('btn-audio').innerHTML = audioOn ? svgAudioOn : svgAudioOff;
     }
 
     // Render 8x8 Board with SVG piece images

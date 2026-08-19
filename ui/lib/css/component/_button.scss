@@ -5,7 +5,6 @@
   @include backdrop-blur-if-transparent;
 
   font-weight: 500;
-  background: $c-primary;
   text-transform: uppercase;
   padding: 0.8em 1em;
   border: none;
@@ -19,7 +18,9 @@
   }
 
   background: linear-gradient(180deg, hsl(from $c-primary h s calc(l + 5)), $c-primary);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 hsl(from $c-primary h s calc(l + 12));
+  box-shadow:
+    0 2px 4px rgb(0 0 0 / 0.2),
+    inset 0 1px 0 hsl(from $c-primary h s calc(l + 12));
   border-radius: 6px;
 
   &,
@@ -30,14 +31,18 @@
 
   &:not(.disabled):hover {
     color: $c-over;
-    filter: brightness(1.10);
+    filter: brightness(1.1);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 1px 0 hsl(from $c-primary h s calc(l + 12));
+    box-shadow:
+      0 4px 8px rgb(0 0 0 / 0.3),
+      inset 0 1px 0 hsl(from $c-primary h s calc(l + 12));
   }
 
   &:not(.disabled):active {
     transform: translateY(1px);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.2), inset 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.2),
+      inset 0 2px 4px rgb(0 0 0 / 0.2);
   }
 
   &:not(.disabled):focus-visible {
@@ -58,9 +63,9 @@
   }
 
   &-green {
-    background: linear-gradient(180deg, hsl(from $c-secondary h s calc(l + 5)), $c-secondary);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 hsl(from $c-secondary h s calc(l + 12));
-
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 0.2),
+      inset 0 1px 0 hsl(from $c-secondary h s calc(l + 12));
     background: $c-secondary;
 
     &:not(.disabled):hover {
@@ -70,10 +75,16 @@
 
   &-red {
     background: linear-gradient(180deg, hsl(from $c-bad h s calc(l + 5)), $c-bad);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 hsl(from $c-bad h s calc(l + 12));
-    
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 0.2),
+      inset 0 1px 0 hsl(from $c-bad h s calc(l + 12));
+
     &:not(.disabled):hover {
-      background: linear-gradient(180deg, hsl(from $c-bad h s calc(l + 10)), hsl(from $c-bad h s calc(l + 5)));
+      background: linear-gradient(
+        180deg,
+        hsl(from $c-bad h s calc(l + 10)),
+        hsl(from $c-bad h s calc(l + 5))
+      );
     }
   }
 
