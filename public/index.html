@@ -220,6 +220,42 @@
       }
     }
 
+    /* Mobile HUD scaling */
+    @media (max-width: 600px) {
+      .player-hud {
+        padding: 4px 8px;
+        gap: 6px;
+        height: 42px;
+      }
+      .player-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+        line-height: 28px;
+      }
+      .player-name {
+        font-size: 13px;
+      }
+      .player-score {
+        font-size: 10px;
+      }
+      .btn-back {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+      }
+      .game-timer {
+        font-size: 16px !important;
+        padding: 4px 8px !important;
+        min-width: 50px !important;
+      }
+      .hud-top {
+        gap: 6px !important;
+      }
+      .hud-bottom {
+        gap: 6px !important;
+      }
+    }
+
     /* Floating Chess Pieces Background Effect */
     .bg-pieces {
       position: absolute;
@@ -333,29 +369,6 @@
       box-shadow: 0 0px 0 #28b463, 0 5px 10px rgba(0,0,0,0.4);
     }
 
-    /* Audio Toggle */
-    .audio-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      background: #4facfe;
-      border: 3px solid #fff;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 20;
-      color: #fff;
-      box-shadow: 0 5px 0 #0088cc, 0 10px 10px rgba(0,0,0,0.3);
-      transition: all 0.1s ease;
-    }
-    .audio-toggle:active {
-      transform: translateY(5px);
-      box-shadow: 0 0px 0 #0088cc, 0 5px 10px rgba(0,0,0,0.3);
-    }
 
 
     /* Pairing Screen */
@@ -472,23 +485,35 @@
       align-items: center;
       justify-content: center;
       font-size: 20px;
+      flex-shrink: 0;
     }
     .player-info {
       display: flex;
       flex-direction: column;
       justify-content: center;
+      min-width: 0;
     }
     .player-name {
       color: #fff;
-      font-size: 14px;
       font-weight: bold;
-      line-height: 1.2;
+      font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .player-score {
       color: #ffd700;
-      font-size: 11px;
-      font-weight: 800;
-      line-height: 1.2;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @media (max-width: 480px) {
+      .player-hud { padding: 4px 10px; gap: 8px; }
+      .player-avatar { width: 30px; height: 30px; font-size: 16px; }
+      .player-name { font-size: 12px; }
+      .player-score { font-size: 10px; }
     }
 
     /* Board Area */
@@ -633,10 +658,6 @@
 
   <div id="game-container">
     
-    <!-- AUDIO TOGGLE -->
-    <div class="audio-toggle" id="btn-audio" onclick="toggleAudio()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-    </div>
 
     <!-- =========================================
          MAIN MENU SCREEN
@@ -657,14 +678,17 @@
               <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_medium')">Med Bot</button>
               <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_hard')">Hard Bot</button>
             </div>
-            <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle" onclick="toggleBulletMode()">
-              Speed Mode: OFF
-            </button>
             <button class="btn-game btn-secondary" onclick="startGame('online')">
               Multiplayer
             </button>
             <button class="btn-game btn-tertiary" onclick="startGame('puzzles')">
               Puzzles
+            </button>
+            <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle" onclick="toggleBulletMode()">
+              Speed Mode: OFF
+            </button>
+            <button id="btn-audio-menu" class="btn-game" style="background: linear-gradient(to bottom, #bdc3c7 0%, #95a5a6 100%); box-shadow: 0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4);" onclick="toggleAudio()">
+              Sound: ON
             </button>
           </div>
         </div>
@@ -747,6 +771,7 @@
             <!-- Rendered via JS -->
           </div>
           <div class="match-controls">
+            <button id="btn-audio-game" class="btn-game" style="background: linear-gradient(to bottom, #bdc3c7 0%, #95a5a6 100%); font-size: 14px; padding: 10px; box-shadow: 0 4px 0 #5f6a6b, 0 8px 10px rgba(0,0,0,0.3);" onclick="toggleAudio()">Sound: ON</button>
             <button class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('win')">🏆 Win (Test)</button>
             <button class="btn-game btn-secondary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('loss')">🏳 Resign</button>
           </div>
@@ -831,6 +856,55 @@
       gain.connect(audioCtx.destination);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    function playConfettiPop() {
+      if (!audioOn) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const t = audioCtx.currentTime;
+      
+      // 1. The "POP" (fast downward sweep)
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, t);
+      osc.frequency.exponentialRampToValueAtTime(40, t + 0.15);
+      
+      oscGain.gain.setValueAtTime(1, t);
+      oscGain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+      
+      osc.connect(oscGain);
+      oscGain.connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.2);
+      
+      // 2. The "PAPER RUSTLE" (Filtered white noise burst)
+      const bufferSize = audioCtx.sampleRate * 1.5; 
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      
+      const noiseSource = audioCtx.createBufferSource();
+      noiseSource.buffer = buffer;
+      
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 1200;
+      filter.Q.value = 0.5;
+      
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(1, t);
+      noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 1.2);
+      
+      noiseSource.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      
+      noiseSource.start(t);
+      noiseSource.stop(t + 1.5);
     }
 
     // Bind click sound to all buttons and selectors globally
@@ -1080,6 +1154,14 @@
       engine.postMessage('setoption name UCI_Elo value ' + Math.min(2850, Math.max(1350, targetElo)));
     }
 
+    const puzzleList = [
+      { fen: "6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1", moves: ["e1e8"] },
+      { fen: "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4", moves: ["h5f7"] },
+      { fen: "r1b1k2r/pppp1ppp/8/4n3/1bPq4/P7/1P1BPPPP/RN1QKB1R b KQkq - 0 1", moves: ["e5d3", "e2d3", "b4d2", "d1d2"] }
+    ];
+    let currentPuzzle = null;
+    let puzzleMoveIndex = 0;
+
     function startGame(mode) {
       game.reset();
       lastMoveSqs = [];
@@ -1087,6 +1169,21 @@
       lastActiveGameMode = mode;
       updateMoveHistory();
       currentGameMode = mode;
+      currentPuzzle = null;
+      
+      if (mode === 'puzzles') {
+        const randPuzzle = puzzleList[Math.floor(Math.random() * puzzleList.length)];
+        currentPuzzle = randPuzzle;
+        puzzleMoveIndex = 0;
+        game.load(randPuzzle.fen);
+        document.getElementById('opp-name-top').innerText = 'Puzzle Trainer';
+        document.getElementById('opp-rating-top').innerText = 'Tactics';
+        switchScreen('game-screen');
+        setTimeout(() => renderBoard('main-board'), 100);
+        document.getElementById('opp-timer').style.display = 'none';
+        document.getElementById('user-timer').style.display = 'none';
+        return;
+      }
       
       if (mode === 'online') {
         startFakeMultiplayer();
@@ -1229,12 +1326,33 @@
       modal.style.display = 'flex';
       
       if (result === 'win' && typeof confetti !== 'undefined') {
-        confetti({
-          particleCount: 150,
-          spread: 80,
-          origin: { y: 0.6 },
-          colors: ['#ffd700', '#ff4757', '#00f2fe', '#38f9d7']
-        });
+        const duration = 3000;
+        const end = Date.now() + duration;
+
+        (function frame() {
+          confetti({
+            particleCount: 8,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: 0.6 },
+            colors: ['#ffd700', '#ff4757', '#00f2fe', '#38f9d7'],
+            zIndex: 10000
+          });
+          confetti({
+            particleCount: 8,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: 0.6 },
+            colors: ['#ffd700', '#ff4757', '#00f2fe', '#38f9d7'],
+            zIndex: 10000
+          });
+
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        }());
+        
+        playConfettiPop();
       }
       
       // Animate ELO
@@ -1291,13 +1409,13 @@
       }
     }
 
-    // Audio Toggle Mock
-    const svgAudioOn = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
-    const svgAudioOff = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
     let audioOn = true;
     function toggleAudio() {
       audioOn = !audioOn;
-      document.getElementById('btn-audio').innerHTML = audioOn ? svgAudioOn : svgAudioOff;
+      const btnMenu = document.getElementById('btn-audio-menu');
+      if(btnMenu) btnMenu.innerText = audioOn ? 'Sound: ON' : 'Sound: OFF';
+      const btnGame = document.getElementById('btn-audio-game');
+      if(btnGame) btnGame.innerText = audioOn ? 'Sound: ON' : 'Sound: OFF';
     }
 
     let selectedPieceSq = null;
@@ -1323,6 +1441,59 @@
     }
 
     function attemptMove(fromSq, toSq) {
+      if (currentPuzzle) {
+        const attemptStr = fromSq + toSq;
+        const expectedMoveStr = currentPuzzle.moves[puzzleMoveIndex];
+        
+        if (expectedMoveStr && expectedMoveStr.startsWith(attemptStr)) {
+          const move = game.move({ from: fromSq, to: toSq, promotion: 'q' });
+          if (move) {
+            puzzleMoveIndex++;
+            lastMoveSqs = [fromSq, toSq];
+            renderBoard('main-board');
+            updateMoveHistory();
+            if (audioOn && typeof audioMove !== 'undefined') {
+               audioMove.currentTime = 0;
+               audioMove.play().catch(e=>console.log(e));
+            }
+            if (puzzleMoveIndex >= currentPuzzle.moves.length) {
+              setTimeout(() => endFakeGame('win'), 500);
+            } else {
+              // Bot's forced reply
+              setTimeout(() => {
+                const replyStr = currentPuzzle.moves[puzzleMoveIndex];
+                const rFrom = replyStr.substring(0, 2);
+                const rTo = replyStr.substring(2, 4);
+                game.move({ from: rFrom, to: rTo, promotion: 'q' });
+                puzzleMoveIndex++;
+                lastMoveSqs = [rFrom, rTo];
+                renderBoard('main-board');
+                updateMoveHistory();
+                if (audioOn && typeof audioMove !== 'undefined') {
+                   audioMove.currentTime = 0;
+                   audioMove.play().catch(e=>console.log(e));
+                }
+                if (puzzleMoveIndex >= currentPuzzle.moves.length) {
+                  setTimeout(() => endFakeGame('win'), 500);
+                }
+              }, 400);
+            }
+            return true;
+          }
+        }
+        
+        // Prevent shake if user is just selecting another piece of their own color
+        const targetPiece = game.get(toSq);
+        if (targetPiece && targetPiece.color === game.get(fromSq).color) {
+          return false;
+        }
+        
+        // Incorrect move
+        const b = document.getElementById('main-board');
+        if(b) { b.classList.remove('board-shake'); void b.offsetWidth; b.classList.add('board-shake'); }
+        return false;
+      }
+
       let isCapture = false;
       const targetPiece = game.get(toSq);
       if (targetPiece && targetPiece.color !== game.get(fromSq).color) {
