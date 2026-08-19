@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Master Chess HTML5</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   
   <style>
     /* CSS Reset and Font Setup */
@@ -75,6 +76,34 @@
       opacity: 1;
       pointer-events: auto;
       transform: scale(1);
+    }
+
+    .screen.zoom-out-fade {
+      opacity: 0 !important;
+      transform: scale(1.5) !important;
+      transition: opacity 0.5s ease, transform 0.5s ease !important;
+    }
+
+    .btn-bullet-toggle {
+      background: linear-gradient(to bottom, #7f8c8d 0%, #95a5a6 100%);
+      box-shadow: 0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4);
+    }
+    .btn-bullet-toggle.active {
+      background: linear-gradient(to bottom, #ff4757 0%, #ff6b81 100%) !important;
+      box-shadow: 0 8px 0 #cf2a2a, 0 15px 20px rgba(255, 71, 87, 0.4) !important;
+      animation: pulseGlow 1.5s infinite alternate;
+    }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 8px 0 #cf2a2a, 0 15px 20px rgba(255, 71, 87, 0.4); }
+      100% { box-shadow: 0 8px 0 #cf2a2a, 0 15px 30px rgba(255, 71, 87, 0.8); }
+    }
+
+    .pulse {
+      animation: pulseAnim 1s infinite alternate;
+    }
+    @keyframes pulseAnim {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
     }
 
     /* =========================================
@@ -278,8 +307,13 @@
       gap: 12px;
     }
 
+    .btn-game:hover {
+      transform: translateY(-2px) scale(1.02);
+      filter: brightness(1.15);
+    }
+
     .btn-game:active {
-      transform: translateY(8px);
+      transform: translateY(8px) scale(1) !important;
       box-shadow: 0 0px 0 #0088cc, 0 5px 10px rgba(0,0,0,0.4);
     }
 
@@ -623,6 +657,9 @@
               <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_medium')">Med Bot</button>
               <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_hard')">Hard Bot</button>
             </div>
+            <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle" onclick="toggleBulletMode()">
+              Speed Mode: OFF
+            </button>
             <button class="btn-game btn-secondary" onclick="startGame('online')">
               Multiplayer
             </button>
@@ -674,15 +711,16 @@
       <div class="screen-content">
         <div class="main-column">
           <!-- Top HUD (Opponent) -->
-          <div class="hud-top" style="justify-content: flex-start; gap: 15px;">
+          <div class="hud-top" style="justify-content: flex-start; gap: 15px; width: 100%;">
             <button class="btn-back" onclick="returnToMenu()">◀ Return</button>
-            <div class="player-hud">
+            <div class="player-hud" style="flex-grow: 1;">
               <div class="player-avatar">🤖</div>
               <div class="player-info">
                 <span class="player-name" id="opp-name-top">Grandmaster Bot</span>
                 <span class="player-score" id="opp-rating-top">Level 10</span>
               </div>
             </div>
+            <div id="opp-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 12px; color: #ff4757; font-family: monospace; font-size: 24px; font-weight: 900; border: 2px solid #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.5); min-width: 80px; text-align: center;">01:00</div>
           </div>
 
           <!-- Chess Board -->
@@ -691,8 +729,9 @@
           </div>
 
           <!-- Bottom HUD (Player) -->
-          <div class="hud-bottom">
-            <div class="player-hud">
+          <div class="hud-bottom" style="width: 100%; display: flex; justify-content: flex-end; gap: 15px;">
+            <div id="user-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 12px; color: #38f9d7; font-family: monospace; font-size: 24px; font-weight: 900; border: 2px solid #38f9d7; text-shadow: 0 0 10px rgba(56,249,215,0.5); min-width: 80px; text-align: center;">01:00</div>
+            <div class="player-hud" style="flex-grow: 1; max-width: max-content;">
               <div class="player-info" style="text-align: right;">
                 <span class="player-name" id="user-name-bottom">You</span>
                 <span class="player-score" id="user-rating-bottom">Beginner</span>
@@ -726,14 +765,15 @@
 
     <!-- ENDGAME MODAL -->
     <div id="endgame-modal" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:200; flex-direction:column; align-items:center; justify-content:center;">
-      <div style="background: #2e2e4f; border: 4px solid #fff; border-radius: 20px; padding: 40px; text-align: center; width: 80%; max-width: 400px; box-shadow: 0 0 50px rgba(0,0,0,0.8);">
-        <h2 id="endgame-title" style="color: #ffd700; font-size: 40px; margin-bottom: 20px; text-transform: uppercase;">VICTORY</h2>
+      <div style="background: #191930; border: 4px solid rgba(255,255,255,0.8); border-radius: 20px; padding: 40px; text-align: center; width: 80%; max-width: 400px; box-shadow: 0 0 50px rgba(0,0,0,0.9);">
+        <h2 id="endgame-title" style="color: #ffd700; font-size: 40px; margin-bottom: 20px; text-transform: uppercase; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">VICTORY</h2>
         <div style="margin-bottom: 30px;">
-          <div style="color: #fff; font-size: 18px; margin-bottom: 10px;">Rating</div>
-          <div id="endgame-elo" style="color: #4facfe; font-size: 48px; font-weight: 900; font-family: monospace;">1200</div>
-          <div id="endgame-diff" style="color: #38f9d7; font-size: 20px; font-weight: bold; margin-top: 5px;">+25</div>
+          <div style="color: #e2e8f0; font-size: 18px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.6); margin-bottom: 10px;">Rating</div>
+          <div id="endgame-elo" style="color: #4facfe; font-size: 48px; font-weight: 900; font-family: monospace; text-shadow: 0 4px 10px rgba(0,0,0,0.6);">1200</div>
+          <div id="endgame-diff" style="color: #38f9d7; font-size: 20px; font-weight: bold; margin-top: 5px; text-shadow: 0 2px 6px rgba(0,0,0,0.5);">+25</div>
         </div>
-        <button class="btn-game" style="font-size: 20px; padding: 12px 30px; width: 100%;" onclick="closeEndgameModal()">Continue</button>
+        <button id="btn-rematch" class="btn-game btn-tertiary pulse" style="font-size: 20px; padding: 12px 30px; width: 100%; margin-bottom: 20px; display: none;" onclick="rematchGame()">Play Again</button>
+        <button class="btn-game" style="font-size: 20px; padding: 12px 30px; width: 100%;" onclick="closeEndgameModal()">Main Menu</button>
       </div>
     </div>
 
@@ -761,6 +801,87 @@
       osc.stop(audioCtx.currentTime + 0.05);
     }
 
+    function playBuzzer() {
+      if (!audioOn) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.5);
+    }
+
+    // Synthesized Crisp Button Click Sound
+    function playClickSound() {
+      if (!audioOn) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    // Bind click sound to all buttons and selectors globally
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.classList.contains('audio-toggle')) {
+        playClickSound();
+      }
+    });
+
+    // Unblock & trigger TTS on first click
+    document.addEventListener('click', () => {
+      if (window.speechSynthesis && window.speechSynthesis.speak) {
+        const u = new SpeechSynthesisUtterance('');
+        window.speechSynthesis.speak(u);
+      }
+    }, { once: true });
+
+    let lastHeartbeatTime = 0;
+    function playHeartbeat() {
+      if (!audioOn) return;
+      const now = Date.now();
+      if (now - lastHeartbeatTime < 1000) return;
+      lastHeartbeatTime = now;
+      
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc1 = audioCtx.createOscillator();
+      const gain1 = audioCtx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(65, audioCtx.currentTime);
+      gain1.gain.setValueAtTime(0.9, audioCtx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+      osc1.connect(gain1);
+      gain1.connect(audioCtx.destination);
+      osc1.start();
+      osc1.stop(audioCtx.currentTime + 0.18);
+      
+      setTimeout(() => {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(55, audioCtx.currentTime);
+        gain2.gain.setValueAtTime(0.7, audioCtx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.start();
+        osc2.stop(audioCtx.currentTime + 0.18);
+      }, 150);
+    }
+
     // Streak Manager
     let currentStreak = 0;
     function handleCaptureStreak(isCapture) {
@@ -775,14 +896,38 @@
         if (msg && window.speechSynthesis) {
           window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(msg);
-          utterance.pitch = 0.5; // low pitch
-          utterance.rate = 1.2;  // fast
+          utterance.rate = 1.0;
           utterance.volume = 1.0;
+          if (window.speechSynthesis.getVoices) {
+            const voices = window.speechSynthesis.getVoices();
+            const maleVoice = voices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('uk english male') || v.name.toLowerCase().includes('david'));
+            if (maleVoice) utterance.voice = maleVoice;
+          }
           window.speechSynthesis.speak(utterance);
         }
       } else {
         currentStreak = 0;
       }
+    }
+
+    // Speed / Bullet Mode Variables
+    let bulletModeActive = false;
+    let userTimeLeft = 60;
+    let oppTimeLeft = 60;
+    let clockInterval = null;
+    let lastActiveGameMode = '';
+
+    function toggleBulletMode() {
+      bulletModeActive = !bulletModeActive;
+      const btn = document.getElementById('btn-bullet-toggle');
+      if (bulletModeActive) {
+        btn.classList.add('active');
+        btn.innerText = 'Speed Mode: ON';
+      } else {
+        btn.classList.remove('active');
+        btn.innerText = 'Speed Mode: OFF';
+      }
+      playTick();
     }
 
     // User Identity & Leaderboard Logic
@@ -868,6 +1013,64 @@
       document.getElementById(screenId).classList.add('active');
     }
 
+    function initClocks() {
+      clearInterval(clockInterval);
+      document.getElementById('opp-timer').style.display = bulletModeActive ? 'block' : 'none';
+      document.getElementById('user-timer').style.display = bulletModeActive ? 'block' : 'none';
+      
+      if (!bulletModeActive) return;
+      
+      userTimeLeft = 60;
+      oppTimeLeft = 60;
+      updateClockDisplay();
+      startClocks();
+    }
+
+    function startClocks() {
+      clearInterval(clockInterval);
+      clockInterval = setInterval(() => {
+        if (game.game_over()) {
+          clearInterval(clockInterval);
+          return;
+        }
+        if (game.turn() === 'w') {
+          userTimeLeft--;
+          if (userTimeLeft <= 10 && userTimeLeft > 0) {
+            playHeartbeat();
+          }
+          if (userTimeLeft <= 0) {
+            clearInterval(clockInterval);
+            endFakeGame('loss');
+          }
+        } else {
+          oppTimeLeft--;
+          if (oppTimeLeft <= 0) {
+            clearInterval(clockInterval);
+            endFakeGame('win');
+          }
+        }
+        updateClockDisplay();
+      }, 1000);
+    }
+
+    function updateClockDisplay() {
+      const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+      };
+      document.getElementById('user-timer').innerText = formatTime(userTimeLeft);
+      document.getElementById('opp-timer').innerText = formatTime(oppTimeLeft);
+      
+      document.getElementById('user-timer').style.borderColor = userTimeLeft <= 10 ? '#ff4757' : '#38f9d7';
+      document.getElementById('user-timer').style.color = userTimeLeft <= 10 ? '#ff4757' : '#38f9d7';
+      if (userTimeLeft <= 10) {
+         document.getElementById('user-timer').style.textShadow = '0 0 10px rgba(255,71,87,0.8)';
+      } else {
+         document.getElementById('user-timer').style.textShadow = '0 0 10px rgba(56,249,215,0.5)';
+      }
+    }
+
     let game = new Chess();
     let currentOpponentRating = 1200;
     let currentGameMode = '';
@@ -881,7 +1084,7 @@
       game.reset();
       lastMoveSqs = [];
       selectedPieceSq = null;
-      draggedPieceSq = null;
+      lastActiveGameMode = mode;
       updateMoveHistory();
       currentGameMode = mode;
       
@@ -893,13 +1096,13 @@
         
         if (mode === 'bot_easy') {
           oppName = 'Beginner Bot';
-          diff = -200; // Easier than user
+          diff = -200;
         } else if (mode === 'bot_medium') {
           oppName = 'Club Bot';
-          diff = 0; // Same as user
+          diff = 0;
         } else if (mode === 'bot_hard') {
           oppName = 'Master Bot';
-          diff = +400; // Harder than user
+          diff = +400;
         }
         
         currentOpponentRating = Math.max(800, userProfile.rating + diff);
@@ -910,27 +1113,26 @@
         
         switchScreen('game-screen');
         setTimeout(() => renderBoard('main-board'), 100);
+        initClocks();
       }
     }
 
     function startFakeMultiplayer() {
+      document.getElementById('pairing-screen').classList.remove('zoom-out-fade');
       switchScreen('pairing-screen');
       
-      // Reset pairing UI
       document.getElementById('pairing-status').innerText = 'Searching for Opponent...';
       document.getElementById('pairing-spinner').style.display = 'block';
       document.getElementById('pairing-match').style.display = 'none';
 
-      // Simulate matchmaking delay
+      // 1.0 seconds search
       setTimeout(() => {
-        // Generate Opponent
         const oppName = 'Anonymous ' + Math.floor(1000 + Math.random() * 9000);
         const oppRating = userProfile.rating + Math.floor(Math.random() * 100) - 50;
         currentOpponentRating = oppRating;
         
         configureEngine(currentOpponentRating);
         
-        // Show Match
         document.getElementById('pairing-status').innerText = 'Match Found!';
         document.getElementById('pairing-spinner').style.display = 'none';
         document.getElementById('pairing-match').style.display = 'flex';
@@ -940,17 +1142,24 @@
         document.getElementById('match-opp-name').innerText = oppName;
         document.getElementById('match-opp-rating').innerText = oppRating;
         
-        // Set Game HUD
         document.getElementById('opp-name-top').innerText = oppName;
         document.getElementById('opp-rating-top').innerText = oppRating;
 
-        // Transition to game
-        setTimeout(() => {
-          switchScreen('game-screen');
-          setTimeout(() => renderBoard('main-board'), 100);
-        }, 2000);
+        playBuzzer();
 
-      }, 2000 + Math.random() * 2000); // 2-4 seconds delay
+        // 0.5s match found display -> zoom transition
+        setTimeout(() => {
+          const ps = document.getElementById('pairing-screen');
+          ps.classList.add('zoom-out-fade');
+          setTimeout(() => {
+            switchScreen('game-screen');
+            ps.classList.remove('zoom-out-fade');
+            setTimeout(() => renderBoard('main-board'), 100);
+            initClocks();
+          }, 400);
+        }, 500);
+
+      }, 1000);
     }
 
     function endFakeGame(result) {
@@ -972,6 +1181,11 @@
         lossPenalty = Math.max(10, 20 - Math.floor(diff / 20));
       }
 
+      if (bulletModeActive) {
+        winReward = Math.floor(winReward * 1.5);
+      }
+
+      clearInterval(clockInterval);
       const oldRating = userProfile.rating;
       let newRating = oldRating;
       let diffStr = '';
@@ -999,13 +1213,29 @@
       const title = document.getElementById('endgame-title');
       const elo = document.getElementById('endgame-elo');
       const diffLabel = document.getElementById('endgame-diff');
+      const rematchBtn = document.getElementById('btn-rematch');
       
       title.innerText = result === 'win' ? 'VICTORY' : 'DEFEAT';
       title.style.color = result === 'win' ? '#ffd700' : '#ff4757';
       diffLabel.innerText = diffStr;
       diffLabel.style.color = result === 'win' ? '#38f9d7' : '#ff4757';
       
+      if (currentGameMode !== 'puzzles') {
+        rematchBtn.style.display = 'block';
+      } else {
+        rematchBtn.style.display = 'none';
+      }
+      
       modal.style.display = 'flex';
+      
+      if (result === 'win' && typeof confetti !== 'undefined') {
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#ffd700', '#ff4757', '#00f2fe', '#38f9d7']
+        });
+      }
       
       // Animate ELO
       let currentDisplayRating = oldRating;
@@ -1033,10 +1263,16 @@
       returnToMenu();
     }
 
+    function rematchGame() {
+      document.getElementById('endgame-modal').style.display = 'none';
+      startGame(lastActiveGameMode);
+    }
+
     // Initialize on load
     window.onload = initUser;
 
     function returnToMenu() {
+      clearInterval(clockInterval);
       document.getElementById('pause-menu').classList.remove('active');
       switchScreen('menu-screen');
     }
@@ -1046,8 +1282,12 @@
       const pm = document.getElementById('pause-menu');
       if (pm.classList.contains('active')) {
         pm.classList.remove('active');
+        if (bulletModeActive) {
+          startClocks();
+        }
       } else {
         pm.classList.add('active');
+        clearInterval(clockInterval);
       }
     }
 
