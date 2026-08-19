@@ -88,7 +88,7 @@
     .screen-content {
       display: flex;
       width: 100%;
-      max-width: 1000px;
+      max-width: 1200px;
       height: 100%;
       justify-content: center;
       align-items: center;
@@ -99,7 +99,7 @@
       display: flex;
       flex-direction: column;
       width: 100%;
-      max-width: 600px;
+      max-width: 800px;
       height: 100%;
       justify-content: center;
       align-items: center;
@@ -354,6 +354,9 @@
     .pairing-match {
       display: flex;
       align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      text-align: center;
       gap: 30px;
     }
     .match-player {
@@ -456,8 +459,8 @@
 
     /* Board Area */
     .board-wrapper {
-      width: min(90vw, 60vh);
-      height: min(90vw, 60vh);
+      width: min(90vw, 70vh);
+      height: min(90vw, 70vh);
       aspect-ratio: 1/1;
       background: #739552;
       border: 8px solid #3c2a21;
@@ -481,9 +484,69 @@
     .board-sq img.piece {
       width: 90%;
       height: 90%;
-      pointer-events: none;
       filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4));
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s;
     }
+    .board-sq img.piece.dragging {
+      transform: scale(1.3) rotate(-5deg);
+      filter: drop-shadow(0 15px 10px rgba(0,0,0,0.6));
+      z-index: 1000;
+      position: relative;
+    }
+    .board-sq.selected img.piece {
+      transform: scale(1.3) rotate(-5deg);
+      filter: drop-shadow(0 15px 10px rgba(0,0,0,0.6));
+      z-index: 1000;
+      position: relative;
+    }
+    
+    @keyframes dropSnap {
+      0% { transform: scale(1.3); }
+      40% { transform: scale(0.85); }
+      100% { transform: scale(1); }
+    }
+    img.piece.animate-drop {
+      animation: dropSnap 0.2s ease-out;
+    }
+
+    .legal-dot {
+      width: 25%;
+      height: 25%;
+      background: rgba(0,0,0,0.2);
+      border-radius: 50%;
+      position: absolute;
+      pointer-events: none;
+      z-index: 500;
+    }
+    .legal-dot.capture {
+      width: 80%;
+      height: 80%;
+      background: transparent;
+      border: 6px solid rgba(0,0,0,0.2);
+    }
+
+    /* Game Juice Animations */
+    .board-sq.last-move {
+      background: rgba(255, 255, 0, 0.4) !important;
+      box-shadow: inset 0 0 15px rgba(255,215,0,0.5);
+    }
+    
+    @keyframes screenShake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(3px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(1px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+    .board-shake { animation: screenShake 0.3s; }
+    .shake-delay-1 { animation: screenShake 0.3s 0.05s; }
+    .shake-delay-2 { animation: screenShake 0.3s 0.1s; }
 
     /* Bottom HUD */
     .hud-bottom {
@@ -661,9 +724,67 @@
       </div>
     </div>
 
+    <!-- ENDGAME MODAL -->
+    <div id="endgame-modal" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:200; flex-direction:column; align-items:center; justify-content:center;">
+      <div style="background: #2e2e4f; border: 4px solid #fff; border-radius: 20px; padding: 40px; text-align: center; width: 80%; max-width: 400px; box-shadow: 0 0 50px rgba(0,0,0,0.8);">
+        <h2 id="endgame-title" style="color: #ffd700; font-size: 40px; margin-bottom: 20px; text-transform: uppercase;">VICTORY</h2>
+        <div style="margin-bottom: 30px;">
+          <div style="color: #fff; font-size: 18px; margin-bottom: 10px;">Rating</div>
+          <div id="endgame-elo" style="color: #4facfe; font-size: 48px; font-weight: 900; font-family: monospace;">1200</div>
+          <div id="endgame-diff" style="color: #38f9d7; font-size: 20px; font-weight: bold; margin-top: 5px;">+25</div>
+        </div>
+        <button class="btn-game" style="font-size: 20px; padding: 12px 30px; width: 100%;" onclick="closeEndgameModal()">Continue</button>
+      </div>
+    </div>
+
   </div>
 
   <script>
+    // Audio Manager
+    const audioMove = new Audio('/sound/standard/Move.mp3');
+    const audioCapture = new Audio('/sound/standard/Capture.mp3');
+    
+    // Ticking audio generator
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTick() {
+      if (!audioOn) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(800 + Math.random()*200, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    // Streak Manager
+    let currentStreak = 0;
+    function handleCaptureStreak(isCapture) {
+      if (!audioOn) return;
+      if (isCapture) {
+        currentStreak++;
+        let msg = null;
+        if (currentStreak === 1) msg = "Capture!";
+        else if (currentStreak === 2) msg = "Double Strike!";
+        else if (currentStreak >= 3) msg = "Dominating!";
+        
+        if (msg && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(msg);
+          utterance.pitch = 0.5; // low pitch
+          utterance.rate = 1.2;  // fast
+          utterance.volume = 1.0;
+          window.speechSynthesis.speak(utterance);
+        }
+      } else {
+        currentStreak = 0;
+      }
+    }
+
     // User Identity & Leaderboard Logic
     let userProfile = { name: 'Anonymous', rating: 1200 };
     
@@ -758,6 +879,9 @@
 
     function startGame(mode) {
       game.reset();
+      lastMoveSqs = [];
+      selectedPieceSq = null;
+      draggedPieceSq = null;
       updateMoveHistory();
       currentGameMode = mode;
       
@@ -848,19 +972,64 @@
         lossPenalty = Math.max(10, 20 - Math.floor(diff / 20));
       }
 
+      const oldRating = userProfile.rating;
+      let newRating = oldRating;
+      let diffStr = '';
+      
       if (result === 'win') {
-        userProfile.rating += winReward;
-        alert(`You won! +${winReward} ELO. Your new rating is ` + userProfile.rating);
+        newRating = oldRating + winReward;
+        diffStr = '+' + winReward;
       } else if (result === 'loss') {
-        userProfile.rating = Math.max(0, userProfile.rating - lossPenalty); // Prevent negative
-        alert(`You resigned or lost! -${lossPenalty} ELO. Your new rating is ` + userProfile.rating);
+        newRating = Math.max(0, oldRating - lossPenalty); // Prevent negative
+        diffStr = '-' + lossPenalty;
       }
+      
+      userProfile.rating = newRating;
       
       // Save and re-render
       localStorage.setItem('chess_user', JSON.stringify(userProfile));
       document.getElementById('user-rating-bottom').innerText = userProfile.rating;
       renderLeaderboard();
       
+      showEndgameModal(result, oldRating, newRating, diffStr);
+    }
+
+    function showEndgameModal(result, oldRating, newRating, diffStr) {
+      const modal = document.getElementById('endgame-modal');
+      const title = document.getElementById('endgame-title');
+      const elo = document.getElementById('endgame-elo');
+      const diffLabel = document.getElementById('endgame-diff');
+      
+      title.innerText = result === 'win' ? 'VICTORY' : 'DEFEAT';
+      title.style.color = result === 'win' ? '#ffd700' : '#ff4757';
+      diffLabel.innerText = diffStr;
+      diffLabel.style.color = result === 'win' ? '#38f9d7' : '#ff4757';
+      
+      modal.style.display = 'flex';
+      
+      // Animate ELO
+      let currentDisplayRating = oldRating;
+      const ticks = 30; // Number of animation frames
+      const ratingStep = (newRating - oldRating) / ticks;
+      let frame = 0;
+      
+      function tickAnimation() {
+        if (frame < ticks) {
+          currentDisplayRating += ratingStep;
+          elo.innerText = Math.round(currentDisplayRating);
+          playTick();
+          frame++;
+          requestAnimationFrame(tickAnimation);
+        } else {
+          elo.innerText = newRating;
+        }
+      }
+      
+      setTimeout(() => requestAnimationFrame(tickAnimation), 500); // short delay
+    }
+
+    function closeEndgameModal() {
+      document.getElementById('endgame-modal').style.display = 'none';
       returnToMenu();
     }
 
@@ -891,44 +1060,20 @@
       document.getElementById('btn-audio').innerHTML = audioOn ? svgAudioOn : svgAudioOff;
     }
 
-    let draggedPieceSq = null;
     let selectedPieceSq = null;
+    let lastMoveSqs = [];
 
-    function handleDragStart(e, sq) {
-      draggedPieceSq = sq;
-      if (e.dataTransfer) {
-        e.dataTransfer.setData('text/plain', sq);
-        e.dataTransfer.effectAllowed = 'move';
-      }
-    }
-
-    function handleDragOver(e) {
-      e.preventDefault();
-    }
-
-    function handleDrop(e, targetSq) {
-      e.preventDefault();
-      if (!draggedPieceSq || draggedPieceSq === targetSq) return;
-      attemptMove(draggedPieceSq, targetSq);
-      draggedPieceSq = null;
-      selectedPieceSq = null;
-    }
-
-    function handleSquareClick(sq) {
-      // If a square is already selected, try to move there
+    function handleSquareClick(sq, imgEl) {
       if (selectedPieceSq) {
         const success = attemptMove(selectedPieceSq, sq);
         if (!success && game.get(sq) && game.get(sq).color === 'w') {
-          // If invalid move but clicked another own piece, select it instead
           selectedPieceSq = sq;
           renderBoard('main-board');
         } else {
-          // Valid move or clicked empty space/enemy piece (invalid), deselect
           selectedPieceSq = null;
           renderBoard('main-board');
         }
       } else {
-        // Select own piece
         const piece = game.get(sq);
         if (piece && piece.color === 'w') {
           selectedPieceSq = sq;
@@ -938,6 +1083,12 @@
     }
 
     function attemptMove(fromSq, toSq) {
+      let isCapture = false;
+      const targetPiece = game.get(toSq);
+      if (targetPiece && targetPiece.color !== game.get(fromSq).color) {
+        isCapture = true;
+      }
+      
       const move = game.move({
         from: fromSq,
         to: toSq,
@@ -945,6 +1096,29 @@
       });
 
       if (move) {
+        if (audioOn) {
+          if (move.captured || isCapture) {
+             audioCapture.currentTime = 0;
+             audioCapture.play().catch(e=>console.log(e));
+          } else {
+             audioMove.currentTime = 0;
+             audioMove.play().catch(e=>console.log(e));
+          }
+        }
+        if (game.turn() === 'b') { // User just moved (white)
+           handleCaptureStreak(move.captured || isCapture);
+        }
+        if (move.captured || isCapture) {
+          const els = document.querySelectorAll('button, .audio-toggle, .player-hud');
+          const b = document.getElementById('main-board');
+          if(b) { b.classList.remove('board-shake'); void b.offsetWidth; b.classList.add('board-shake'); }
+          els.forEach(el => {
+             el.classList.remove('shake-delay-1', 'shake-delay-2');
+             void el.offsetWidth;
+             el.classList.add(Math.random() > 0.5 ? 'shake-delay-1' : 'shake-delay-2');
+          });
+        }
+        
         renderBoard('main-board');
         updateMoveHistory();
         checkGameOver();
@@ -966,18 +1140,48 @@
         engineReady = true;
       } else if (line.startsWith('bestmove')) {
         const parts = line.split(' ');
-        const moveStr = parts[1]; // e.g. "e2e4"
+        const moveStr = parts[1];
         
         if (moveStr && moveStr !== '(none)') {
           const source = moveStr.substring(0, 2);
           const target = moveStr.substring(2, 4);
           const promotion = moveStr.length > 4 ? moveStr.charAt(4) : 'q';
           
-          game.move({
+          let isCapture = false;
+          const targetPiece = game.get(target);
+          if (targetPiece) isCapture = true;
+          
+          const move = game.move({
             from: source,
             to: target,
             promotion: promotion
           });
+          
+          if (move) {
+             if (audioOn) {
+                if (move.captured || isCapture) {
+                   audioCapture.currentTime = 0;
+                   audioCapture.play().catch(e=>console.log(e));
+                } else {
+                   audioMove.currentTime = 0;
+                   audioMove.play().catch(e=>console.log(e));
+                }
+             }
+             if (game.turn() === 'w') { // Bot just moved (black)
+                handleCaptureStreak(move.captured || isCapture);
+             }
+             lastMoveSqs = [source, target];
+             if (move.captured || isCapture) {
+                const els = document.querySelectorAll('button, .audio-toggle, .player-hud');
+                const b = document.getElementById('main-board');
+                if(b) { b.classList.remove('board-shake'); void b.offsetWidth; b.classList.add('board-shake'); }
+                els.forEach(el => {
+                   el.classList.remove('shake-delay-1', 'shake-delay-2');
+                   void el.offsetWidth;
+                   el.classList.add(Math.random() > 0.5 ? 'shake-delay-1' : 'shake-delay-2');
+                });
+             }
+          }
           
           renderBoard('main-board');
           updateMoveHistory();
@@ -986,7 +1190,6 @@
       }
     };
     
-    // Boot up engine
     engine.postMessage('uci');
     engine.postMessage('ucinewgame');
 
@@ -1003,8 +1206,6 @@
       }
       
       engine.postMessage('position startpos' + moves);
-      
-      // Depth 10 provides a strong, fast response (1800+ ELO equivalent)
       engine.postMessage('go depth 10');
     }
 
@@ -1041,7 +1242,6 @@
       histContainer.scrollTop = histContainer.scrollHeight;
     }
 
-    // Render 8x8 Board with SVG piece images
     function renderBoard(elementId) {
       const container = document.getElementById(elementId);
       if (!container) return;
@@ -1055,11 +1255,17 @@
       const files = ['a','b','c','d','e','f','g','h'];
       const boardState = game.board();
 
+      let legalMoves = [];
+      if (currentGameMode === 'bot_easy' && selectedPieceSq) {
+        legalMoves = game.moves({ square: selectedPieceSq, verbose: true });
+      }
+
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
           const sq = document.createElement('div');
           const isLight = (r + c) % 2 === 0;
           sq.className = 'board-sq ' + (isLight ? 'light' : 'dark');
+          sq.style.position = 'relative';
           
           const rank = 8 - r;
           const file = files[c];
@@ -1068,29 +1274,41 @@
           if (sqName === selectedPieceSq) {
             sq.classList.add('selected');
           }
+          if (lastMoveSqs.includes(sqName)) {
+            sq.classList.add('last-move');
+          }
 
-          sq.addEventListener('dragover', handleDragOver);
-          sq.addEventListener('drop', (e) => handleDrop(e, sqName));
-          sq.addEventListener('click', () => handleSquareClick(sqName));
-
+          let img = null;
           const pObj = boardState[r][c];
           if (pObj) {
             const pChar = pObj.color === 'w' ? pObj.type.toUpperCase() : pObj.type;
-            const img = document.createElement('img');
+            img = document.createElement('img');
             img.className = 'piece';
             img.src = '/piece/cburnett/' + pieceMap[pChar] + '.svg';
             img.alt = pChar;
             
+            if (sqName === lastMoveSqs[1]) {
+               img.classList.add('animate-drop');
+            }
+            
             if (pObj.color === 'w') {
-              img.draggable = true;
-              img.addEventListener('dragstart', (e) => handleDragStart(e, sqName));
-              img.style.cursor = 'grab';
+              img.draggable = false;
+              img.style.cursor = 'pointer';
             } else {
               img.draggable = false;
             }
             
             sq.appendChild(img);
           }
+          
+          const legalMove = legalMoves.find(m => m.to === sqName);
+          if (legalMove) {
+             const dot = document.createElement('div');
+             dot.className = 'legal-dot' + (pObj ? ' capture' : '');
+             sq.appendChild(dot);
+          }
+
+          sq.addEventListener('click', () => handleSquareClick(sqName, img));
 
           container.appendChild(sq);
         }
