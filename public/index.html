@@ -402,9 +402,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       text-align: center;
-      gap: 30px;
+      gap: 15px;
     }
     .match-player {
       display: flex;
@@ -539,14 +539,33 @@
     .board-classic .board-sq.light { background: #ebecd0; }
     .board-classic .board-sq.dark { background: #739552; }
 
-    .board-wood .board-sq.light { background-image: url('images/board/wood4.jpg'); background-size: cover; filter: brightness(1.2); }
-    .board-wood .board-sq.dark { background-image: url('images/board/wood4.jpg'); background-size: cover; filter: brightness(0.8); }
+    /* Dusk — warm amber and dark brown */
+    .board-dusk .board-sq.light { background: #e8c98a; }
+    .board-dusk .board-sq.dark { background: #7a4a28; }
 
-    .board-blue-marble .board-sq.light { background-image: url('images/board/blue-marble.jpg'); background-size: cover; filter: brightness(1.4); }
-    .board-blue-marble .board-sq.dark { background-image: url('images/board/blue-marble.jpg'); background-size: cover; filter: brightness(0.7); }
+    /* Ocean — cool teal and slate */
+    .board-ocean .board-sq.light { background: #a8d8ea; }
+    .board-ocean .board-sq.dark { background: #1b6ca8; }
 
-    .board-metal .board-sq.light { background-image: url('images/board/metal.jpg'); background-size: cover; filter: brightness(1.2); }
-    .board-metal .board-sq.dark { background-image: url('images/board/metal.jpg'); background-size: cover; filter: brightness(0.6); }
+    /* Midnight — high contrast near-black */
+    .board-midnight .board-sq.light { background: #3a3a5c; }
+    .board-midnight .board-sq.dark { background: #1a1a2e; }
+
+    /* Additional Premium Boards */
+    .board-forest .board-sq.light { background: #c1d9b7; }
+    .board-forest .board-sq.dark { background: #4a7542; }
+    
+    .board-magma .board-sq.light { background: #fca311; }
+    .board-magma .board-sq.dark { background: #780000; }
+    
+    .board-bubblegum .board-sq.light { background: #ffc2d1; }
+    .board-bubblegum .board-sq.dark { background: #fb6f92; }
+    
+    .board-monochrome .board-sq.light { background: #e0e0e0; }
+    .board-monochrome .board-sq.dark { background: #424242; }
+    
+    .board-neon .board-sq.light { background: #0b090a; }
+    .board-neon .board-sq.dark { background: #38f9d7; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
 
     .board-sq.selected { background: #f5f682 !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); }
     
@@ -706,15 +725,15 @@
             <button class="btn-game btn-tertiary" onclick="startGame('puzzles')">
               Puzzles
             </button>
-            <button class="btn-game" style="background: linear-gradient(135deg, #e67e22, #d35400); margin-bottom: 20px;" onclick="openCustomization()">
-              🎨 Customize
+            <button class="btn-game" style="background: linear-gradient(135deg, #e67e22, #d35400); box-shadow: 0 8px 0 #a04000, 0 15px 20px rgba(0,0,0,0.4); margin-bottom: 20px;" onclick="openCustomization()">
+              Customize
             </button>
             <div style="display: flex; gap: 15px; justify-content: center; margin-top: 10px;">
-              <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle" style="width: 80px; height: 80px; padding: 0; margin: 0; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid transparent; display: flex; align-items: center; justify-content: center;" onclick="toggleBulletMode()">
-                <img id="img-bullet-toggle" src="images/Misc/clock.png" style="width: 40px; height: 40px; filter: invert(1) opacity(0.5); pointer-events: none;">
+              <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle" style="width: 80px; height: 80px; padding: 0; margin: 0; border-radius: 20px; box-shadow: 0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4); border: 4px solid #fff; display: flex; align-items: center; justify-content: center;" onclick="toggleBulletMode()">
+                <img id="img-bullet-toggle" src="images/Misc/clock.png" style="width: 40px; height: 40px; filter: invert(1); opacity: 0.5; pointer-events: none;">
               </button>
-              <button id="btn-audio-menu" class="btn-game" style="width: 80px; height: 80px; padding: 0; margin: 0; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid #38f9d7; display: flex; align-items: center; justify-content: center;" onclick="toggleAudio()">
-                <img id="img-audio-menu" src="images/Misc/volume-up.png" style="width: 40px; height: 40px; filter: invert(1); pointer-events: none;">
+              <button id="btn-audio-menu" class="btn-game" style="width: 80px; height: 80px; padding: 0; margin: 0; border-radius: 20px; box-shadow: 0 8px 0 #1a7a6e, 0 15px 20px rgba(0,0,0,0.4); border: 4px solid #fff; display: flex; align-items: center; justify-content: center;" onclick="toggleAudio()">
+                <img id="img-audio-menu" src="images/Misc/volume-up.png" style="width: 40px; height: 40px; filter: invert(1); opacity: 1; pointer-events: none;">
               </button>
             </div>
           </div>
@@ -742,13 +761,13 @@
           <div class="match-player">
             <div class="player-avatar">👤</div>
             <span id="match-user-name">You</span>
-            <span class="match-rating" id="match-user-rating">1200</span>
+            <span class="match-rating" id="match-user-rating">800</span>
           </div>
           <div class="match-vs">VS</div>
           <div class="match-player">
             <div class="player-avatar">🤖</div>
             <span id="match-opp-name">Opponent</span>
-            <span class="match-rating" id="match-opp-rating">1200</span>
+            <span class="match-rating" id="match-opp-rating">800</span>
           </div>
         </div>
       </div>
@@ -798,7 +817,7 @@
             <!-- Rendered via JS -->
           </div>
           <div class="match-controls">
-            <button id="btn-audio-game" class="btn-game" style="background: linear-gradient(to bottom, #bdc3c7 0%, #95a5a6 100%); font-size: 14px; padding: 10px; box-shadow: 0 4px 0 #5f6a6b, 0 8px 10px rgba(0,0,0,0.3);" onclick="toggleAudio()">Sound: ON</button>
+            <button id="btn-audio-game" class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px;" onclick="toggleAudio()">Sound: ON</button>
             <button class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('win')">🏆 Win (Test)</button>
             <button class="btn-game btn-secondary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('loss')">🏳 Resign</button>
           </div>
@@ -812,12 +831,9 @@
         <h2 style="color: #fff; text-align: center; margin-bottom: 10px; font-size: 32px;">PAUSED</h2>
         <button class="btn-game" style="font-size: 20px; padding: 12px 20px;" onclick="togglePause()">Resume</button>
         
-        <div id="ad-rewards-container" style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
-          <h3 style="color: #ffd700; text-align: center; margin-bottom: 8px; font-size: 16px;">Lifelines (Ads)</h3>
-          <button id="btn-ad-time" class="btn-game" style="font-size: 16px; padding: 8px; background: linear-gradient(135deg, #2ecc71, #27ae60); margin-bottom: 5px; display: none;" onclick="requestReward('extra_time')">⏱️ +30 Seconds</button>
-          <button id="btn-ad-hint" class="btn-game" style="font-size: 16px; padding: 8px; background: linear-gradient(135deg, #f1c40f, #f39c12); margin-bottom: 5px; display: none;" onclick="requestReward('hint')">💡 Hint (Max 3)</button>
-          <button id="btn-ad-undo" class="btn-game" style="font-size: 16px; padding: 8px; background: linear-gradient(135deg, #e74c3c, #c0392b); margin-bottom: 5px; display: none;" onclick="requestReward('undo_move')">⏪ Undo Blunder</button>
-        </div>
+        <button id="btn-ad-time" class="btn-game" style="font-size: 20px; padding: 12px 20px; display: none;" onclick="requestReward('extra_time')">+30 Seconds</button>
+        <button id="btn-ad-hint" class="btn-game" style="font-size: 20px; padding: 12px 20px; display: none;" onclick="requestReward('hint')">Hint</button>
+        <button id="btn-ad-undo" class="btn-game" style="font-size: 20px; padding: 12px 20px; display: none;" onclick="requestReward('undo_move')">Undo Blunder</button>
 
         <button class="btn-game btn-secondary" style="font-size: 20px; padding: 12px 20px;" onclick="returnToMenu()">Quit Game</button>
       </div>
@@ -831,16 +847,15 @@
     </div>
 
     <!-- CUSTOMIZATION SCREEN -->
-    <div id="customization-screen" class="screen" style="flex-direction: column; overflow-y: auto; align-items: center; padding-top: 40px;">
-      <h1 style="color: #fff; margin-bottom: 10px; font-size: 36px;">🎨 Customization</h1>
-      <div style="color: #ffd700; text-align: center; margin-bottom: 30px; font-weight: bold; font-size: 20px;">Total Wins: <span id="skin-wins-count">0</span> 🏆</div>
-      
-      <div id="skin-lists" style="width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 30px; padding: 0 20px; margin-bottom: 20px;">
-        <!-- Pieces & Boards injected here via JS -->
+    <div id="customization-screen" class="screen" style="flex-direction: column; overflow-y: auto; align-items: center; padding-top: 20px;">
+      <div style="position: relative; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; padding: 10px 20px;">
+        <button class="btn-game btn-secondary" style="position: absolute; left: 20px; padding: 10px 15px; font-size: 16px; min-width: auto; margin: 0;" onclick="switchScreen('menu-screen')">◀</button>
+        <h1 style="color: #fff; margin: 0; font-size: 32px; text-align: center;">Customization</h1>
       </div>
-
-      <div style="width: 100%; display: flex; justify-content: center; padding-bottom: 40px; margin-top: 10px;">
-        <button class="btn-game btn-secondary" style="width: 250px;" onclick="switchScreen('menu-screen')">◀ Return to Menu</button>
+      <div style="color: #ffd700; text-align: center; margin-bottom: 20px; margin-top: 20px; font-weight: bold; font-size: 20px;">Total Wins: <span id="skin-wins-count">0</span> 🏆</div>
+      
+      <div id="skin-lists" style="width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 30px; padding: 0 20px; margin-bottom: 40px;">
+        <!-- Pieces & Boards injected here via JS -->
       </div>
     </div>
 
@@ -849,8 +864,8 @@
       <div style="background: #191930; border: 4px solid rgba(255,255,255,0.8); border-radius: 20px; padding: 40px; text-align: center; width: 80%; max-width: 400px; box-shadow: 0 0 50px rgba(0,0,0,0.9);">
         <h2 id="endgame-title" style="color: #ffd700; font-size: 40px; margin-bottom: 20px; text-transform: uppercase; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">VICTORY</h2>
         <div style="margin-bottom: 30px;">
-          <div style="color: #e2e8f0; font-size: 18px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.6); margin-bottom: 10px;">Rating</div>
-          <div id="endgame-elo" style="color: #4facfe; font-size: 48px; font-weight: 900; font-family: monospace; text-shadow: 0 4px 10px rgba(0,0,0,0.6);">1200</div>
+          <div id="endgame-rating-label" style="color: #e2e8f0; font-size: 18px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.6); margin-bottom: 10px;">Rating</div>
+          <div id="endgame-elo" style="color: #4facfe; font-size: 48px; font-weight: 900; font-family: monospace; text-shadow: 0 4px 10px rgba(0,0,0,0.6);">800</div>
           <div id="endgame-diff" style="color: #38f9d7; font-size: 20px; font-weight: bold; margin-top: 5px; text-shadow: 0 2px 6px rgba(0,0,0,0.5);">+25</div>
         </div>
         <button id="btn-rematch" class="btn-game btn-tertiary pulse" style="font-size: 20px; padding: 12px 30px; width: 100%; margin-bottom: 20px; display: none;" onclick="rematchGame()">Play Again</button>
@@ -870,7 +885,14 @@
         bridge.platform.on(bridge.EVENT_NAME.AUDIO_STATE_CHANGED, isEnabled => {
           audioOn = isEnabled;
           const btnMenu = document.getElementById('btn-audio-menu');
-          if(btnMenu) btnMenu.innerText = audioOn ? 'Sound: ON' : 'Sound: OFF';
+          const imgMenu = document.getElementById('img-audio-menu');
+          if(btnMenu) {
+            btnMenu.style.boxShadow = audioOn ? '0 8px 0 #1a7a6e, 0 15px 20px rgba(0,0,0,0.4)' : '0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4)';
+          }
+          if(imgMenu) {
+            imgMenu.src = audioOn ? "images/Misc/volume-up.png" : "images/Misc/mute.png";
+            imgMenu.style.opacity = audioOn ? '1' : '0.5';
+          }
           const btnGame = document.getElementById('btn-audio-game');
           if(btnGame) btnGame.innerText = audioOn ? 'Sound: ON' : 'Sound: OFF';
         });
@@ -1160,11 +1182,9 @@
       if (bulletModeActive) {
         btn.classList.add('active');
         if(img) img.style.opacity = '1';
-        btn.style.border = '2px solid #38f9d7';
       } else {
         btn.classList.remove('active');
         if(img) img.style.opacity = '0.5';
-        btn.style.border = '2px solid transparent';
       }
       playTick();
     }
@@ -1184,22 +1204,35 @@
     }
 
     // User Identity & Leaderboard Logic
-    let userProfile = { name: 'Anonymous', rating: 1200, wins: 0, pieceSet: 'cburnett', boardTheme: 'classic' };
-    let cachedLeaderboard = null;
+    let userProfile = { name: 'Anonymous', rating: 800, wins: 0, pieceSet: 'classic', boardTheme: 'classic' };
 
     const SKIN_DATA = {
       pieces: [
-        { id: 'classic', name: 'Classic (Default)', winsReq: 0, cssFilter: 'none' },
-        { id: 'ruby', name: 'Ruby Red', winsReq: 1, cssFilter: 'sepia(1) saturate(5) hue-rotate(320deg)' },
-        { id: 'sapphire', name: 'Sapphire Blue', winsReq: 3, cssFilter: 'sepia(1) saturate(5) hue-rotate(200deg)' },
-        { id: 'emerald', name: 'Emerald Green', winsReq: 5, cssFilter: 'sepia(1) saturate(5) hue-rotate(100deg)' },
-        { id: 'amethyst', name: 'Amethyst Purple', winsReq: 10, cssFilter: 'sepia(1) saturate(5) hue-rotate(260deg)' }
+        { id: 'classic', name: 'Classic', winsReq: 0, cssFilter: 'none' },
+        { id: 'ruby', name: 'Ruby', winsReq: 1, cssFilter: 'sepia(1) saturate(5) hue-rotate(320deg)' },
+        { id: 'sapphire', name: 'Sapphire', winsReq: 2, cssFilter: 'sepia(1) saturate(5) hue-rotate(200deg)' },
+        { id: 'emerald', name: 'Emerald', winsReq: 3, cssFilter: 'sepia(1) saturate(5) hue-rotate(100deg)' },
+        { id: 'amethyst', name: 'Amethyst', winsReq: 4, cssFilter: 'sepia(1) saturate(5) hue-rotate(260deg)' },
+        { id: 'topaz', name: 'Topaz', winsReq: 5, cssFilter: 'sepia(1) saturate(5) hue-rotate(20deg)' },
+        { id: 'aquamarine', name: 'Aqua', winsReq: 7, cssFilter: 'sepia(1) saturate(5) hue-rotate(170deg) brightness(1.2)' },
+        { id: 'obsidian', name: 'Obsidian', winsReq: 10, cssFilter: 'sepia(1) saturate(2) hue-rotate(200deg) brightness(0.6) contrast(1.5)' },
+        { id: 'gold', name: 'Gold', winsReq: 15, cssFilter: 'sepia(1) saturate(6) hue-rotate(35deg) brightness(1.2)' },
+        { id: 'diamond', name: 'Diamond', winsReq: 20, cssFilter: 'sepia(0.2) saturate(0.5) hue-rotate(180deg) brightness(1.5)' },
+        { id: 'bloodstone', name: 'Blood', winsReq: 25, cssFilter: 'sepia(1) saturate(10) hue-rotate(330deg) contrast(1.2)' },
+        { id: 'emerald_deep', name: 'Venom', winsReq: 30, cssFilter: 'sepia(1) saturate(8) hue-rotate(120deg) brightness(0.8)' },
+        { id: 'neon_pink', name: 'Neon Pink', winsReq: 40, cssFilter: 'sepia(1) saturate(10) hue-rotate(290deg) brightness(1.3)' },
+        { id: 'royal_purple', name: 'Royal', winsReq: 50, cssFilter: 'sepia(1) saturate(8) hue-rotate(250deg) brightness(0.9)' }
       ],
       boards: [
-        { id: 'classic', name: 'Classic Green', winsReq: 0, cssClass: 'board-classic' },
-        { id: 'wood', name: 'Walnut Wood', winsReq: 1, cssClass: 'board-wood' },
-        { id: 'blue-marble', name: 'Blue Marble', winsReq: 3, cssClass: 'board-blue-marble' },
-        { id: 'metal', name: 'Steel Metal', winsReq: 10, cssClass: 'board-metal' }
+        { id: 'classic', name: 'Classic', winsReq: 0, cssClass: 'board-classic' },
+        { id: 'dusk', name: 'Dusk', winsReq: 1, cssClass: 'board-dusk' },
+        { id: 'ocean', name: 'Ocean', winsReq: 3, cssClass: 'board-ocean' },
+        { id: 'forest', name: 'Forest', winsReq: 5, cssClass: 'board-forest' },
+        { id: 'midnight', name: 'Midnight', winsReq: 10, cssClass: 'board-midnight' },
+        { id: 'magma', name: 'Magma', winsReq: 15, cssClass: 'board-magma' },
+        { id: 'bubblegum', name: 'Bubblegum', winsReq: 20, cssClass: 'board-bubblegum' },
+        { id: 'monochrome', name: 'Noir', winsReq: 30, cssClass: 'board-monochrome' },
+        { id: 'neon', name: 'Cyber', winsReq: 50, cssClass: 'board-neon' }
       ]
     };
     
@@ -1244,13 +1277,13 @@
           if (storedUser) {
             userProfile = JSON.parse(storedUser);
             if (userProfile.wins === undefined) userProfile.wins = 0;
-            if (!userProfile.pieceSet) userProfile.pieceSet = 'cburnett';
+            if (!userProfile.pieceSet) userProfile.pieceSet = 'classic';
             if (!userProfile.boardTheme) userProfile.boardTheme = 'classic';
           } else {
             userProfile.name = 'Anonymous ' + Math.floor(1000 + Math.random() * 9000);
-            userProfile.rating = 1200;
+            userProfile.rating = 800;
             userProfile.wins = 0;
-            userProfile.pieceSet = 'cburnett';
+            userProfile.pieceSet = 'classic';
             userProfile.boardTheme = 'classic';
             bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
           }
@@ -1272,7 +1305,7 @@
         .catch(error => {
           console.error("Storage loading failed:", error);
           userProfile.name = 'Anonymous ' + Math.floor(1000 + Math.random() * 9000);
-          userProfile.rating = 1200;
+          userProfile.rating = 800;
           cachedLeaderboard = generateFakePlayers();
           document.getElementById('user-name-bottom').innerText = userProfile.name;
           document.getElementById('user-rating-bottom').innerHTML = formatRating(userProfile.rating);
@@ -1545,6 +1578,9 @@
       } else if (currentGameMode === 'online') {
         winReward = Math.max(10, 25 + Math.floor(diff / 20));
         lossPenalty = Math.max(10, 20 - Math.floor(diff / 20));
+      } else if (currentGameMode === 'puzzles') {
+        winReward = 0;
+        lossPenalty = 0; // No penalty for failing a puzzle
       }
 
       if (bulletModeActive) {
@@ -1655,17 +1691,25 @@
       const title = document.getElementById('endgame-title');
       const elo = document.getElementById('endgame-elo');
       const diffLabel = document.getElementById('endgame-diff');
+      const ratingLabel = document.getElementById('endgame-rating-label');
       const rematchBtn = document.getElementById('btn-rematch');
       
       title.innerText = result === 'win' ? 'VICTORY' : 'DEFEAT';
       title.style.color = result === 'win' ? '#ffd700' : '#ff4757';
+      elo.innerText = newRating;
       diffLabel.innerText = diffStr;
       diffLabel.style.color = result === 'win' ? '#38f9d7' : '#ff4757';
       
       if (currentGameMode !== 'puzzles') {
         rematchBtn.style.display = 'block';
+        elo.style.display = 'block';
+        diffLabel.style.display = 'block';
+        if(ratingLabel) ratingLabel.style.display = 'block';
       } else {
         rematchBtn.style.display = 'none';
+        elo.style.display = 'none';
+        diffLabel.style.display = 'none';
+        if(ratingLabel) ratingLabel.style.display = 'none';
       }
       
       modal.style.display = 'flex';
@@ -1831,12 +1875,13 @@
         clearInterval(clockInterval);
         
         if (typeof bridge !== 'undefined' && bridge.advertisement) {
-          document.getElementById('ad-rewards-container').style.display = 'block';
-          document.getElementById('btn-ad-time').style.display = bulletModeActive ? 'block' : 'none';
+          document.getElementById('btn-ad-time').style.display = (bulletModeActive && currentGameMode !== 'online') ? 'block' : 'none';
           document.getElementById('btn-ad-hint').style.display = (currentGameMode !== 'puzzles' && hintsUsed < 3) ? 'block' : 'none';
           document.getElementById('btn-ad-undo').style.display = currentGameMode.startsWith('bot_') ? 'block' : 'none';
         } else {
-          document.getElementById('ad-rewards-container').style.display = 'none';
+          document.getElementById('btn-ad-time').style.display = 'none';
+          document.getElementById('btn-ad-hint').style.display = 'none';
+          document.getElementById('btn-ad-undo').style.display = 'none';
         }
 
         if (typeof bridge !== 'undefined' && bridge.advertisement && bridge.advertisement.isBannerSupported) {
@@ -1861,10 +1906,12 @@
       audioOn = !audioOn;
       const btnMenu = document.getElementById('btn-audio-menu');
       const imgMenu = document.getElementById('img-audio-menu');
-      if(btnMenu && imgMenu) {
+      if(btnMenu) {
+        btnMenu.style.boxShadow = audioOn ? '0 8px 0 #1a7a6e, 0 15px 20px rgba(0,0,0,0.4)' : '0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4)';
+      }
+      if(imgMenu) {
         imgMenu.src = audioOn ? "images/Misc/volume-up.png" : "images/Misc/mute.png";
         imgMenu.style.opacity = audioOn ? '1' : '0.5';
-        btnMenu.style.border = audioOn ? '2px solid #38f9d7' : '2px solid transparent';
       }
       const btnGame = document.getElementById('btn-audio-game');
       if(btnGame) btnGame.innerText = audioOn ? 'Sound: ON' : 'Sound: OFF';
