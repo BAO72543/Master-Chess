@@ -1011,8 +1011,6 @@
           </div>
           <div class="match-controls">
             <button id="btn-audio-game" class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px;" onclick="toggleAudio()">Sound: ON</button>
-            <button id="btn-in-game-hint" class="btn-game" style="font-size: 14px; padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 0 #b45309; border: 2px solid #fef3c7;" onclick="triggerDirectHint()">💡 Hint (3)</button>
-            <button id="btn-test-hint" class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px; display: none;" onclick="debugHint()">💡 Hint (Test)</button>
             <button id="btn-test-win" class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px; display: none;" onclick="endFakeGame('win')">🏆 Win (Test)</button>
             <button class="btn-game btn-secondary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('loss')">🏳 Resign</button>
           </div>
@@ -1159,17 +1157,13 @@
       if (winBtn) {
         winBtn.style.display = isDebugMode ? 'block' : 'none';
       }
-      const hintTestBtn = document.getElementById('btn-test-hint');
-      if (hintTestBtn) {
-        hintTestBtn.style.display = isDebugMode ? 'block' : 'none';
-      }
     }
 
     // Console Debug Helpers (accessible via F12 console)
     window.debugHint = function() {
       hintsUsed = Math.max(0, hintsUsed - 1);
       requestHintMove();
-      console.log("💡 Debug Hint Triggered! Active Hint:", activeHint);
+      console.log("Debug Hint Triggered! Active Hint:", activeHint);
     };
     window.debugEngine = function() {
       console.log("♟️ Stockfish Engine:", engine, "Ready:", engineReady);
@@ -1579,7 +1573,6 @@
         if (pm && pm.classList.contains('active')) togglePause();
       } else if (placement === 'hint') {
         hintsUsed++;
-        updateHintButtonUI();
         requestHintMove();
         const pm = document.getElementById('pause-menu');
         if (pm && pm.classList.contains('active')) togglePause();
@@ -1988,7 +1981,6 @@
       currentGameMode = mode;
       currentPuzzle = null;
       hintsUsed = 0;
-      updateHintButtonUI();
       clearActiveHint();
 
       if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
@@ -2463,12 +2455,21 @@
         pm.classList.add('active');
         clearInterval(clockInterval);
         
-        updateHintButtonUI();
         if (typeof bridge !== 'undefined' && bridge.advertisement) {
           document.getElementById('btn-ad-time').style.display = (bulletModeActive && currentGameMode !== 'online') ? 'block' : 'none';
+          const hintBtn = document.getElementById('btn-ad-hint');
+          if (hintBtn) {
+            if (currentGameMode !== 'puzzles' && hintsUsed < 3) {
+              hintBtn.style.display = 'block';
+              hintBtn.innerText = `Hint (${3 - hintsUsed} left)`;
+            } else {
+              hintBtn.style.display = 'none';
+            }
+          }
           document.getElementById('btn-ad-undo').style.display = currentGameMode.startsWith('bot_') ? 'block' : 'none';
         } else {
           document.getElementById('btn-ad-time').style.display = 'none';
+          document.getElementById('btn-ad-hint').style.display = 'none';
           document.getElementById('btn-ad-undo').style.display = 'none';
         }
 
@@ -2481,56 +2482,14 @@
       }
     }
 
-    function updateHintButtonUI() {
-      const inGameHintBtn = document.getElementById('btn-in-game-hint');
-      if (inGameHintBtn) {
-        if (hintsUsed < 3) {
-          inGameHintBtn.innerText = `💡 Hint (${3 - hintsUsed})`;
-          inGameHintBtn.style.opacity = '1';
-        } else {
-          inGameHintBtn.innerText = `💡 Hint (0)`;
-          inGameHintBtn.style.opacity = '0.5';
-        }
-      }
-      const pauseHintBtn = document.getElementById('btn-ad-hint');
-      if (pauseHintBtn) {
-        if (currentGameMode !== 'puzzles' && hintsUsed < 3) {
-          pauseHintBtn.style.display = 'block';
-          pauseHintBtn.innerText = `Hint (${3 - hintsUsed} left)`;
-        } else {
-          pauseHintBtn.style.display = 'none';
-        }
-      }
-    }
-
-    function triggerDirectHint() {
-      if (game.game_over()) return;
-      if (game.turn() !== 'w') {
-        alert("Hints are only available during your turn!");
-        return;
-      }
-      if (hintsUsed >= 3) {
-        alert("Maximum 3 hints used for this match!");
-        return;
-      }
-      grantReward('hint');
-    }
-
     let currentRequestedPlacement = null;
     function requestReward(placementId) {
       if (placementId === 'hint' && hintsUsed >= 3) return;
       currentRequestedPlacement = placementId;
       
-      // If in debug mode or bridge ads unavailable/not supported, grant directly
-      if (isDebugMode || typeof bridge === 'undefined' || !bridge.advertisement || !bridge.advertisement.isRewardedSupported) {
-        grantReward(placementId);
-        return;
-      }
-
-      try {
+      if (typeof bridge !== 'undefined' && bridge.advertisement) {
         bridge.advertisement.showRewarded(placementId);
-      } catch(e) {
-        console.warn("showRewarded call failed, granting directly:", e);
+      } else {
         grantReward(placementId);
       }
     }
