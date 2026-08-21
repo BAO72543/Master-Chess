@@ -1,0 +1,20 @@
+{
+  "advertisement": {
+    "minimumDelayBetweenInterstitial": 120,
+    "initialInterstitialDelay": 0,
+    "interstitial": {
+      "disable": false
+    },
+    "rewarded": {
+      "disable": false
+    },
+    "banner": {
+      "disable": false
+    }
+  },
+  "leaderboards": [
+    {
+      "id": "main"
+    }
+  ]
+}
