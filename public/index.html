@@ -786,16 +786,101 @@
       transform: scale(1);
     }
 
-    @keyframes pulse-hint {
-      0% { box-shadow: inset 0 0 10px #ffea00; background-color: rgba(255,234,0,0.2); }
-      50% { box-shadow: inset 0 0 30px #ffea00; background-color: rgba(255,234,0,0.6); }
-      100% { box-shadow: inset 0 0 10px #ffea00; background-color: rgba(255,234,0,0.2); }
+    /* Hint Highlights & Effects */
+    @keyframes hint-pulse-gold {
+      0% {
+        box-shadow: inset 0 0 0 3px #ffd700, 0 0 15px rgba(255, 215, 0, 0.7);
+        background-color: rgba(255, 215, 0, 0.45) !important;
+      }
+      50% {
+        box-shadow: inset 0 0 0 4px #fff, 0 0 25px rgba(255, 215, 0, 0.95);
+        background-color: rgba(255, 215, 0, 0.7) !important;
+      }
+      100% {
+        box-shadow: inset 0 0 0 3px #ffd700, 0 0 15px rgba(255, 215, 0, 0.7);
+        background-color: rgba(255, 215, 0, 0.45) !important;
+      }
     }
-    .hint-glow {
-      animation: pulse-hint 1.5s infinite;
-      border: 3px solid #ffea00 !important;
-      z-index: 10;
-      box-sizing: border-box;
+
+    @keyframes hint-target-pulse {
+      0% {
+        box-shadow: inset 0 0 0 3px #2ed573, 0 0 15px rgba(46, 213, 115, 0.7);
+        background-color: rgba(46, 213, 115, 0.45) !important;
+      }
+      50% {
+        box-shadow: inset 0 0 0 4px #fff, 0 0 25px rgba(46, 213, 115, 0.95);
+        background-color: rgba(46, 213, 115, 0.7) !important;
+      }
+      100% {
+        box-shadow: inset 0 0 0 3px #2ed573, 0 0 15px rgba(46, 213, 115, 0.7);
+        background-color: rgba(46, 213, 115, 0.45) !important;
+      }
+    }
+
+    .board-sq.hint-from-sq {
+      animation: hint-pulse-gold 1.2s infinite ease-in-out !important;
+      z-index: 10 !important;
+    }
+
+    .board-sq.hint-to-sq {
+      animation: hint-target-pulse 1.2s infinite ease-in-out !important;
+      z-index: 10 !important;
+    }
+
+    .hint-indicator-badge {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      font-size: 15px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.9));
+      animation: bounce 0.8s infinite alternate ease-in-out;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    .hint-target-marker {
+      position: absolute;
+      width: 44%;
+      height: 44%;
+      top: 28%;
+      left: 28%;
+      border-radius: 50%;
+      border: 3px solid #2ed573;
+      background: rgba(46, 213, 115, 0.35);
+      box-shadow: 0 0 14px #2ed573;
+      pointer-events: none;
+      z-index: 14;
+      animation: pulse-target-dot 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-target-dot {
+      0% { transform: scale(0.8); opacity: 0.7; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(0.8); opacity: 0.7; }
+    }
+
+    #hint-notification-banner {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+      border: 2px solid #ffd700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7), 0 0 20px rgba(255, 215, 0, 0.4);
+      color: #fff;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 120;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: nowrap;
     }
   </style>
   <script src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>
@@ -899,8 +984,11 @@
           </div>
 
           <!-- Chess Board -->
-          <div class="board-wrapper" id="main-board">
-            <!-- Rendered via JS -->
+          <div style="position: relative; width: 100%; display: flex; justify-content: center;">
+            <div id="hint-notification-banner">💡 Hint: <span id="hint-banner-text" style="color: #ffd700; margin-left: 4px;"></span></div>
+            <div class="board-wrapper" id="main-board">
+              <!-- Rendered via JS -->
+            </div>
           </div>
 
           <!-- Bottom HUD (Player) -->
@@ -1880,6 +1968,7 @@
       currentGameMode = mode;
       currentPuzzle = null;
       hintsUsed = 0;
+      clearActiveHint();
 
       if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
         bridge.platform.sendMessage("level_started");
@@ -2200,6 +2289,7 @@
     // Handled via bridge.initialize() callback
 
     function returnToMenu() {
+      clearActiveHint();
       if (typeof confetti !== 'undefined') {
         window.confettiActive = false;
         confetti.reset();
@@ -2513,6 +2603,7 @@
           });
         }
         
+        clearActiveHint();
         renderBoard('main-board');
         updateMoveHistory();
         checkGameOver();
@@ -2703,25 +2794,77 @@
       console.warn("Stockfish worker unavailable, using built-in AI engine:", e);
     }
 
-    function showHintEffect(fromSq, toSq) {
-      const el1 = document.getElementById('sq-' + fromSq);
-      const el2 = document.getElementById('sq-' + toSq);
-      if (el1) el1.classList.add('hint-glow');
-      if (el2) el2.classList.add('hint-glow');
+    let activeHint = null;
+    let activeHintTimer = null;
+
+    function clearActiveHint() {
+      activeHint = null;
+      clearTimeout(activeHintTimer);
+      const banner = document.getElementById('hint-notification-banner');
+      if (banner) {
+        banner.style.opacity = '0';
+        banner.style.transform = 'translate(-50%, -10px)';
+        setTimeout(() => {
+          if (!activeHint) banner.style.display = 'none';
+        }, 300);
+      }
+    }
+
+    function getPieceDisplayName(type) {
+      const map = { p: 'Pawn', n: 'Knight', b: 'Bishop', r: 'Rook', q: 'Queen', k: 'King' };
+      return map[type] || 'Piece';
+    }
+
+    function showHintNotification(hint) {
+      const banner = document.getElementById('hint-notification-banner');
+      const textEl = document.getElementById('hint-banner-text');
+      if (!banner || !textEl || !hint) return;
       
-      setTimeout(() => {
-        const clear1 = document.getElementById('sq-' + fromSq);
-        const clear2 = document.getElementById('sq-' + toSq);
-        if (clear1) clear1.classList.remove('hint-glow');
-        if (clear2) clear2.classList.remove('hint-glow');
-      }, 3500);
+      const pieceName = getPieceDisplayName(hint.piece);
+      textEl.innerHTML = `Move <strong>${pieceName}</strong> from <span style="text-decoration: underline; font-size: 15px;">${hint.from.toUpperCase()}</span> to <span style="text-decoration: underline; font-size: 15px;">${hint.to.toUpperCase()}</span>`;
+      
+      banner.style.display = 'flex';
+      banner.style.opacity = '0';
+      banner.style.transform = 'translate(-50%, -10px)';
+      
+      void banner.offsetWidth; // force layout
+      banner.style.opacity = '1';
+      banner.style.transform = 'translate(-50%, 0)';
     }
 
     function requestHintMove() {
       if (game.turn() !== 'w' || game.game_over()) return;
-      const best = getBuiltInBestMove(game, 2);
+      
+      let best = null;
+      if (currentPuzzle && currentPuzzle.moves && currentPuzzle.moves[puzzleMoveIndex]) {
+        const expectedMoveStr = currentPuzzle.moves[puzzleMoveIndex];
+        const from = expectedMoveStr.substring(0, 2);
+        const to = expectedMoveStr.substring(2, 4);
+        const pObj = game.get(from);
+        best = { from, to, piece: pObj ? pObj.type : 'p', san: from.toUpperCase() + ' → ' + to.toUpperCase() };
+      }
+
+      if (!best) {
+        best = getBuiltInBestMove(game, 3, 0);
+      }
+
       if (best) {
-        showHintEffect(best.from, best.to);
+        const pObj = game.get(best.from);
+        activeHint = {
+          from: best.from,
+          to: best.to,
+          piece: best.piece || (pObj ? pObj.type : 'p'),
+          san: best.san || (best.from.toUpperCase() + ' → ' + best.to.toUpperCase())
+        };
+
+        showHintNotification(activeHint);
+        renderBoard('main-board');
+
+        clearTimeout(activeHintTimer);
+        activeHintTimer = setTimeout(() => {
+          clearActiveHint();
+          renderBoard('main-board');
+        }, 15000);
       }
     }
 
@@ -2913,6 +3056,20 @@
           }
           if (lastMoveSqs.includes(sqName)) {
             sq.classList.add('last-move');
+          }
+          if (activeHint && game.turn() === 'w') {
+            if (sqName === activeHint.from) {
+              sq.classList.add('hint-from-sq');
+              const badge = document.createElement('div');
+              badge.className = 'hint-indicator-badge';
+              badge.innerText = '💡';
+              sq.appendChild(badge);
+            } else if (sqName === activeHint.to) {
+              sq.classList.add('hint-to-sq');
+              const targetDot = document.createElement('div');
+              targetDot.className = 'hint-target-marker';
+              sq.appendChild(targetDot);
+            }
           }
 
           const pObj = boardState[r][c];
