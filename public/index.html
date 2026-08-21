@@ -501,6 +501,13 @@
       color: #fff;
       font-weight: bold;
       gap: 10px;
+      max-width: 120px;
+    }
+    .match-player span:first-of-type {
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .match-player .player-avatar {
       width: 60px; height: 60px; font-size: 32px;
@@ -1393,8 +1400,18 @@
       return `<img src="images/tiers/${tier.img}" style="height: 1.2em; vertical-align: sub; margin-right: 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));" alt="${tier.name}"> ${elo}`;
     }
 
+    function formatDisplayName(name, maxLen = 11) {
+      if (!name) return 'Guest';
+      let str = String(name).trim();
+      str = str.replace(/^Anonymous\b/i, 'Guest');
+      if (str.length > maxLen) {
+        return str.substring(0, maxLen - 2) + '...';
+      }
+      return str;
+    }
+
     // User Identity & Leaderboard Logic
-    let userProfile = { name: 'Anonymous', rating: 800, wins: 0, pieceSet: 'classic', boardTheme: 'classic', unlockedSkins: ['classic'], skinAdProgress: {} };
+    let userProfile = { name: 'Guest', rating: 800, wins: 0, pieceSet: 'classic', boardTheme: 'classic', unlockedSkins: ['classic'], skinAdProgress: {} };
 
     const SKIN_DATA = {
       pieces: [
@@ -1528,6 +1545,9 @@
 
           if (storedUser) {
             userProfile = JSON.parse(storedUser);
+            if (userProfile.name) {
+              userProfile.name = userProfile.name.replace(/^Anonymous\b/i, 'Guest');
+            }
             if (userProfile.wins === undefined) userProfile.wins = 0;
             if (!userProfile.pieceSet) userProfile.pieceSet = 'classic';
             if (!userProfile.boardTheme) userProfile.boardTheme = 'classic';
@@ -1536,7 +1556,7 @@
           } else {
             userProfile.name = (typeof bridge !== 'undefined' && bridge.player && bridge.player.name)
               ? bridge.player.name 
-              : ('Anonymous ' + Math.floor(1000 + Math.random() * 9000));
+              : ('Guest ' + Math.floor(1000 + Math.random() * 9000));
             userProfile.rating = 800;
             userProfile.wins = 0;
             userProfile.pieceSet = 'classic';
@@ -1551,13 +1571,16 @@
           }
 
           if (storedLeaderboard) {
-            cachedLeaderboard = JSON.parse(storedLeaderboard);
+            cachedLeaderboard = JSON.parse(storedLeaderboard).map(p => {
+              if (p.name) p.name = p.name.replace(/^Anonymous\b/i, 'Guest');
+              return p;
+            });
           } else {
             cachedLeaderboard = generateFakePlayers();
             bridge.storage.set(['chess_leaderboard'], [JSON.stringify(cachedLeaderboard)]);
           }
 
-          document.getElementById('user-name-bottom').innerText = userProfile.name;
+          document.getElementById('user-name-bottom').innerText = formatDisplayName(userProfile.name);
           document.getElementById('user-rating-bottom').innerHTML = formatRating(userProfile.rating);
           renderLeaderboard();
 
@@ -1566,10 +1589,10 @@
         })
         .catch(error => {
           console.error("Storage loading failed:", error);
-          userProfile.name = 'Anonymous ' + Math.floor(1000 + Math.random() * 9000);
+          userProfile.name = 'Guest ' + Math.floor(1000 + Math.random() * 9000);
           userProfile.rating = 800;
           cachedLeaderboard = generateFakePlayers();
-          document.getElementById('user-name-bottom').innerText = userProfile.name;
+          document.getElementById('user-name-bottom').innerText = formatDisplayName(userProfile.name);
           document.getElementById('user-rating-bottom').innerHTML = formatRating(userProfile.rating);
           renderLeaderboard();
           bridge.platform.sendMessage("game_ready");
@@ -1592,7 +1615,7 @@
       for (let i = 1; i <= 992; i++) {
         let score = Math.floor(800 + Math.random() * 1400); // 800 to 2200 ELO
         list.push({
-          name: 'Anonymous ' + Math.floor(1000 + Math.random() * 9000),
+          name: 'Guest ' + Math.floor(1000 + Math.random() * 9000),
           score: score
         });
       }
@@ -1624,12 +1647,12 @@
       for (let i = 0; i < displayCount; i++) {
         const p = list[i];
         const bg = p.isUser ? 'background: rgba(79, 172, 254, 0.2); border: 1px solid #4facfe;' : '';
-        html += `<div class="lb-item" style="${bg}"><span>${i+1}. ${p.name}</span><span class="lb-score">${formatRating(p.score)}</span></div>`;
+        html += `<div class="lb-item" style="${bg}"><span>${i+1}. ${formatDisplayName(p.name)}</span><span class="lb-score">${formatRating(p.score)}</span></div>`;
       }
       
       if (userRank > 10) {
         html += `<div style="text-align: center; color: rgba(255,255,255,0.4); font-weight: bold; margin: 4px 0;">...</div>`;
-        html += `<div class="lb-item" style="background: rgba(79, 172, 254, 0.2); border: 1px solid #4facfe;"><span>${userRank}. ${userProfile.name}</span><span class="lb-score">${formatRating(userProfile.rating)}</span></div>`;
+        html += `<div class="lb-item" style="background: rgba(79, 172, 254, 0.2); border: 1px solid #4facfe;"><span>${userRank}. ${formatDisplayName(userProfile.name)}</span><span class="lb-score">${formatRating(userProfile.rating)}</span></div>`;
       }
       
       lbContainer.innerHTML = html;
@@ -1796,7 +1819,7 @@
 
       // 1.0 seconds search
       setTimeout(() => {
-        const oppName = 'Anonymous ' + Math.floor(1000 + Math.random() * 9000);
+        const oppName = 'Guest ' + Math.floor(1000 + Math.random() * 9000);
         const oppRating = userProfile.rating + Math.floor(Math.random() * 100) - 50;
         currentOpponentRating = oppRating;
         
@@ -1806,12 +1829,12 @@
         document.getElementById('pairing-spinner').style.display = 'none';
         document.getElementById('pairing-match').style.display = 'flex';
         
-        document.getElementById('match-user-name').innerText = userProfile.name;
+        document.getElementById('match-user-name').innerText = formatDisplayName(userProfile.name);
         document.getElementById('match-user-rating').innerHTML = formatRating(userProfile.rating);
-        document.getElementById('match-opp-name').innerText = oppName;
+        document.getElementById('match-opp-name').innerText = formatDisplayName(oppName);
         document.getElementById('match-opp-rating').innerHTML = formatRating(oppRating);
         
-        document.getElementById('opp-name-top').innerText = oppName;
+        document.getElementById('opp-name-top').innerText = formatDisplayName(oppName);
         document.getElementById('opp-rating-top').innerText = oppRating;
 
         playBuzzer();
