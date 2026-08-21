@@ -2444,7 +2444,15 @@
         
         if (typeof bridge !== 'undefined' && bridge.advertisement) {
           document.getElementById('btn-ad-time').style.display = (bulletModeActive && currentGameMode !== 'online') ? 'block' : 'none';
-          document.getElementById('btn-ad-hint').style.display = (currentGameMode !== 'puzzles' && hintsUsed < 3) ? 'block' : 'none';
+          const hintBtn = document.getElementById('btn-ad-hint');
+          if (hintBtn) {
+            if (currentGameMode !== 'puzzles' && hintsUsed < 3) {
+              hintBtn.style.display = 'block';
+              hintBtn.innerText = `💡 Hint (${3 - hintsUsed} left)`;
+            } else {
+              hintBtn.style.display = 'none';
+            }
+          }
           document.getElementById('btn-ad-undo').style.display = currentGameMode.startsWith('bot_') ? 'block' : 'none';
         } else {
           document.getElementById('btn-ad-time').style.display = 'none';
@@ -2463,6 +2471,7 @@
 
     let currentRequestedPlacement = null;
     function requestReward(placementId) {
+      if (placementId === 'hint' && hintsUsed >= 3) return;
       currentRequestedPlacement = placementId;
       if (typeof bridge !== 'undefined' && bridge.advertisement) {
         bridge.advertisement.showRewarded(placementId);
