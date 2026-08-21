@@ -1074,7 +1074,7 @@
     // Console Debug Helpers (accessible via F12 console)
     window.debugSetWins = function(n) {
       userProfile.wins = n;
-      bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
+      saveProgress();
       const countEl = document.getElementById('skin-wins-count');
       if (countEl) countEl.innerText = n;
       renderSkinList();
@@ -1082,7 +1082,7 @@
     };
     window.debugSetRating = function(elo) {
       userProfile.rating = elo;
-      bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
+      saveProgress();
       document.getElementById('user-rating-bottom').innerHTML = formatRating(elo);
       console.log(`✅ Set rating to ${elo}`);
     };
@@ -1091,13 +1091,16 @@
         ...SKIN_DATA.pieces.map(p => p.id),
         ...SKIN_DATA.boards.map(b => b.id)
       ];
-      bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
+      saveProgress();
       renderSkinList();
       console.log("✅ All skins unlocked!");
     };
     window.debugResetData = function() {
-      localStorage.clear();
-      bridge.storage.delete(['chess_user', 'chess_leaderboard']);
+      localStorage.removeItem('chess_user');
+      localStorage.removeItem('chess_leaderboard');
+      if (typeof bridge !== 'undefined' && bridge.storage && typeof bridge.storage.delete === 'function') {
+        bridge.storage.delete(['chess_user', 'chess_leaderboard']).catch(()=>{});
+      }
       location.reload();
     };
     window.debugToggle = function() {
@@ -1422,6 +1425,7 @@
 
     // User Identity & Leaderboard Logic
     let userProfile = { name: 'Guest', rating: 800, wins: 0, pieceSet: 'classic', boardTheme: 'classic', unlockedSkins: ['classic'], skinAdProgress: {} };
+    let cachedLeaderboard = null;
 
     const SKIN_DATA = {
       pieces: [
@@ -1514,10 +1518,79 @@
           }
         }
 
-        bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
+        saveProgress();
         renderSkinList();
         renderBoard('main-board');
       }
+    }
+
+    // Unified Dual-Storage Persistence (LocalStorage + Playgama Bridge Cloud Storage)
+    function saveProgress() {
+      const userJson = JSON.stringify(userProfile);
+      const lbJson = JSON.stringify(cachedLeaderboard || []);
+
+      // 1. Immediately save to LocalStorage (Instant, persistent across reloads)
+      try {
+        localStorage.setItem('chess_user', userJson);
+        if (cachedLeaderboard && cachedLeaderboard.length > 0) {
+          localStorage.setItem('chess_leaderboard', lbJson);
+        }
+      } catch (e) {
+        console.warn("LocalStorage save error:", e);
+      }
+
+      // 2. Save to Playgama Bridge Cloud Storage
+      if (typeof bridge !== 'undefined' && bridge.storage && typeof bridge.storage.set === 'function') {
+        bridge.storage.set(['chess_user', 'chess_leaderboard'], [userJson, lbJson])
+          .then(() => {
+            // Cloud save confirmed
+          })
+          .catch(err => {
+            console.warn("Bridge storage.set error:", err);
+          });
+      }
+    }
+
+    function applyLoadedProfile(data) {
+      if (!data || typeof data !== 'object') return;
+      if (data.name) {
+        userProfile.name = String(data.name).replace(/^Anonymous\b/i, 'Guest');
+      }
+      if (typeof data.rating === 'number' && !isNaN(data.rating)) {
+        userProfile.rating = data.rating;
+      }
+      if (typeof data.wins === 'number' && !isNaN(data.wins)) {
+        userProfile.wins = data.wins;
+      }
+      if (data.pieceSet) userProfile.pieceSet = data.pieceSet;
+      if (data.boardTheme) userProfile.boardTheme = data.boardTheme;
+      if (Array.isArray(data.unlockedSkins)) {
+        userProfile.unlockedSkins = data.unlockedSkins;
+      }
+      if (data.skinAdProgress && typeof data.skinAdProgress === 'object') {
+        userProfile.skinAdProgress = data.skinAdProgress;
+      }
+    }
+
+    function updateProfileUI() {
+      const nameEl = document.getElementById('user-name-bottom');
+      if (nameEl) nameEl.innerText = formatDisplayName(userProfile.name);
+      const ratingEl = document.getElementById('user-rating-bottom');
+      if (ratingEl) ratingEl.innerHTML = formatRating(userProfile.rating);
+      const winCountEl = document.getElementById('skin-wins-count');
+      if (winCountEl) winCountEl.innerText = userProfile.wins || 0;
+    }
+
+    function createDefaultProfile() {
+      userProfile.name = (typeof bridge !== 'undefined' && bridge.player && bridge.player.name)
+        ? bridge.player.name 
+        : ('Guest ' + Math.floor(1000 + Math.random() * 9000));
+      userProfile.rating = 800;
+      userProfile.wins = 0;
+      userProfile.pieceSet = 'classic';
+      userProfile.boardTheme = 'classic';
+      userProfile.unlockedSkins = ['classic'];
+      userProfile.skinAdProgress = {};
     }
 
     function initUser() {
@@ -1551,65 +1624,94 @@
         });
       }
 
-      bridge.storage.get(['chess_user', 'chess_leaderboard'])
-        .then(data => {
-          const storedUser = data[0];
-          const storedLeaderboard = data[1];
+      // 1. Immediately restore from LocalStorage for instant UI render
+      let localUserRaw = null;
+      let localLbRaw = null;
+      try {
+        localUserRaw = localStorage.getItem('chess_user');
+        localLbRaw = localStorage.getItem('chess_leaderboard');
+      } catch (e) {}
 
-          if (storedUser) {
-            userProfile = JSON.parse(storedUser);
-            if (userProfile.name) {
-              userProfile.name = userProfile.name.replace(/^Anonymous\b/i, 'Guest');
+      let hasLocalData = false;
+      if (localUserRaw) {
+        try {
+          applyLoadedProfile(JSON.parse(localUserRaw));
+          hasLocalData = true;
+        } catch(e) {}
+      }
+
+      if (localLbRaw) {
+        try {
+          cachedLeaderboard = JSON.parse(localLbRaw);
+        } catch(e) {}
+      }
+
+      if (!hasLocalData) {
+        createDefaultProfile();
+      }
+
+      if (!cachedLeaderboard || cachedLeaderboard.length === 0) {
+        cachedLeaderboard = generateFakePlayers();
+      }
+
+      updateProfileUI();
+      renderLeaderboard();
+
+      // 2. Query Playgama Bridge Storage to sync with cloud data
+      if (typeof bridge !== 'undefined' && bridge.storage && typeof bridge.storage.get === 'function') {
+        bridge.storage.get(['chess_user', 'chess_leaderboard'])
+          .then(data => {
+            const cloudUser = data && data[0];
+            const cloudLb = data && data[1];
+
+            if (cloudUser) {
+              try {
+                const parsed = typeof cloudUser === 'string' ? JSON.parse(cloudUser) : cloudUser;
+                applyLoadedProfile(parsed);
+              } catch(e) {
+                console.error("Error parsing cloud user:", e);
+              }
             }
-            if (userProfile.wins === undefined) userProfile.wins = 0;
-            if (!userProfile.pieceSet) userProfile.pieceSet = 'classic';
-            if (!userProfile.boardTheme) userProfile.boardTheme = 'classic';
-            if (!userProfile.unlockedSkins) userProfile.unlockedSkins = ['classic'];
-            if (!userProfile.skinAdProgress) userProfile.skinAdProgress = {};
-          } else {
-            userProfile.name = (typeof bridge !== 'undefined' && bridge.player && bridge.player.name)
-              ? bridge.player.name 
-              : ('Guest ' + Math.floor(1000 + Math.random() * 9000));
-            userProfile.rating = 800;
-            userProfile.wins = 0;
-            userProfile.pieceSet = 'classic';
-            userProfile.boardTheme = 'classic';
-            userProfile.unlockedSkins = ['classic'];
-            userProfile.skinAdProgress = {};
-            bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
-          }
 
-          if (typeof bridge !== 'undefined' && bridge.player && bridge.player.isAuthorized && bridge.player.name) {
-            userProfile.name = bridge.player.name;
-          }
+            if (cloudLb) {
+              try {
+                const parsedLb = typeof cloudLb === 'string' ? JSON.parse(cloudLb) : cloudLb;
+                if (Array.isArray(parsedLb) && parsedLb.length > 0) {
+                  cachedLeaderboard = parsedLb.map(p => {
+                    if (p.name) p.name = p.name.replace(/^Anonymous\b/i, 'Guest');
+                    return p;
+                  });
+                }
+              } catch(e) {}
+            }
 
-          if (storedLeaderboard) {
-            cachedLeaderboard = JSON.parse(storedLeaderboard).map(p => {
-              if (p.name) p.name = p.name.replace(/^Anonymous\b/i, 'Guest');
-              return p;
-            });
-          } else {
-            cachedLeaderboard = generateFakePlayers();
-            bridge.storage.set(['chess_leaderboard'], [JSON.stringify(cachedLeaderboard)]);
-          }
+            if (typeof bridge !== 'undefined' && bridge.player && bridge.player.isAuthorized && bridge.player.name) {
+              userProfile.name = bridge.player.name;
+            }
 
-          document.getElementById('user-name-bottom').innerText = formatDisplayName(userProfile.name);
-          document.getElementById('user-rating-bottom').innerHTML = formatRating(userProfile.rating);
-          renderLeaderboard();
+            saveProgress();
+            updateProfileUI();
+            renderLeaderboard();
 
-          // Send game_ready message when first playable frame is ready
+            if (bridge.platform && typeof bridge.platform.sendMessage === 'function') {
+              bridge.platform.sendMessage("game_ready");
+            }
+          })
+          .catch(error => {
+            console.warn("Storage loading from bridge failed, using local data:", error);
+            saveProgress();
+            updateProfileUI();
+            renderLeaderboard();
+            if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
+              bridge.platform.sendMessage("game_ready");
+            }
+          });
+      } else {
+        saveProgress();
+        if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
           bridge.platform.sendMessage("game_ready");
-        })
-        .catch(error => {
-          console.error("Storage loading failed:", error);
-          userProfile.name = 'Guest ' + Math.floor(1000 + Math.random() * 9000);
-          userProfile.rating = 800;
-          cachedLeaderboard = generateFakePlayers();
-          document.getElementById('user-name-bottom').innerText = formatDisplayName(userProfile.name);
-          document.getElementById('user-rating-bottom').innerHTML = formatRating(userProfile.rating);
-          renderLeaderboard();
-          bridge.platform.sendMessage("game_ready");
-        });
+        }
+      }
     }
 
     function generateFakePlayers() {
@@ -1636,11 +1738,11 @@
     }
 
     function getLeaderboard() {
-      if (cachedLeaderboard) {
+      if (cachedLeaderboard && cachedLeaderboard.length > 0) {
         return cachedLeaderboard;
       }
       cachedLeaderboard = generateFakePlayers();
-      bridge.storage.set(['chess_leaderboard'], [JSON.stringify(cachedLeaderboard)]);
+      saveProgress();
       return cachedLeaderboard;
     }
 
@@ -1904,7 +2006,6 @@
         if (result === 'win') {
           userProfile.rating += winReward;
           userProfile.wins = (userProfile.wins || 0) + 1;
-          bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
           change = winReward;
         } else {
           userProfile.rating = Math.max(0, oldRating - lossPenalty);
@@ -1914,8 +2015,8 @@
       const newRating = userProfile.rating;
       const diffStr = (change > 0 ? '+' : '') + change;
       
-      // Save and re-render
-      bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
+      // Save progress to both LocalStorage & Playgama Cloud Storage
+      saveProgress();
       document.getElementById('user-rating-bottom').innerHTML = formatRating(userProfile.rating);
       renderLeaderboard();
       
@@ -2228,7 +2329,7 @@
       const skin = list.find(s => s.id === id);
       if (!skin || !isSkinUnlocked(type, skin)) return;
       userProfile[type] = id;
-      bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
+      saveProgress();
       renderSkinList();
       renderBoard('main-board'); // Re-render if it exists in the background
     }
