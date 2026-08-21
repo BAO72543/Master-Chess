@@ -790,119 +790,127 @@
     }
 
     /* Tablet Portrait Optimization (iPad, iPad Pro, Android Tablets in Portrait) */
-    @media (min-width: 601px) and (max-width: 1150px) and (max-aspect-ratio: 1.15),
-           (min-width: 601px) and (max-width: 1150px) and (orientation: portrait) {
+    @media (min-width: 601px) and (max-width: 1250px) and (max-aspect-ratio: 1.15),
+           (min-width: 601px) and (max-width: 1250px) and (orientation: portrait) {
       
       #menu-screen {
-        padding: 36px 24px;
+        padding: 36px 20px;
       }
       #menu-screen .main-column {
         height: 100%;
         max-height: 94vh;
-        max-width: 600px;
+        width: 100%;
+        max-width: min(92vw, 680px);
         justify-content: space-evenly;
       }
       .game-logo {
         margin-bottom: 24px;
-        padding: 22px 50px;
-        border-radius: 26px;
-        max-width: 480px;
+        padding: 24px 60px;
+        border-radius: 30px;
+        max-width: 580px;
+        width: 100%;
       }
       .game-logo h1 {
-        font-size: 60px;
+        font-size: 68px;
       }
       .game-logo span {
-        font-size: 26px;
-        letter-spacing: 9px;
+        font-size: 30px;
+        letter-spacing: 12px;
       }
       .menu-buttons {
-        max-width: 480px;
-        max-height: 700px;
-        gap: 20px;
+        max-width: 580px;
+        max-height: 740px;
+        gap: 22px;
         width: 100%;
       }
       .menu-bot-row {
-        min-height: 68px;
-        max-height: 88px;
+        min-height: 72px;
+        max-height: 94px;
         gap: 16px;
       }
       .menu-bot-row .btn-game {
-        font-size: 20px;
-        border-radius: 20px;
+        font-size: 22px;
+        border-radius: 22px;
       }
       .menu-main-btn {
-        min-height: 74px;
-        max-height: 94px;
-        font-size: 25px;
-        border-radius: 24px;
-      }
-      .menu-icon-row {
-        min-height: 88px;
-        max-height: 108px;
-        gap: 30px;
-      }
-      .btn-icon-round {
-        width: 92px;
-        height: 92px;
+        min-height: 80px;
+        max-height: 100px;
+        font-size: 28px;
         border-radius: 26px;
       }
+      .menu-icon-row {
+        min-height: 95px;
+        max-height: 120px;
+        gap: 36px;
+      }
+      .btn-icon-round {
+        width: 100px;
+        height: 100px;
+        border-radius: 30px;
+      }
       .btn-icon-round img {
-        width: 46px !important;
-        height: 46px !important;
+        width: 52px !important;
+        height: 52px !important;
       }
 
-      /* In-Game Screen on Vertical Tablet */
+      /* In-Game Screen on Vertical Tablet - Edge-to-Edge with clean padding */
       #game-screen {
-        padding: 28px 20px;
+        padding: 24px 16px;
+      }
+      #game-screen .screen-content {
+        width: 100%;
+        max-width: 100%;
       }
       #game-screen .main-column {
         height: 100%;
-        max-width: 720px;
+        width: 100%;
+        max-width: min(96vw, 920px);
         justify-content: space-between;
         padding: 16px 0;
       }
       .hud-top, .hud-bottom {
+        width: min(94vw, 74vh, 880px) !important;
         gap: 16px !important;
-        margin: 8px 0 !important;
+        margin: 8px auto !important;
       }
       .player-hud {
-        padding: 10px 22px !important;
+        padding: 10px 24px !important;
         gap: 16px !important;
         height: 64px !important;
-        border-radius: 26px !important;
+        border-radius: 28px !important;
       }
       .player-avatar {
-        width: 46px !important;
-        height: 46px !important;
-        font-size: 24px !important;
-        line-height: 46px !important;
+        width: 48px !important;
+        height: 48px !important;
+        font-size: 26px !important;
+        line-height: 48px !important;
       }
       .player-name {
-        font-size: 18px !important;
+        font-size: 19px !important;
       }
       .player-score {
         font-size: 14px !important;
       }
       .btn-back {
-        padding: 12px 22px !important;
-        font-size: 24px !important;
-        border-radius: 18px !important;
+        padding: 12px 24px !important;
+        font-size: 26px !important;
+        border-radius: 20px !important;
       }
       .game-timer {
-        font-size: 24px !important;
-        padding: 10px 20px !important;
-        min-width: 88px !important;
-        border-radius: 16px !important;
+        font-size: 26px !important;
+        padding: 10px 22px !important;
+        min-width: 95px !important;
+        border-radius: 18px !important;
       }
       .board-wrapper {
-        width: min(88vw, 62vh, 620px) !important;
-        height: min(88vw, 62vh, 620px) !important;
+        width: min(94vw, 74vh, 880px) !important;
+        height: min(94vw, 74vh, 880px) !important;
         margin: auto 0;
-        border-width: 10px !important;
+        border-width: 12px !important;
       }
       #hint-notification-banner {
-        font-size: 17px !important;
-        padding: 8px 22px !important;
+        font-size: 18px !important;
+        padding: 10px 26px !important;
         margin-bottom: 12px !important;
       }
 
@@ -910,16 +918,16 @@
       .customization-content {
         grid-template-columns: 1fr !important;
         gap: 24px !important;
-        max-width: 720px !important;
+        max-width: 780px !important;
       }
       .skin-grid {
-        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)) !important;
-        gap: 16px !important;
+        grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)) !important;
+        gap: 18px !important;
       }
       .skin-card {
-        height: 180px !important;
-        padding: 14px 12px !important;
-        border-radius: 18px !important;
+        height: 190px !important;
+        padding: 16px 14px !important;
+        border-radius: 20px !important;
       }
     }
 
