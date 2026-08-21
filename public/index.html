@@ -1011,6 +1011,8 @@
           </div>
           <div class="match-controls">
             <button id="btn-audio-game" class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px;" onclick="toggleAudio()">Sound: ON</button>
+            <button id="btn-in-game-hint" class="btn-game" style="font-size: 14px; padding: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 0 #b45309; border: 2px solid #fef3c7;" onclick="triggerDirectHint()">💡 Hint (3)</button>
+            <button id="btn-test-hint" class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px; display: none;" onclick="debugHint()">💡 Hint (Test)</button>
             <button id="btn-test-win" class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px; display: none;" onclick="endFakeGame('win')">🏆 Win (Test)</button>
             <button class="btn-game btn-secondary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('loss')">🏳 Resign</button>
           </div>
@@ -1157,9 +1159,22 @@
       if (winBtn) {
         winBtn.style.display = isDebugMode ? 'block' : 'none';
       }
+      const hintTestBtn = document.getElementById('btn-test-hint');
+      if (hintTestBtn) {
+        hintTestBtn.style.display = isDebugMode ? 'block' : 'none';
+      }
     }
 
     // Console Debug Helpers (accessible via F12 console)
+    window.debugHint = function() {
+      hintsUsed = Math.max(0, hintsUsed - 1);
+      requestHintMove();
+      console.log("💡 Debug Hint Triggered! Active Hint:", activeHint);
+    };
+    window.debugEngine = function() {
+      console.log("♟️ Stockfish Engine:", engine, "Ready:", engineReady);
+      return { ready: engineReady, engine: !!engine };
+    };
     window.debugSetWins = function(n) {
       userProfile.wins = n;
       saveProgress();
@@ -1560,11 +1575,14 @@
       if (placement === 'extra_time') {
         userTimeLeft += 30;
         updateClockDisplay();
-        togglePause();
+        const pm = document.getElementById('pause-menu');
+        if (pm && pm.classList.contains('active')) togglePause();
       } else if (placement === 'hint') {
         hintsUsed++;
+        updateHintButtonUI();
         requestHintMove();
-        togglePause();
+        const pm = document.getElementById('pause-menu');
+        if (pm && pm.classList.contains('active')) togglePause();
       } else if (placement === 'undo_move') {
         if (engine && engineReady) {
           try { engine.postMessage('stop'); } catch(e) {}
@@ -1574,8 +1592,10 @@
            game.undo();
         }
         lastMoveSqs = [];
+        clearActiveHint();
         renderBoard('main-board');
-        togglePause();
+        const pm = document.getElementById('pause-menu');
+        if (pm && pm.classList.contains('active')) togglePause();
       } else if (placement && placement.startsWith('skin_')) {
         const parts = placement.split('_');
         const type = parts[1]; // 'boardTheme' or 'pieceSet'
@@ -1968,6 +1988,7 @@
       currentGameMode = mode;
       currentPuzzle = null;
       hintsUsed = 0;
+      updateHintButtonUI();
       clearActiveHint();
 
       if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
@@ -2442,21 +2463,12 @@
         pm.classList.add('active');
         clearInterval(clockInterval);
         
+        updateHintButtonUI();
         if (typeof bridge !== 'undefined' && bridge.advertisement) {
           document.getElementById('btn-ad-time').style.display = (bulletModeActive && currentGameMode !== 'online') ? 'block' : 'none';
-          const hintBtn = document.getElementById('btn-ad-hint');
-          if (hintBtn) {
-            if (currentGameMode !== 'puzzles' && hintsUsed < 3) {
-              hintBtn.style.display = 'block';
-              hintBtn.innerText = `Hint (${3 - hintsUsed} left)`;
-            } else {
-              hintBtn.style.display = 'none';
-            }
-          }
           document.getElementById('btn-ad-undo').style.display = currentGameMode.startsWith('bot_') ? 'block' : 'none';
         } else {
           document.getElementById('btn-ad-time').style.display = 'none';
-          document.getElementById('btn-ad-hint').style.display = 'none';
           document.getElementById('btn-ad-undo').style.display = 'none';
         }
 
@@ -2469,12 +2481,57 @@
       }
     }
 
+    function updateHintButtonUI() {
+      const inGameHintBtn = document.getElementById('btn-in-game-hint');
+      if (inGameHintBtn) {
+        if (hintsUsed < 3) {
+          inGameHintBtn.innerText = `💡 Hint (${3 - hintsUsed})`;
+          inGameHintBtn.style.opacity = '1';
+        } else {
+          inGameHintBtn.innerText = `💡 Hint (0)`;
+          inGameHintBtn.style.opacity = '0.5';
+        }
+      }
+      const pauseHintBtn = document.getElementById('btn-ad-hint');
+      if (pauseHintBtn) {
+        if (currentGameMode !== 'puzzles' && hintsUsed < 3) {
+          pauseHintBtn.style.display = 'block';
+          pauseHintBtn.innerText = `Hint (${3 - hintsUsed} left)`;
+        } else {
+          pauseHintBtn.style.display = 'none';
+        }
+      }
+    }
+
+    function triggerDirectHint() {
+      if (game.game_over()) return;
+      if (game.turn() !== 'w') {
+        alert("Hints are only available during your turn!");
+        return;
+      }
+      if (hintsUsed >= 3) {
+        alert("Maximum 3 hints used for this match!");
+        return;
+      }
+      grantReward('hint');
+    }
+
     let currentRequestedPlacement = null;
     function requestReward(placementId) {
       if (placementId === 'hint' && hintsUsed >= 3) return;
       currentRequestedPlacement = placementId;
-      if (typeof bridge !== 'undefined' && bridge.advertisement) {
+      
+      // If in debug mode or bridge ads unavailable/not supported, grant directly
+      if (isDebugMode || typeof bridge === 'undefined' || !bridge.advertisement || !bridge.advertisement.isRewardedSupported) {
+        grantReward(placementId);
+        return;
+      }
+
+      try {
         bridge.advertisement.showRewarded(placementId);
+      } catch(e) {
+        console.warn("showRewarded call failed, granting directly:", e);
+        grantReward(placementId);
       }
     }
 
@@ -2793,8 +2850,9 @@
       engine = new Worker('npm/stockfish.js/stockfish.js');
       engine.onmessage = function(event) {
         const line = event.data;
-        if (typeof line === 'string' && line === 'uciok') {
+        if (typeof line === 'string' && (line.includes('uciok') || line.startsWith('id name') || line.startsWith('Stockfish'))) {
           engineReady = true;
+          console.log("♟️ Stockfish 2019 Multi-Variant Engine is READY and ACTIVE!");
         }
       };
       engine.postMessage('uci');
@@ -2844,37 +2902,83 @@
     function requestHintMove() {
       if (game.turn() !== 'w' || game.game_over()) return;
       
-      let best = null;
+      // 1. If playing puzzles, show puzzle solution move
       if (currentPuzzle && currentPuzzle.moves && currentPuzzle.moves[puzzleMoveIndex]) {
         const expectedMoveStr = currentPuzzle.moves[puzzleMoveIndex];
         const from = expectedMoveStr.substring(0, 2);
         const to = expectedMoveStr.substring(2, 4);
         const pObj = game.get(from);
-        best = { from, to, piece: pObj ? pObj.type : 'p', san: from.toUpperCase() + ' → ' + to.toUpperCase() };
+        applyActiveHint({ from, to, piece: pObj ? pObj.type : 'p', san: from.toUpperCase() + ' → ' + to.toUpperCase() });
+        return;
       }
 
-      if (!best) {
-        best = getBuiltInBestMove(game, 3, 0);
-      }
+      // 2. Query Stockfish if available
+      if (engine && engineReady) {
+        const history = game.history({ verbose: true });
+        let moves = '';
+        if (history.length > 0) {
+          moves = ' moves ' + history.map(m => m.from + m.to + (m.promotion ? m.promotion : '')).join(' ');
+        }
 
-      if (best) {
-        const pObj = game.get(best.from);
-        activeHint = {
-          from: best.from,
-          to: best.to,
-          piece: best.piece || (pObj ? pObj.type : 'p'),
-          san: best.san || (best.from.toUpperCase() + ' → ' + best.to.toUpperCase())
+        let hintHandled = false;
+        const onHintMsg = function(event) {
+          const line = event.data;
+          if (typeof line === 'string' && line.startsWith('bestmove')) {
+            hintHandled = true;
+            engine.removeEventListener('message', onHintMsg);
+            const parts = line.split(' ');
+            const moveStr = parts[1];
+            if (moveStr && moveStr !== '(none)') {
+              const from = moveStr.substring(0, 2);
+              const to = moveStr.substring(2, 4);
+              const pObj = game.get(from);
+              applyActiveHint({ from, to, piece: pObj ? pObj.type : 'p', san: from.toUpperCase() + ' → ' + to.toUpperCase() });
+            } else {
+              const fallback = getBuiltInBestMove(game, 3, 0);
+              if (fallback) applyActiveHint(fallback);
+            }
+          }
         };
 
-        showHintNotification(activeHint);
-        renderBoard('main-board');
+        engine.addEventListener('message', onHintMsg);
+        engine.postMessage('position startpos' + moves);
+        engine.postMessage('go depth 8');
 
-        clearTimeout(activeHintTimer);
-        activeHintTimer = setTimeout(() => {
-          clearActiveHint();
-          renderBoard('main-board');
-        }, 15000);
+        // Fallback after 400ms
+        setTimeout(() => {
+          if (!hintHandled && game.turn() === 'w') {
+            engine.removeEventListener('message', onHintMsg);
+            const fallback = getBuiltInBestMove(game, 3, 0);
+            if (fallback) applyActiveHint(fallback);
+          }
+        }, 400);
+      } else {
+        // Built-in instant Minimax evaluator
+        const best = getBuiltInBestMove(game, 3, 0);
+        if (best) {
+          applyActiveHint(best);
+        }
       }
+    }
+
+    function applyActiveHint(best) {
+      if (!best || !best.from || !best.to) return;
+      const pObj = game.get(best.from);
+      activeHint = {
+        from: best.from,
+        to: best.to,
+        piece: best.piece || (pObj ? pObj.type : 'p'),
+        san: best.san || (best.from.toUpperCase() + ' → ' + best.to.toUpperCase())
+      };
+
+      showHintNotification(activeHint);
+      renderBoard('main-board');
+
+      clearTimeout(activeHintTimer);
+      activeHintTimer = setTimeout(() => {
+        clearActiveHint();
+        renderBoard('main-board');
+      }, 15000);
     }
 
     function applyBotMoveObject(move) {
@@ -2945,6 +3049,23 @@
       let responded = false;
 
       if (engine && engineReady) {
+        const startTime = Date.now();
+        const minDelay = currentGameMode === 'bot_easy' ? 500 : (currentGameMode === 'bot_medium' ? 800 : 1100);
+
+        let skillLevel = 20;
+        let searchDepth = depth * 3;
+        if (currentGameMode === 'bot_easy') { skillLevel = 3; searchDepth = 3; }
+        else if (currentGameMode === 'bot_medium') { skillLevel = 10; searchDepth = 6; }
+        else if (currentGameMode === 'bot_hard') { skillLevel = 20; searchDepth = 10; }
+        else {
+          skillLevel = Math.min(20, Math.max(1, Math.floor((currentOpponentRating - 700) / 75)));
+          searchDepth = Math.min(12, Math.max(3, Math.floor((currentOpponentRating - 700) / 150) + 3));
+        }
+
+        try {
+          engine.postMessage(`setoption name Skill Level value ${skillLevel}`);
+        } catch(e) {}
+
         const history = game.history({ verbose: true });
         let moves = '';
         if (history.length > 0) {
@@ -2958,39 +3079,47 @@
             engine.removeEventListener('message', onStockfishMsg);
             const parts = line.split(' ');
             const moveStr = parts[1];
-            if (moveStr && moveStr !== '(none)') {
-              const source = moveStr.substring(0, 2);
-              const target = moveStr.substring(2, 4);
-              const promotion = moveStr.length > 4 ? moveStr.charAt(4) : 'q';
-              applyBotMoveObject({ from: source, to: target, promotion: promotion });
-            } else {
-              const fallbackMove = getBuiltInBestMove(game, depth, blunderChance);
-              applyBotMoveObject(fallbackMove);
-            }
+
+            const elapsed = Date.now() - startTime;
+            const remainingDelay = Math.max(0, minDelay - elapsed);
+
+            setTimeout(() => {
+              if (moveStr && moveStr !== '(none)') {
+                const source = moveStr.substring(0, 2);
+                const target = moveStr.substring(2, 4);
+                const promotion = moveStr.length > 4 ? moveStr.charAt(4) : 'q';
+                applyBotMoveObject({ from: source, to: target, promotion: promotion });
+              } else {
+                const fallbackMove = getBuiltInBestMove(game, depth, blunderChance);
+                applyBotMoveObject(fallbackMove);
+              }
+            }, remainingDelay);
           }
         };
 
         engine.addEventListener('message', onStockfishMsg);
         engine.postMessage('position startpos' + moves);
-        engine.postMessage('go depth ' + (depth * 3));
+        engine.postMessage('go depth ' + searchDepth);
 
-        // Timeout fail-safe (600ms)
+        // Generous 4000ms fail-safe timeout
         botMoveTimer = setTimeout(() => {
           if (!responded && game.turn() === 'b' && !game.game_over()) {
             engine.removeEventListener('message', onStockfishMsg);
+            try { engine.postMessage('stop'); } catch(e) {}
             const fallbackMove = getBuiltInBestMove(game, depth, blunderChance);
             applyBotMoveObject(fallbackMove);
           }
-        }, 600);
+        }, 4000);
 
       } else {
-        // Instant/natural built-in move
+        // Natural thinking delay for built-in AI
+        const minDelay = currentGameMode === 'bot_easy' ? 400 : (currentGameMode === 'bot_medium' ? 700 : 1000);
         botMoveTimer = setTimeout(() => {
           if (game.turn() === 'b' && !game.game_over()) {
             const fallbackMove = getBuiltInBestMove(game, depth, blunderChance);
             applyBotMoveObject(fallbackMove);
           }
-        }, 300);
+        }, minDelay);
       }
     }
 
