@@ -985,7 +985,7 @@
 
           <!-- Chess Board -->
           <div style="position: relative; width: 100%; display: flex; justify-content: center;">
-            <div id="hint-notification-banner">💡 Hint: <span id="hint-banner-text" style="color: #ffd700; margin-left: 4px;"></span></div>
+            <div id="hint-notification-banner"> Hint: <span id="hint-banner-text" style="color: #ffd700; margin-left: 4px;"></span></div>
             <div class="board-wrapper" id="main-board">
               <!-- Rendered via JS -->
             </div>
@@ -3159,7 +3159,7 @@
               sq.classList.add('hint-from-sq');
               const badge = document.createElement('div');
               badge.className = 'hint-indicator-badge';
-              badge.innerText = '💡';
+              badge.innerText = '';
               sq.appendChild(badge);
             } else if (sqName === activeHint.to) {
               sq.classList.add('hint-to-sq');
