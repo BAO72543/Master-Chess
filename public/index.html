@@ -26,15 +26,39 @@
       user-select: none; /* Prevent text selection in games */
     }
 
+    html {
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #161625;
+      background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%) no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+    }
+
     body {
-      background-color: #1a1a2e;
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #161625;
+      background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%) no-repeat center center fixed;
+      background-size: cover;
       font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden; /* No scrolling allowed */
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
 
     /* Custom Scrollbar */
@@ -53,12 +77,20 @@
       background: rgba(255, 255, 255, 0.5);
     }
 
-    /* The Game Container - scales to fit screen but maintains aspect ratio */
+    /* The Game Container - scales to fit any screen & covers 100% aspect ratio */
     #game-container {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%);
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%) no-repeat center center fixed;
+      background-size: cover;
+      background-position: center;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -71,15 +103,22 @@
       position: absolute;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
       height: 100%;
+      min-width: 100%;
+      min-height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       transition: opacity 0.3s ease, transform 0.3s ease;
       opacity: 0;
       pointer-events: none;
       transform: scale(0.95);
+      background: transparent;
+      overflow: hidden;
     }
     
     .screen.active {
@@ -148,9 +187,9 @@
       justify-content: space-between;
     }
 
-    /* Side Panels */
+    /* Side Panels - only displayed on wide landscape layouts */
     .side-panel {
-      display: none; /* Hidden by default on mobile */
+      display: none;
       flex-direction: column;
       background: rgba(0, 0, 0, 0.45);
       border: 2px solid rgba(255, 255, 255, 0.08);
@@ -223,8 +262,8 @@
     }
     .match-controls .btn-game { flex: 1; }
 
-    /* Show side panels on wide screens */
-    @media (min-width: 900px) {
+    /* Show side panels only on wide landscape displays */
+    @media (min-width: 960px) and (min-aspect-ratio: 1.25) {
       .side-panel {
         display: flex;
       }
@@ -378,17 +417,17 @@
     .game-logo {
       z-index: 10;
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 30px;
       animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       background: rgba(0, 0, 0, 0.45);
-      padding: 24px 48px;
+      padding: 18px 40px;
       border-radius: 24px;
       border: 2px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(8px);
       box-shadow: 0 20px 40px rgba(0,0,0,0.6);
     }
     .game-logo h1 {
-      font-size: 64px;
+      font-size: 54px;
       font-weight: 900;
       color: #fff;
       text-transform: uppercase;
@@ -399,12 +438,35 @@
     }
     .game-logo span {
       display: block;
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 800;
       color: #ffd700;
       letter-spacing: 8px;
       text-shadow: 0 3px 0 #996515, 0 6px 15px rgba(0,0,0,0.6);
       margin-top: 5px;
+    }
+
+    @media (max-aspect-ratio: 1.15), (max-height: 720px) {
+      .game-logo {
+        margin-bottom: 15px;
+        padding: 10px 24px;
+        border-radius: 16px;
+      }
+      .game-logo h1 {
+        font-size: 38px;
+      }
+      .game-logo span {
+        font-size: 16px;
+        letter-spacing: 5px;
+      }
+      .menu-buttons {
+        gap: 12px !important;
+        max-width: 290px !important;
+      }
+      .btn-game {
+        font-size: 18px !important;
+        padding: 12px 18px !important;
+      }
     }
 
     @keyframes bounceIn {
@@ -623,8 +685,8 @@
 
     /* Board Area */
     .board-wrapper {
-      width: min(90vw, 70vh);
-      height: min(90vw, 70vh);
+      width: min(86vw, 66vh, 560px);
+      height: min(86vw, 66vh, 560px);
       aspect-ratio: 1/1;
       background: #739552;
       border: 8px solid #3c2a21;
@@ -901,18 +963,6 @@
           <div class="game-logo" onclick="handleLogoClick()" style="cursor: pointer;" title="Master Chess">
             <h1>Master</h1>
             <span>CHESS</span>
-          </div>
-
-          <!-- USER PROFILE CARD / AUTHORIZATION PROMPT -->
-          <div id="user-profile-menu-card" style="background: rgba(0, 0, 0, 0.45); border: 2px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px; margin-bottom: 20px; width: 100%; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 12px; backdrop-filter: blur(8px);">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div id="menu-user-avatar" style="font-size: 28px; width: 44px; height: 44px; background: rgba(255,255,255,0.08); border: 2px solid #ffd700; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 10px rgba(255,215,0,0.2);">👤</div>
-              <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                <span id="menu-user-name" style="color: #fff; font-weight: bold; font-size: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Guest</span>
-                <span id="menu-user-status" style="color: #cbd5e1; font-size: 12px;">Rating: 800</span>
-              </div>
-            </div>
-            <button id="btn-menu-login" class="btn-game" style="font-size: 12px; padding: 6px 12px; margin: 0; width: auto; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 0 #047857, 0 8px 10px rgba(0,0,0,0.3); border: 2px solid #fff; border-radius: 8px; display: none;" onclick="triggerMenuSignIn()">Sign In</button>
           </div>
 
           <div class="menu-buttons">
@@ -1690,31 +1740,6 @@
       if (ratingEl) ratingEl.innerHTML = formatRating(userProfile.rating);
       const winCountEl = document.getElementById('skin-wins-count');
       if (winCountEl) winCountEl.innerText = userProfile.wins || 0;
-
-      // Update Main Menu profile card
-      const menuNameEl = document.getElementById('menu-user-name');
-      if (menuNameEl) menuNameEl.innerText = formatDisplayName(userProfile.name);
-      const menuRatingEl = document.getElementById('menu-user-status');
-      if (menuRatingEl) menuRatingEl.innerText = `Rating: ${userProfile.rating}`;
-
-      // Update avatar image if player.photos is populated
-      const avatarEl = document.getElementById('menu-user-avatar');
-      if (avatarEl && typeof bridge !== 'undefined' && bridge.player && bridge.player.photos && bridge.player.photos.length > 0) {
-        const photoUrl = bridge.player.photos[bridge.player.photos.length - 1];
-        avatarEl.innerHTML = `<img src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-      } else if (avatarEl) {
-        avatarEl.innerHTML = '👤';
-      }
-
-      // Check whether to show the "Sign In" button
-      const loginBtn = document.getElementById('btn-menu-login');
-      if (loginBtn) {
-        if (typeof bridge !== 'undefined' && bridge.player && bridge.player.isAuthorizationSupported && !bridge.player.isAuthorized) {
-          loginBtn.style.display = 'block';
-        } else {
-          loginBtn.style.display = 'none';
-        }
-      }
     }
 
     function createDefaultProfile() {
@@ -1727,72 +1752,6 @@
       userProfile.boardTheme = 'classic';
       userProfile.unlockedSkins = ['classic'];
       userProfile.skinAdProgress = {};
-    }
-
-    function triggerMenuSignIn() {
-      if (typeof bridge !== 'undefined' && bridge.player && typeof bridge.player.authorize === 'function') {
-        bridge.player.authorize()
-          .then(() => {
-            console.log("Player successfully authorized via manual action!");
-            loadUserStorageAfterAuth();
-          })
-          .catch(error => {
-            console.warn("Authorization failed:", error);
-          });
-      }
-    }
-
-    function loadUserStorageAfterAuth() {
-      if (typeof bridge !== 'undefined' && bridge.player && bridge.player.isAuthorized && bridge.player.name) {
-        userProfile.name = bridge.player.name;
-      }
-      
-      if (typeof bridge !== 'undefined' && bridge.storage && typeof bridge.storage.get === 'function') {
-        bridge.storage.get(['chess_user', 'chess_leaderboard'])
-          .then(data => {
-            const cloudUser = data && data[0];
-            const cloudLb = data && data[1];
-
-            if (cloudUser) {
-              try {
-                const parsed = typeof cloudUser === 'string' ? JSON.parse(cloudUser) : cloudUser;
-                applyLoadedProfile(parsed);
-              } catch(e) {
-                console.error("Error parsing cloud user:", e);
-              }
-            }
-
-            if (cloudLb) {
-              try {
-                const parsedLb = typeof cloudLb === 'string' ? JSON.parse(cloudLb) : cloudLb;
-                if (Array.isArray(parsedLb) && parsedLb.length > 0) {
-                  cachedLeaderboard = parsedLb.map(p => {
-                    if (p.name) p.name = p.name.replace(/^Anonymous\b/i, 'Guest');
-                    return p;
-                  });
-                }
-              } catch(e) {}
-            }
-
-            if (typeof bridge !== 'undefined' && bridge.player && bridge.player.isAuthorized && bridge.player.name) {
-              userProfile.name = bridge.player.name;
-            }
-
-            saveProgress();
-            updateProfileUI();
-            renderLeaderboard();
-          })
-          .catch(error => {
-            console.warn("Storage loading from bridge failed:", error);
-            saveProgress();
-            updateProfileUI();
-            renderLeaderboard();
-          });
-      } else {
-        saveProgress();
-        updateProfileUI();
-        renderLeaderboard();
-      }
     }
 
     function initUser() {
