@@ -1534,7 +1534,9 @@
             if (!userProfile.unlockedSkins) userProfile.unlockedSkins = ['classic'];
             if (!userProfile.skinAdProgress) userProfile.skinAdProgress = {};
           } else {
-            userProfile.name = 'Anonymous ' + Math.floor(1000 + Math.random() * 9000);
+            userProfile.name = (typeof bridge !== 'undefined' && bridge.player && bridge.player.name)
+              ? bridge.player.name 
+              : ('Anonymous ' + Math.floor(1000 + Math.random() * 9000));
             userProfile.rating = 800;
             userProfile.wins = 0;
             userProfile.pieceSet = 'classic';
@@ -1542,6 +1544,10 @@
             userProfile.unlockedSkins = ['classic'];
             userProfile.skinAdProgress = {};
             bridge.storage.set(['chess_user'], [JSON.stringify(userProfile)]);
+          }
+
+          if (typeof bridge !== 'undefined' && bridge.player && bridge.player.isAuthorized && bridge.player.name) {
+            userProfile.name = bridge.player.name;
           }
 
           if (storedLeaderboard) {
