@@ -357,42 +357,6 @@
       justify-content: center;
     }
 
-    /* Mobile HUD scaling */
-    @media (max-width: 600px) {
-      .player-hud {
-        padding: 4px 8px;
-        gap: 6px;
-        height: 42px;
-      }
-      .player-avatar {
-        width: 28px;
-        height: 28px;
-        font-size: 18px;
-        line-height: 28px;
-      }
-      .player-name {
-        font-size: 13px;
-      }
-      .player-score {
-        font-size: 10px;
-      }
-      .btn-back {
-        padding: 6px 10px !important;
-        font-size: 12px !important;
-      }
-      .game-timer {
-        font-size: 16px !important;
-        padding: 4px 8px !important;
-        min-width: 50px !important;
-      }
-      .hud-top {
-        gap: 6px !important;
-      }
-      .hud-bottom {
-        gap: 6px !important;
-      }
-    }
-
     /* Floating Chess Pieces Background Effect */
     .bg-pieces {
       position: absolute;
@@ -417,17 +381,17 @@
     .game-logo {
       z-index: 10;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 28px;
       animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       background: rgba(0, 0, 0, 0.45);
-      padding: 18px 40px;
-      border-radius: 24px;
+      padding: 16px 36px;
+      border-radius: 22px;
       border: 2px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(8px);
       box-shadow: 0 20px 40px rgba(0,0,0,0.6);
     }
     .game-logo h1 {
-      font-size: 54px;
+      font-size: 48px;
       font-weight: 900;
       color: #fff;
       text-transform: uppercase;
@@ -438,35 +402,12 @@
     }
     .game-logo span {
       display: block;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       color: #ffd700;
       letter-spacing: 8px;
       text-shadow: 0 3px 0 #996515, 0 6px 15px rgba(0,0,0,0.6);
       margin-top: 5px;
-    }
-
-    @media (max-aspect-ratio: 1.15), (max-height: 720px) {
-      .game-logo {
-        margin-bottom: 15px;
-        padding: 10px 24px;
-        border-radius: 16px;
-      }
-      .game-logo h1 {
-        font-size: 38px;
-      }
-      .game-logo span {
-        font-size: 16px;
-        letter-spacing: 5px;
-      }
-      .menu-buttons {
-        gap: 12px !important;
-        max-width: 290px !important;
-      }
-      .btn-game {
-        font-size: 18px !important;
-        padding: 12px 18px !important;
-      }
     }
 
     @keyframes bounceIn {
@@ -479,9 +420,9 @@
       z-index: 10;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
       width: 100%;
-      max-width: 320px;
+      max-width: 350px;
     }
 
     .btn-game {
@@ -676,11 +617,110 @@
       text-overflow: ellipsis;
     }
 
-    @media (max-width: 480px) {
-      .player-hud { padding: 4px 10px; gap: 8px; }
-      .player-avatar { width: 30px; height: 30px; font-size: 16px; }
-      .player-name { font-size: 12px; }
-      .player-score { font-size: 10px; }
+    /* Mobile & Tablet Balanced Spacing & Vertical Utilization */
+    @media (max-width: 768px) {
+      #menu-screen {
+        padding: 24px 16px;
+      }
+      #menu-screen .screen-content {
+        justify-content: space-evenly;
+        height: 100%;
+      }
+      .game-logo {
+        margin-bottom: 24px;
+        padding: 16px 32px;
+        border-radius: 20px;
+      }
+      .game-logo h1 {
+        font-size: 44px;
+      }
+      .game-logo span {
+        font-size: 19px;
+        letter-spacing: 6px;
+      }
+      .menu-buttons {
+        gap: 16px;
+        max-width: 350px;
+        width: 100%;
+      }
+      .btn-game {
+        font-size: 19px;
+        padding: 15px 22px;
+        border-radius: 18px;
+      }
+      #game-screen {
+        padding: 16px 12px;
+      }
+      #game-screen .main-column {
+        height: 100%;
+        justify-content: space-between;
+        padding: 10px 0;
+      }
+      .hud-top, .hud-bottom {
+        gap: 10px !important;
+        margin: 4px 0 !important;
+      }
+      .player-hud {
+        padding: 6px 14px !important;
+        gap: 10px !important;
+        height: 50px !important;
+        border-radius: 20px !important;
+      }
+      .player-avatar {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 20px !important;
+        line-height: 36px !important;
+      }
+      .player-name {
+        font-size: 14px !important;
+      }
+      .player-score {
+        font-size: 11px !important;
+      }
+      .btn-back {
+        padding: 8px 16px !important;
+        font-size: 20px !important;
+        border-radius: 14px !important;
+      }
+      .game-timer {
+        font-size: 20px !important;
+        padding: 6px 12px !important;
+        min-width: 68px !important;
+        border-radius: 14px !important;
+      }
+      .board-wrapper {
+        width: min(92vw, 54vh, 480px) !important;
+        height: min(92vw, 54vh, 480px) !important;
+        margin: auto 0;
+      }
+    }
+
+    /* Small screens / compact landscape */
+    @media (max-height: 650px) {
+      .game-logo {
+        margin-bottom: 12px;
+        padding: 10px 24px;
+      }
+      .game-logo h1 {
+        font-size: 34px;
+      }
+      .game-logo span {
+        font-size: 14px;
+        letter-spacing: 4px;
+      }
+      .menu-buttons {
+        gap: 10px;
+        max-width: 320px;
+      }
+      .btn-game {
+        font-size: 16px;
+        padding: 10px 16px;
+      }
+      .board-wrapper {
+        width: min(85vw, 48vh, 380px) !important;
+        height: min(85vw, 48vh, 380px) !important;
+      }
     }
 
     /* Board Area */
@@ -966,10 +1006,10 @@
           </div>
 
           <div class="menu-buttons">
-            <div style="display: flex; gap: 10px; width: 100%;">
-              <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_easy')">Easy Bot</button>
-              <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_medium')">Med Bot</button>
-              <button class="btn-game" style="flex:1; font-size:14px; padding: 10px;" onclick="startGame('bot_hard')">Hard Bot</button>
+            <div style="display: flex; gap: 12px; width: 100%;">
+              <button class="btn-game" style="flex:1; font-size:15px; padding: 14px 6px;" onclick="startGame('bot_easy')">Easy Bot</button>
+              <button class="btn-game" style="flex:1; font-size:15px; padding: 14px 6px;" onclick="startGame('bot_medium')">Med Bot</button>
+              <button class="btn-game" style="flex:1; font-size:15px; padding: 14px 6px;" onclick="startGame('bot_hard')">Hard Bot</button>
             </div>
             <button class="btn-game btn-secondary" onclick="startGame('online')">
               Multiplayer
@@ -977,15 +1017,15 @@
             <button class="btn-game btn-tertiary" onclick="startGame('puzzles')">
               Puzzles
             </button>
-            <button class="btn-game" style="background: linear-gradient(135deg, #e67e22, #d35400); box-shadow: 0 8px 0 #a04000, 0 15px 20px rgba(0,0,0,0.4); margin-bottom: 20px;" onclick="openCustomization()">
+            <button class="btn-game" style="background: linear-gradient(135deg, #e67e22, #d35400); box-shadow: 0 8px 0 #a04000, 0 15px 20px rgba(0,0,0,0.4);" onclick="openCustomization()">
               Customize
             </button>
-            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 10px;">
-              <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle" style="width: 80px; height: 80px; padding: 0; margin: 0; border-radius: 20px; box-shadow: 0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4); border: 4px solid #fff; display: flex; align-items: center; justify-content: center;" onclick="toggleBulletMode()">
-                <img id="img-bullet-toggle" src="images/Misc/clock.png" style="width: 40px; height: 40px; filter: invert(1); opacity: 0.5; pointer-events: none;">
+            <div style="display: flex; gap: 20px; justify-content: center; margin-top: 6px;">
+              <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle" style="width: 76px; height: 76px; padding: 0; margin: 0; border-radius: 22px; box-shadow: 0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4); border: 4px solid #fff; display: flex; align-items: center; justify-content: center;" onclick="toggleBulletMode()">
+                <img id="img-bullet-toggle" src="images/Misc/clock.png" style="width: 38px; height: 38px; filter: invert(1); opacity: 0.5; pointer-events: none;">
               </button>
-              <button id="btn-audio-menu" class="btn-game" style="width: 80px; height: 80px; padding: 0; margin: 0; border-radius: 20px; box-shadow: 0 8px 0 #1a7a6e, 0 15px 20px rgba(0,0,0,0.4); border: 4px solid #fff; display: flex; align-items: center; justify-content: center;" onclick="toggleAudio()">
-                <img id="img-audio-menu" src="images/Misc/volume-up.png" style="width: 40px; height: 40px; filter: invert(1); opacity: 1; pointer-events: none;">
+              <button id="btn-audio-menu" class="btn-game" style="width: 76px; height: 76px; padding: 0; margin: 0; border-radius: 22px; box-shadow: 0 8px 0 #1a7a6e, 0 15px 20px rgba(0,0,0,0.4); border: 4px solid #fff; display: flex; align-items: center; justify-content: center;" onclick="toggleAudio()">
+                <img id="img-audio-menu" src="images/Misc/volume-up.png" style="width: 38px; height: 38px; filter: invert(1); opacity: 1; pointer-events: none;">
               </button>
             </div>
           </div>
@@ -1033,8 +1073,8 @@
       <div class="screen-content">
         <div class="main-column">
           <!-- Top HUD (Opponent) -->
-          <div class="hud-top" style="justify-content: flex-start; gap: 15px; width: 100%;">
-            <button class="btn-back" style="font-size: 24px; padding: 4px 12px; line-height: 1;" onclick="togglePause()">☰</button>
+          <div class="hud-top">
+            <button class="btn-back" onclick="togglePause()">☰</button>
             <div class="player-hud" style="flex-grow: 1;">
               <div class="player-avatar">🤖</div>
               <div class="player-info">
@@ -1042,11 +1082,11 @@
                 <span class="player-score" id="opp-rating-top">Level 10</span>
               </div>
             </div>
-            <div id="opp-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 12px; color: #ff4757; font-family: monospace; font-size: 24px; font-weight: 900; border: 2px solid #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.5); min-width: 80px; text-align: center;">01:00</div>
+            <div id="opp-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 14px; color: #ff4757; font-family: monospace; font-size: 22px; font-weight: 900; border: 2px solid #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.5); min-width: 75px; text-align: center;">01:00</div>
           </div>
 
           <!-- Chess Board -->
-          <div style="position: relative; width: 100%; display: flex; justify-content: center;">
+          <div style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <div id="hint-notification-banner"> Hint: <span id="hint-banner-text" style="color: #ffd700; margin-left: 4px;"></span></div>
             <div class="board-wrapper" id="main-board">
               <!-- Rendered via JS -->
@@ -1054,9 +1094,9 @@
           </div>
 
           <!-- Bottom HUD (Player) -->
-          <div class="hud-bottom" style="width: 100%; display: flex; justify-content: flex-end; gap: 15px;">
-            <div id="user-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 12px; color: #38f9d7; font-family: monospace; font-size: 24px; font-weight: 900; border: 2px solid #38f9d7; text-shadow: 0 0 10px rgba(56,249,215,0.5); min-width: 80px; text-align: center;">01:00</div>
-            <div class="player-hud" style="flex-grow: 1; max-width: max-content;">
+          <div class="hud-bottom">
+            <div id="user-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 14px; color: #38f9d7; font-family: monospace; font-size: 22px; font-weight: 900; border: 2px solid #38f9d7; text-shadow: 0 0 10px rgba(56,249,215,0.5); min-width: 75px; text-align: center;">01:00</div>
+            <div class="player-hud" style="flex-grow: 1;">
               <div class="player-info" style="text-align: right;">
                 <span class="player-name" id="user-name-bottom">You</span>
                 <span class="player-score" id="user-rating-bottom">Beginner</span>
