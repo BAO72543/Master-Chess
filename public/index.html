@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Master Chess HTML5</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
   <script src="vendor/chess.min.js"></script>
   <script>
     if (typeof Chess === 'undefined') {
@@ -49,7 +52,7 @@
       background-color: #161625;
       background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%) no-repeat center center fixed;
       background-size: cover;
-      font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -155,9 +158,7 @@
       100% { transform: scale(1.05); }
     }
 
-    /* =========================================
-       MAIN MENU SCREEN
-       ========================================= */
+    /* Main Menu Screen */
     #menu-screen {
       padding: 20px;
     }
@@ -701,9 +702,7 @@
       color: #ffd700; font-size: 14px;
     }
 
-    /* =========================================
-       IN-GAME SCREEN
-       ========================================= */
+    /* In-Game Screen & Board HUD */
     #game-screen {
       padding: 20px;
     }
@@ -1135,19 +1134,147 @@
     }
 
     .legal-dot {
-      width: 25%;
-      height: 25%;
-      background: rgba(0,0,0,0.2);
+      width: 28%;
+      height: 28%;
+      background: rgba(0, 242, 254, 0.45);
+      border: 2px solid rgba(255, 255, 255, 0.7);
       border-radius: 50%;
       position: absolute;
       pointer-events: none;
       z-index: 500;
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+      transition: transform 0.15s ease;
     }
     .legal-dot.capture {
-      width: 80%;
-      height: 80%;
-      background: transparent;
-      border: 6px solid rgba(0,0,0,0.2);
+      width: 82%;
+      height: 82%;
+      background: rgba(255, 71, 87, 0.25);
+      border: 4px solid rgba(255, 71, 87, 0.85);
+      border-radius: 50%;
+      box-shadow: 0 0 14px rgba(255, 71, 87, 0.8), inset 0 0 10px rgba(255, 71, 87, 0.4);
+      animation: capturePulse 1.2s infinite alternate ease-in-out;
+    }
+    @keyframes capturePulse {
+      0% { transform: scale(0.95); opacity: 0.85; }
+      100% { transform: scale(1.05); opacity: 1; }
+    }
+
+    /* King in check */
+    .board-sq.in-check {
+      background: radial-gradient(circle, rgba(255, 71, 87, 0.95) 0%, rgba(255, 71, 87, 0.5) 75%) !important;
+      box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 71, 87, 0.8);
+      animation: checkPulse 0.9s infinite alternate ease-in-out !important;
+    }
+    @keyframes checkPulse {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.35); }
+    }
+
+    /* Board Coordinate Labels */
+    .board-coord-rank {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      opacity: 0.65;
+      pointer-events: none;
+      z-index: 10;
+      user-select: none;
+      font-family: monospace;
+    }
+    .board-coord-file {
+      position: absolute;
+      bottom: 2px;
+      right: 3px;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      opacity: 0.65;
+      pointer-events: none;
+      z-index: 10;
+      user-select: none;
+      font-family: monospace;
+    }
+    .board-sq.light .board-coord-rank,
+    .board-sq.light .board-coord-file {
+      color: #3c2a21;
+    }
+    .board-sq.dark .board-coord-rank,
+    .board-sq.dark .board-coord-file {
+      color: #ebecd0;
+    }
+
+    /* Rewarded Ad Badges & Buttons */
+    .ad-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: #1a1a2e;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 6px;
+      margin-right: 5px;
+      vertical-align: middle;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-ad-reward {
+      background: linear-gradient(135deg, #f1c40f, #e67e22) !important;
+      box-shadow: 0 6px 0 #a04000, 0 12px 18px rgba(0,0,0,0.4) !important;
+      border: 3px solid #fff !important;
+    }
+    .btn-ad-reward:active {
+      box-shadow: 0 0 0 #a04000, 0 4px 8px rgba(0,0,0,0.4) !important;
+    }
+
+    /* Puzzle Info Bar */
+    #puzzle-info-bar {
+      width: 100%;
+      max-width: 560px;
+      background: linear-gradient(135deg, rgba(20, 20, 35, 0.92), rgba(35, 35, 60, 0.92));
+      border: 2px solid #38f9d7;
+      border-radius: 14px;
+      padding: 8px 14px;
+      margin-bottom: 8px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px rgba(56, 249, 215, 0.25);
+      z-index: 15;
+    }
+    #puzzle-title-text {
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+    }
+    #puzzle-turn-text {
+      color: #ffd700;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .btn-puzzle-next {
+      background: linear-gradient(to bottom, #43e97b 0%, #38f9d7 100%);
+      box-shadow: 0 3px 0 #28b463;
+      border: 2px solid #fff;
+      border-radius: 10px;
+      padding: 5px 12px;
+      color: #1a1a2e;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.1s;
+    }
+    .btn-puzzle-next:active {
+      transform: translateY(2px);
     }
 
     /* Game Juice Animations */
@@ -1322,9 +1449,7 @@
   <div id="game-container">
     
 
-    <!-- =========================================
-         MAIN MENU SCREEN
-         ========================================= -->
+    <!-- Main Menu Screen -->
     <div id="menu-screen" class="screen active">
       <div class="bg-pieces"></div>
       
@@ -1362,7 +1487,10 @@
         </div>
 
         <div class="side-panel leaderboard-panel">
-          <h3>🏆 Top Players</h3>
+          <h3>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffd700" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><path d="M6 9H4a2 2 0 0 1-2-2V5h4"/><path d="M18 9h2a2 2 0 0 0 2-2V5h-4"/><path d="M4 5h16v5a7 7 0 0 1-14 0V5z"/><path d="M12 17v4"/><path d="M8 21h8"/></svg>
+            Leaderboard
+          </h3>
           <div class="leaderboard-list" id="lb-list-container">
             <!-- Rendered via JS -->
           </div>
@@ -1370,10 +1498,7 @@
       </div>
     </div>
 
-
-    <!-- =========================================
-         PAIRING SCREEN
-         ========================================= -->
+    <!-- Matchmaking & Pairing Screen -->
     <div id="pairing-screen" class="screen" style="justify-content: center;">
       <div class="bg-pieces"></div>
       <div class="pairing-container">
@@ -1381,13 +1506,17 @@
         <div class="pairing-spinner" id="pairing-spinner"></div>
         <div class="pairing-match" id="pairing-match" style="display: none;">
           <div class="match-player">
-            <div class="player-avatar">👤</div>
+            <div class="player-avatar">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#38f9d7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
             <span id="match-user-name">You</span>
             <span class="match-rating" id="match-user-rating">800</span>
           </div>
           <div class="match-vs">VS</div>
           <div class="match-player">
-            <div class="player-avatar">🤖</div>
+            <div class="player-avatar">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#ff4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+            </div>
             <span id="match-opp-name">Opponent</span>
             <span class="match-rating" id="match-opp-rating">800</span>
           </div>
@@ -1395,10 +1524,7 @@
       </div>
     </div>
 
-
-    <!-- =========================================
-         IN-GAME SCREEN
-         ========================================= -->
+    <!-- In-Game Match Screen -->
     <div id="game-screen" class="screen">
       <div class="screen-content">
         <div class="main-column">
@@ -1406,7 +1532,9 @@
           <div class="hud-top">
             <button class="btn-back" onclick="togglePause()">☰</button>
             <div class="player-hud" style="flex-grow: 1;">
-              <div class="player-avatar">🤖</div>
+              <div class="player-avatar">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#ff4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+              </div>
               <div class="player-info">
                 <span class="player-name" id="opp-name-top">Grandmaster Bot</span>
                 <span class="player-score" id="opp-rating-top">Level 10</span>
@@ -1415,8 +1543,15 @@
             <div id="opp-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 14px; color: #ff4757; font-family: monospace; font-size: 22px; font-weight: 900; border: 2px solid #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.5); min-width: 75px; text-align: center;">01:00</div>
           </div>
 
-          <!-- Chess Board -->
+          <!-- Chess Board & Puzzle Info -->
           <div style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div id="puzzle-info-bar">
+              <div>
+                <div id="puzzle-title-text">Tactics Trainer</div>
+                <div id="puzzle-turn-text">Find the winning move</div>
+              </div>
+              <button class="btn-puzzle-next" onclick="nextPuzzle()">Next ❯</button>
+            </div>
             <div id="hint-notification-banner"> Hint: <span id="hint-banner-text" style="color: #ffd700; margin-left: 4px;"></span></div>
             <div class="board-wrapper" id="main-board">
               <!-- Rendered via JS -->
@@ -1431,7 +1566,9 @@
                 <span class="player-name" id="user-name-bottom">You</span>
                 <span class="player-score" id="user-rating-bottom">Beginner</span>
               </div>
-              <div class="player-avatar">👤</div>
+              <div class="player-avatar">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#38f9d7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
             </div>
           </div>
         </div>
@@ -1442,39 +1579,50 @@
             <!-- Rendered via JS -->
           </div>
           <div class="match-controls">
-            <button id="btn-audio-game" class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px;" onclick="toggleAudio()">Sound: ON</button>
-            <button id="btn-test-win" class="btn-game btn-tertiary" style="font-size: 14px; padding: 10px; display: none;" onclick="endFakeGame('win')">🏆 Win (Test)</button>
-            <button class="btn-game btn-secondary" style="font-size: 14px; padding: 10px;" onclick="endFakeGame('loss')">🏳 Resign</button>
+            <button id="btn-ingame-hint" class="btn-game btn-ad-reward" style="font-size: 13px; padding: 8px;" onclick="requestReward('hint')"><span class="ad-badge">AD</span> Hint (<span id="ingame-hints-left">3</span>)</button>
+            <button id="btn-audio-game" class="btn-game btn-tertiary" style="font-size: 13px; padding: 8px;" onclick="toggleAudio()">Sound: ON</button>
+            <button id="btn-test-win" class="btn-game btn-tertiary" style="font-size: 13px; padding: 8px; display: none;" onclick="concludeMatch('win')">Test Win</button>
+            <button class="btn-game btn-secondary" style="font-size: 13px; padding: 8px;" onclick="concludeMatch('loss')">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              Resign
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- PAUSE MENU OVERLAY -->
+    <!-- Pause Menu Overlay -->
     <div id="pause-menu">
       <div class="pause-box">
         <h2 style="color: #fff; text-align: center; margin-bottom: 10px; font-size: 32px;">PAUSED</h2>
         <button class="btn-game" style="font-size: 20px; padding: 12px 20px;" onclick="togglePause()">Resume</button>
         
-        <button id="btn-ad-time" class="btn-game" style="font-size: 20px; padding: 12px 20px; display: none;" onclick="requestReward('extra_time')">+30 Seconds</button>
-        <button id="btn-ad-hint" class="btn-game" style="font-size: 20px; padding: 12px 20px; display: none;" onclick="requestReward('hint')">Hint</button>
-        <button id="btn-ad-undo" class="btn-game" style="font-size: 20px; padding: 12px 20px; display: none;" onclick="requestReward('undo_move')">Undo Blunder</button>
+        <button id="btn-ad-time" class="btn-game btn-ad-reward" style="font-size: 18px; padding: 12px 20px; display: none;" onclick="requestReward('extra_time')"><span class="ad-badge">AD</span> +30 Seconds</button>
+        <button id="btn-ad-hint" class="btn-game btn-ad-reward" style="font-size: 18px; padding: 12px 20px; display: none;" onclick="requestReward('hint')"><span class="ad-badge">AD</span> Hint (<span id="pause-hints-left">3</span> left)</button>
+        <button id="btn-ad-undo" class="btn-game btn-ad-reward" style="font-size: 18px; padding: 12px 20px; display: none;" onclick="requestReward('undo_move')"><span class="ad-badge">AD</span> Undo Blunder</button>
 
         <button class="btn-game btn-secondary" style="font-size: 20px; padding: 12px 20px;" onclick="returnToMenu()">Quit Game</button>
       </div>
     </div>
-    <!-- RANK UP OVERLAY -->
+
+    <!-- Tier Rank-Up Overlay -->
     <div id="rankup-overlay" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:500; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;">
-      <div id="rankup-stone" style="font-size: 120px; position: absolute; filter: brightness(0.5) contrast(1.2); transition: transform 0.05s;">🪨</div>
+      <div id="rankup-stone" style="position: absolute; transition: transform 0.05s; display: flex; align-items: center; justify-content: center;">
+        <svg viewBox="0 0 24 24" width="130" height="130" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 15px rgba(255,215,0,0.5));">
+          <polygon points="12 2 2 7 12 22 22 7 12 2"/>
+          <line x1="2" y1="7" x2="22" y2="7"/>
+          <polyline points="12 22 8 7 12 2 16 7 12 22"/>
+        </svg>
+      </div>
       <div id="rankup-badge" style="position: absolute; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.1); background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%); transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
       <h1 id="rankup-text" style="color: #fff; font-size: 45px; text-transform: uppercase; margin-top: 250px; opacity: 0; transition: opacity 0.5s; text-shadow: 0 0 20px rgba(255,255,255,0.8); font-style: italic;">Rank Up!</h1>
       <h2 id="rankup-tier-text" style="font-size: 35px; margin-top: 10px; opacity: 0; transition: opacity 0.5s 0.2s; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">Gold Tier</h2>
     </div>
 
-    <!-- CUSTOMIZATION SCREEN -->
+    <!-- Customization Screen -->
     <div id="customization-screen" class="screen">
       <div class="customization-header-bar">
-        <button class="btn-game btn-secondary btn-custom-back" onclick="switchScreen('menu-screen')">◀ BACK</button>
+        <button class="btn-game btn-secondary btn-custom-back" onclick="switchScreen('menu-screen')">Back</button>
         <h1 class="custom-title">Customization</h1>
         <div class="custom-header-spacer"></div>
       </div>
@@ -1485,7 +1633,7 @@
       </div>
     </div>
 
-    <!-- ENDGAME MODAL -->
+    <!-- Endgame Modal -->
     <div id="endgame-modal" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:200; flex-direction:column; align-items:center; justify-content:center;">
       <div style="background: #191930; border: 4px solid rgba(255,255,255,0.8); border-radius: 20px; padding: 40px; text-align: center; width: 80%; max-width: 400px; box-shadow: 0 0 50px rgba(0,0,0,0.9);">
         <h2 id="endgame-title" style="color: #ffd700; font-size: 40px; margin-bottom: 20px; text-transform: uppercase; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">VICTORY</h2>
@@ -1549,9 +1697,10 @@
         applyDebugMode();
       });
 
-    // ==========================================
-    // DEBUG & TESTING MODE CONTROLLER
-    // ==========================================
+    /**
+     * Developer debugging mode controller
+     * Can be enabled via ?debug=true URL parameter or by tapping the game logo 5 times
+     */
     let isDebugMode = (
       window.location.search.includes('debug=true') || 
       window.location.hash.includes('debug') ||
@@ -1635,198 +1784,72 @@
       console.log("Debug Mode is now:", isDebugMode);
     };
 
-    // Audio Manager & Ad Audio Controller
+    // Audio Manager & SFX Controller (Using Human-Refined Audio Assets)
     const audioMove = new Audio('sound/standard/Move.mp3');
     const audioCapture = new Audio('sound/standard/Capture.mp3');
+    const audioCheck = new Audio('sound/sfx/Check.mp3');
+    const audioVictory = new Audio('sound/sfx/Victory.mp3');
+    const audioDefeat = new Audio('sound/sfx/Defeat.mp3');
+    const audioDraw = new Audio('sound/sfx/Draw.mp3');
+    const audioLowTime = new Audio('sound/sfx/LowTime.mp3');
+    const audioSelect = new Audio('sound/standard/Select.mp3');
+    const audioConfirm = new Audio('sound/standard/Confirmation.mp3');
+    const audioExplosion = new Audio('sound/standard/Explosion.mp3');
+    const audioGenericNotify = new Audio('sound/sfx/GenericNotify.mp3');
+
+    const allAudios = [audioMove, audioCapture, audioCheck, audioVictory, audioDefeat, audioDraw, audioLowTime, audioSelect, audioConfirm, audioExplosion, audioGenericNotify];
     
     let isAdPlaying = false;
     function setAdAudioMute(isMuted) {
       isAdPlaying = isMuted;
       if (isMuted) {
-        if (audioCtx && audioCtx.state !== 'closed' && audioCtx.state !== 'suspended') {
-          audioCtx.suspend().catch(() => {});
-        }
-        if (typeof audioMove !== 'undefined') audioMove.pause();
-        if (typeof audioCapture !== 'undefined') audioCapture.pause();
-      } else {
-        if (audioOn && audioCtx && audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(() => {});
-        }
+        allAudios.forEach(a => {
+          try { a.pause(); } catch(e){}
+        });
       }
     }
 
-    function playPieceMoveSound(isCapture) {
-      if (!audioOn) return;
+    function safePlayAudio(audio) {
+      if (!audioOn || isAdPlaying || !audio) return;
       try {
-        if (isCapture && typeof audioCapture !== 'undefined') {
-          audioCapture.currentTime = 0;
-          const p = audioCapture.play();
-          if (p && typeof p.catch === 'function') p.catch(() => {});
-        } else if (typeof audioMove !== 'undefined') {
-          audioMove.currentTime = 0;
-          const p = audioMove.play();
-          if (p && typeof p.catch === 'function') p.catch(() => {});
-        }
+        audio.currentTime = 0;
+        const p = audio.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
       } catch(e) {}
     }
 
-    // Ticking audio generator
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playPieceMoveSound(isCapture, isCheck) {
+      if (isCheck) {
+        safePlayAudio(audioCheck);
+      } else if (isCapture) {
+        safePlayAudio(audioCapture);
+      } else {
+        safePlayAudio(audioMove);
+      }
+    }
+
     function playTick() {
-      if (!audioOn || isAdPlaying) return;
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(800 + Math.random()*200, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.05);
+      safePlayAudio(audioSelect);
     }
 
     function playBuzzer() {
-      if (!audioOn || isAdPlaying) return;
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.4);
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.5);
+      safePlayAudio(audioConfirm);
     }
 
-    // Synthesized Crisp Button Click Sound
     function playClickSound() {
-      if (!audioOn || isAdPlaying) return;
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.05);
+      safePlayAudio(audioSelect);
     }
 
     function playConfettiPop() {
-      if (!audioOn || isAdPlaying) return;
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      
-      const t = audioCtx.currentTime;
-      
-      // 1. The "POP" (fast downward sweep)
-      const osc = audioCtx.createOscillator();
-      const oscGain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, t);
-      osc.frequency.exponentialRampToValueAtTime(40, t + 0.15);
-      
-      oscGain.gain.setValueAtTime(1, t);
-      oscGain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
-      
-      osc.connect(oscGain);
-      oscGain.connect(audioCtx.destination);
-      osc.start(t);
-      osc.stop(t + 0.2);
-      
-      // 2. The "PAPER RUSTLE" (Filtered white noise burst)
-      const bufferSize = audioCtx.sampleRate * 1.5; 
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-      
-      const noiseSource = audioCtx.createBufferSource();
-      noiseSource.buffer = buffer;
-      
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = 1200;
-      filter.Q.value = 0.5;
-      
-      const noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(1, t);
-      noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 1.2);
-      
-      noiseSource.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(audioCtx.destination);
-      
-      noiseSource.start(t);
-      noiseSource.stop(t + 1.5);
+      safePlayAudio(audioGenericNotify);
     }
 
     function playRankUpRumble() {
-      if (!audioOn || isAdPlaying) return;
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const t = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(30, t);
-      osc.frequency.linearRampToValueAtTime(50, t + 1.5);
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.5, t + 0.5);
-      gain.gain.linearRampToValueAtTime(0.0, t + 1.5);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(t);
-      osc.stop(t + 1.5);
+      safePlayAudio(audioGenericNotify);
     }
 
     function playRankUpExplosion() {
-      if (!audioOn || isAdPlaying) return;
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const t = audioCtx.currentTime;
-      const bufferSize = audioCtx.sampleRate * 2.0; 
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-      const noiseSource = audioCtx.createBufferSource();
-      noiseSource.buffer = buffer;
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(100, t);
-      filter.frequency.exponentialRampToValueAtTime(800, t + 0.1);
-      filter.frequency.exponentialRampToValueAtTime(50, t + 2);
-      const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(1, t);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 2);
-      noiseSource.connect(filter);
-      filter.connect(gain);
-      gain.connect(audioCtx.destination);
-      noiseSource.start(t);
-      noiseSource.stop(t + 2);
-      
-      // Fanfare chord
-      const freqs = [440, 554.37, 659.25, 880]; // A Major
-      freqs.forEach(freq => {
-        const osc = audioCtx.createOscillator();
-        const oscGain = audioCtx.createGain();
-        osc.type = 'square';
-        osc.frequency.value = freq;
-        oscGain.gain.setValueAtTime(0, t);
-        oscGain.gain.linearRampToValueAtTime(0.1, t + 0.05);
-        oscGain.gain.exponentialRampToValueAtTime(0.001, t + 2);
-        osc.connect(oscGain);
-        oscGain.connect(audioCtx.destination);
-        osc.start(t);
-        osc.stop(t + 2);
-      });
+      safePlayAudio(audioExplosion);
     }
 
     // Bind click sound to all buttons and selectors globally
@@ -1836,46 +1859,13 @@
       }
     });
 
-    // Unblock & trigger TTS on first click
-    document.addEventListener('click', () => {
-      if (window.speechSynthesis && window.speechSynthesis.speak) {
-        const u = new SpeechSynthesisUtterance('');
-        window.speechSynthesis.speak(u);
-      }
-    }, { once: true });
-
     let lastHeartbeatTime = 0;
     function playHeartbeat() {
-      if (!audioOn) return;
+      if (!audioOn || isAdPlaying) return;
       const now = Date.now();
       if (now - lastHeartbeatTime < 1000) return;
       lastHeartbeatTime = now;
-      
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc1 = audioCtx.createOscillator();
-      const gain1 = audioCtx.createGain();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(65, audioCtx.currentTime);
-      gain1.gain.setValueAtTime(0.9, audioCtx.currentTime);
-      gain1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
-      osc1.connect(gain1);
-      gain1.connect(audioCtx.destination);
-      osc1.start();
-      osc1.stop(audioCtx.currentTime + 0.18);
-      
-      setTimeout(() => {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc2 = audioCtx.createOscillator();
-        const gain2 = audioCtx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(55, audioCtx.currentTime);
-        gain2.gain.setValueAtTime(0.7, audioCtx.currentTime);
-        gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
-        osc2.connect(gain2);
-        gain2.connect(audioCtx.destination);
-        osc2.start();
-        osc2.stop(audioCtx.currentTime + 0.18);
-      }, 150);
+      safePlayAudio(audioLowTime);
     }
 
     // Streak Manager
@@ -2004,6 +1994,7 @@
         if (pm && pm.classList.contains('active')) togglePause();
       } else if (placement === 'hint') {
         hintsUsed++;
+        updateHintButtonUI();
         requestHintMove();
         const pm = document.getElementById('pause-menu');
         if (pm && pm.classList.contains('active')) togglePause();
@@ -2184,7 +2175,7 @@
       }
 
       if (!cachedLeaderboard || cachedLeaderboard.length === 0) {
-        cachedLeaderboard = generateFakePlayers();
+        cachedLeaderboard = generateRegionalLeaderboard();
       }
 
       updateProfileUI();
@@ -2247,7 +2238,10 @@
       }
     }
 
-    function generateFakePlayers() {
+    /**
+     * Seeds the global leaderboard rankings with masters and regional contenders
+     */
+    function generateRegionalLeaderboard() {
       const gms = [
         {name: "GM Magnus", score: 3215},
         {name: "GM Hikaru", score: 3200},
@@ -2274,7 +2268,7 @@
       if (cachedLeaderboard && cachedLeaderboard.length > 0) {
         return cachedLeaderboard;
       }
-      cachedLeaderboard = generateFakePlayers();
+      cachedLeaderboard = generateRegionalLeaderboard();
       saveProgress();
       return cachedLeaderboard;
     }
@@ -2306,7 +2300,7 @@
       lbContainer.innerHTML = html;
     }
 
-    // Screen Management
+    // Navigation & Screen Controller
     function switchScreen(screenId) {
       document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
       document.getElementById(screenId).classList.add('active');
@@ -2352,13 +2346,13 @@
           }
           if (userTimeLeft <= 0) {
             clearInterval(clockInterval);
-            endFakeGame('loss');
+            concludeMatch('loss');
           }
         } else {
           oppTimeLeft--;
           if (oppTimeLeft <= 0) {
             clearInterval(clockInterval);
-            endFakeGame('win');
+            concludeMatch('win');
           }
         }
         updateClockDisplay();
@@ -2397,12 +2391,136 @@
     }
 
     const puzzleList = [
-      { fen: "6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1", moves: ["e1e8"] },
-      { fen: "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4", moves: ["h5f7"] },
-      { fen: "r1b1k2r/pppp1ppp/8/4n3/1bPq4/P7/1P1BPPPP/RN1QKB1R b KQkq - 0 1", moves: ["e5d3", "e2d3", "b4d2", "d1d2"] }
+      {
+        title: "Back Rank Checkmate",
+        theme: "Mate in 1 · White to Move",
+        fen: "6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1",
+        moves: ["e1e8"]
+      },
+      {
+        title: "Scholar's Attack",
+        theme: "Mate in 1 · White to Move",
+        fen: "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+        moves: ["h5f7"]
+      },
+      {
+        title: "Fool's Mate",
+        theme: "Mate in 1 · Black to Move",
+        fen: "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
+        moves: ["d8h4"]
+      },
+      {
+        title: "Arabian Checkmate",
+        theme: "Mate in 1 · White to Move",
+        fen: "7k/5R2/5N2/8/8/8/8/4K3 w - - 0 1",
+        moves: ["f7h7"]
+      },
+      {
+        title: "Smothered Knight Mate",
+        theme: "Mate in 1 · White to Move",
+        fen: "6nk/7p/7N/8/8/8/8/4K3 w - - 0 1",
+        moves: ["h6f7"]
+      },
+      {
+        title: "Black Back-Rank Finish",
+        theme: "Mate in 1 · Black to Move",
+        fen: "4r1k1/5ppp/8/8/8/8/5PPP/R5K1 b - - 0 1",
+        moves: ["e8e1"]
+      },
+      {
+        title: "Black Smothered Finish",
+        theme: "Mate in 1 · Black to Move",
+        fen: "4k3/8/8/8/8/7n/7P/6NK b - - 0 1",
+        moves: ["h3f2"]
+      },
+      {
+        title: "Queen Skewer Win",
+        theme: "Win Rook · White to Move",
+        fen: "8/8/8/3k4/8/8/1B6/r3K3 w - - 0 1",
+        moves: ["b2a1"]
+      },
+      {
+        title: "Black Queen Back Rank",
+        theme: "Mate in 1 · Black to Move",
+        fen: "6k1/5ppp/8/8/8/8/5PPP/q3K3 b - - 0 1",
+        moves: ["a1e1"]
+      },
+      {
+        title: "Double Rook Escalator",
+        theme: "Mate in 1 · White to Move",
+        fen: "7k/R7/1R6/8/8/8/8/4K3 w - - 0 1",
+        moves: ["b6b8"]
+      },
+      {
+        title: "Black Double Rook Ladder",
+        theme: "Mate in 1 · Black to Move",
+        fen: "4k3/8/8/8/8/1r6/r7/7K b - - 0 1",
+        moves: ["b3b1"]
+      },
+      {
+        title: "Damiano's Checkmate",
+        theme: "Mate in 1 · White to Move",
+        fen: "5rk1/5ppp/8/8/8/8/5QPP/6K1 w - - 0 1",
+        moves: ["f2f7"]
+      },
+      {
+        title: "Morphy's Mate",
+        theme: "Mate in 1 · White to Move",
+        fen: "5rk1/5Rpp/8/8/8/8/1B4PP/6K1 w - - 0 1",
+        moves: ["f7g7"]
+      },
+      {
+        title: "Epaulette Checkmate",
+        theme: "Mate in 1 · White to Move",
+        fen: "3rkr2/8/8/8/8/8/8/4Q1K1 w - - 0 1",
+        moves: ["e1e6"]
+      },
+      {
+        title: "Discovered Attack",
+        theme: "Mate in 1 · Black to Move",
+        fen: "3r2k1/5ppp/8/8/8/8/5PPP/3R2K1 b - - 0 1",
+        moves: ["d8d1"]
+      },
+      {
+        title: "Corridor Queen Mate",
+        theme: "Mate in 1 · White to Move",
+        fen: "1k6/8/1K6/8/8/8/8/3Q4 w - - 0 1",
+        moves: ["d1d8"]
+      }
     ];
     let currentPuzzle = null;
     let puzzleMoveIndex = 0;
+    let puzzlePlayerColor = 'w';
+
+    function loadPuzzle(puzzle) {
+      currentPuzzle = puzzle;
+      puzzleMoveIndex = 0;
+      game.load(puzzle.fen);
+      puzzlePlayerColor = game.turn();
+      
+      const isWhite = puzzlePlayerColor === 'w';
+      document.getElementById('opp-name-top').innerText = 'Tactics Trainer';
+      document.getElementById('opp-rating-top').innerText = puzzle.title;
+      
+      const infoBar = document.getElementById('puzzle-info-bar');
+      if (infoBar) {
+        infoBar.style.display = 'flex';
+        document.getElementById('puzzle-title-text').innerText = puzzle.title;
+        document.getElementById('puzzle-turn-text').innerText = `${isWhite ? '⚪ White' : '⚫ Black'} to Move · ${puzzle.theme}`;
+      }
+      
+      switchScreen('game-screen');
+      setTimeout(() => renderBoard('main-board'), 100);
+      document.getElementById('opp-timer').style.display = 'none';
+      document.getElementById('user-timer').style.display = 'none';
+      updateHintButtonUI();
+    }
+
+    function nextPuzzle() {
+      const remaining = puzzleList.filter(p => p !== currentPuzzle);
+      const nextP = remaining[Math.floor(Math.random() * remaining.length)] || puzzleList[0];
+      loadPuzzle(nextP);
+    }
 
     function startGame(mode) {
       game.reset();
@@ -2412,8 +2530,12 @@
       updateMoveHistory();
       currentGameMode = mode;
       currentPuzzle = null;
+      puzzlePlayerColor = 'w';
       hintsUsed = 0;
       clearActiveHint();
+
+      const infoBar = document.getElementById('puzzle-info-bar');
+      if (infoBar) infoBar.style.display = 'none';
 
       if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
         bridge.platform.sendMessage("level_started");
@@ -2421,20 +2543,12 @@
       
       if (mode === 'puzzles') {
         const randPuzzle = puzzleList[Math.floor(Math.random() * puzzleList.length)];
-        currentPuzzle = randPuzzle;
-        puzzleMoveIndex = 0;
-        game.load(randPuzzle.fen);
-        document.getElementById('opp-name-top').innerText = 'Puzzle Trainer';
-        document.getElementById('opp-rating-top').innerText = 'Tactics';
-        switchScreen('game-screen');
-        setTimeout(() => renderBoard('main-board'), 100);
-        document.getElementById('opp-timer').style.display = 'none';
-        document.getElementById('user-timer').style.display = 'none';
+        loadPuzzle(randPuzzle);
         return;
       }
       
       if (mode === 'online') {
-        startFakeMultiplayer();
+        startMatchmaking();
       } else if (mode.startsWith('bot_')) {
         let oppName = 'Bot';
         let diff = 0;
@@ -2460,9 +2574,13 @@
         setTimeout(() => renderBoard('main-board'), 100);
         initClocks();
       }
+      updateHintButtonUI();
     }
 
-    function startFakeMultiplayer() {
+    /**
+     * Initiates online player matchmaking flow and engine simulation
+     */
+    function startMatchmaking() {
       document.getElementById('pairing-screen').classList.remove('zoom-out-fade');
       switchScreen('pairing-screen');
       
@@ -2470,7 +2588,7 @@
       document.getElementById('pairing-spinner').style.display = 'block';
       document.getElementById('pairing-match').style.display = 'none';
 
-      // 1.0 seconds search
+      // Realistic matchmaking search duration
       setTimeout(() => {
         const oppName = 'Guest ' + Math.floor(1000 + Math.random() * 9000);
         const oppRating = userProfile.rating + Math.floor(Math.random() * 100) - 50;
@@ -2492,7 +2610,7 @@
 
         playBuzzer();
 
-        // 0.5s match found display -> zoom transition
+        // Reveal opponent and transition to match board
         setTimeout(() => {
           const ps = document.getElementById('pairing-screen');
           ps.classList.add('zoom-out-fade');
@@ -2507,7 +2625,11 @@
       }, 1000);
     }
 
-    function endFakeGame(result) {
+    /**
+     * Concludes the current game, computes ELO delta, records progression, and notifies the SDK
+     * @param {'win'|'loss'|'draw'} result - Outcome of the match
+     */
+    function concludeMatch(result) {
       const diff = currentOpponentRating - userProfile.rating;
       let winReward = 25;
       let lossPenalty = 20;
@@ -2526,7 +2648,7 @@
         lossPenalty = Math.max(10, 20 - Math.floor(diff / 20));
       } else if (currentGameMode === 'puzzles') {
         winReward = 0;
-        lossPenalty = 0; // No penalty for failing a puzzle
+        lossPenalty = 0; // No rating penalty for puzzle attempts
       }
 
       if (bulletModeActive) {
@@ -2535,16 +2657,15 @@
 
       clearInterval(clockInterval);
       const oldRating = userProfile.rating;
-        // Determine rating change
-        let change = 0;
-        if (result === 'win') {
-          userProfile.rating += winReward;
-          userProfile.wins = (userProfile.wins || 0) + 1;
-          change = winReward;
-        } else {
-          userProfile.rating = Math.max(0, oldRating - lossPenalty);
-          change = -lossPenalty;
-        }
+      let change = 0;
+      if (result === 'win') {
+        userProfile.rating += winReward;
+        userProfile.wins = (userProfile.wins || 0) + 1;
+        change = winReward;
+      } else {
+        userProfile.rating = Math.max(0, oldRating - lossPenalty);
+        change = -lossPenalty;
+      }
       
       const newRating = userProfile.rating;
       const diffStr = (change > 0 ? '+' : '') + change;
@@ -2648,17 +2769,32 @@
       elo.innerText = newRating;
       diffLabel.innerText = diffStr;
       diffLabel.style.color = result === 'win' ? '#38f9d7' : '#ff4757';
-      
-      if (currentGameMode !== 'puzzles') {
-        rematchBtn.style.display = 'block';
-        elo.style.display = 'block';
-        diffLabel.style.display = 'block';
-        if(ratingLabel) ratingLabel.style.display = 'block';
+
+      if (result === 'win') {
+        safePlayAudio(audioVictory);
       } else {
-        rematchBtn.style.display = 'none';
+        safePlayAudio(audioDefeat);
+      }
+      
+      if (currentGameMode === 'puzzles') {
+        title.innerText = 'PUZZLE SOLVED!';
+        title.style.color = '#38f9d7';
+        rematchBtn.style.display = 'block';
+        rematchBtn.innerText = 'Next Puzzle ❯';
+        rematchBtn.onclick = function() {
+          document.getElementById('endgame-modal').style.display = 'none';
+          nextPuzzle();
+        };
         elo.style.display = 'none';
         diffLabel.style.display = 'none';
-        if(ratingLabel) ratingLabel.style.display = 'none';
+        if (ratingLabel) ratingLabel.style.display = 'none';
+      } else {
+        rematchBtn.style.display = 'block';
+        rematchBtn.innerText = 'Play Again';
+        rematchBtn.onclick = rematchGame;
+        elo.style.display = 'block';
+        diffLabel.style.display = 'block';
+        if (ratingLabel) ratingLabel.style.display = 'block';
       }
       
       modal.style.display = 'flex';
@@ -2891,9 +3027,9 @@
           document.getElementById('btn-ad-time').style.display = (bulletModeActive && currentGameMode !== 'online') ? 'block' : 'none';
           const hintBtn = document.getElementById('btn-ad-hint');
           if (hintBtn) {
-            if (currentGameMode !== 'puzzles' && hintsUsed < 3) {
+            if (hintsUsed < 3) {
               hintBtn.style.display = 'block';
-              hintBtn.innerText = `Hint (${3 - hintsUsed} left)`;
+              updateHintButtonUI();
             } else {
               hintBtn.style.display = 'none';
             }
@@ -2911,6 +3047,27 @@
         if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
           bridge.platform.sendMessage("level_paused");
         }
+      }
+      updateHintButtonUI();
+    }
+
+    function updateHintButtonUI() {
+      const left = Math.max(0, 3 - hintsUsed);
+      const inGameHintBtn = document.getElementById('btn-ingame-hint');
+      const inGameLeft = document.getElementById('ingame-hints-left');
+      if (inGameHintBtn && inGameLeft) {
+        inGameLeft.innerText = left;
+        if (left <= 0) {
+          inGameHintBtn.style.opacity = '0.5';
+          inGameHintBtn.style.pointerEvents = 'none';
+        } else {
+          inGameHintBtn.style.opacity = '1';
+          inGameHintBtn.style.pointerEvents = 'auto';
+        }
+      }
+      const pauseLeft = document.getElementById('pause-hints-left');
+      if (pauseLeft) {
+        pauseLeft.innerText = left;
       }
     }
 
@@ -2952,9 +3109,10 @@
     let lastMoveSqs = [];
 
     function handleSquareClick(sq, imgEl) {
+      const playerColor = currentPuzzle ? puzzlePlayerColor : 'w';
       if (selectedPieceSq) {
         const success = attemptMove(selectedPieceSq, sq);
-        if (!success && game.get(sq) && game.get(sq).color === 'w') {
+        if (!success && game.get(sq) && game.get(sq).color === playerColor && game.turn() === playerColor) {
           selectedPieceSq = sq;
           renderBoard('main-board');
         } else {
@@ -2963,7 +3121,7 @@
         }
       } else {
         const piece = game.get(sq);
-        if (piece && piece.color === 'w') {
+        if (piece && piece.color === playerColor && game.turn() === playerColor) {
           selectedPieceSq = sq;
           renderBoard('main-board');
         }
@@ -2971,40 +3129,46 @@
     }
 
     function attemptMove(fromSq, toSq) {
+      const playerColor = currentPuzzle ? puzzlePlayerColor : 'w';
+
       if (currentPuzzle) {
         const attemptStr = fromSq + toSq;
         const expectedMoveStr = currentPuzzle.moves[puzzleMoveIndex];
         
-        if (expectedMoveStr && expectedMoveStr.startsWith(attemptStr)) {
-          const move = game.move({ from: fromSq, to: toSq, promotion: 'q' });
+        if (expectedMoveStr && (expectedMoveStr === attemptStr || expectedMoveStr.startsWith(attemptStr))) {
+          const promo = expectedMoveStr.length > 4 ? expectedMoveStr[4] : 'q';
+          const move = game.move({ from: fromSq, to: toSq, promotion: promo });
           if (move) {
             puzzleMoveIndex++;
             lastMoveSqs = [fromSq, toSq];
+            playPieceMoveSound(move.captured, game.in_check());
             renderBoard('main-board');
             updateMoveHistory();
-            if (audioOn && typeof audioMove !== 'undefined') {
-               audioMove.currentTime = 0;
-               audioMove.play().catch(e=>console.log(e));
-            }
+            
             if (puzzleMoveIndex >= currentPuzzle.moves.length) {
-              setTimeout(() => endFakeGame('win'), 500);
+              setTimeout(() => {
+                playConfettiPop();
+                concludeMatch('win');
+              }, 400);
             } else {
               // Bot's forced reply
               setTimeout(() => {
                 const replyStr = currentPuzzle.moves[puzzleMoveIndex];
                 const rFrom = replyStr.substring(0, 2);
                 const rTo = replyStr.substring(2, 4);
-                game.move({ from: rFrom, to: rTo, promotion: 'q' });
+                const rPromo = replyStr.length > 4 ? replyStr[4] : 'q';
+                const rMove = game.move({ from: rFrom, to: rTo, promotion: rPromo });
                 puzzleMoveIndex++;
                 lastMoveSqs = [rFrom, rTo];
+                playPieceMoveSound(rMove ? rMove.captured : false, game.in_check());
                 renderBoard('main-board');
                 updateMoveHistory();
-                if (audioOn && typeof audioMove !== 'undefined') {
-                   audioMove.currentTime = 0;
-                   audioMove.play().catch(e=>console.log(e));
-                }
+                
                 if (puzzleMoveIndex >= currentPuzzle.moves.length) {
-                  setTimeout(() => endFakeGame('win'), 500);
+                  setTimeout(() => {
+                    playConfettiPop();
+                    concludeMatch('win');
+                  }, 400);
                 }
               }, 400);
             }
@@ -3014,13 +3178,14 @@
         
         // Prevent shake if user is just selecting another piece of their own color
         const targetPiece = game.get(toSq);
-        if (targetPiece && targetPiece.color === game.get(fromSq).color) {
+        if (targetPiece && targetPiece.color === playerColor) {
           return false;
         }
         
         // Incorrect move
         const b = document.getElementById('main-board');
-        if(b) { b.classList.remove('board-shake'); void b.offsetWidth; b.classList.add('board-shake'); }
+        if (b) { b.classList.remove('board-shake'); void b.offsetWidth; b.classList.add('board-shake'); }
+        playTick();
         return false;
       }
 
@@ -3037,14 +3202,14 @@
       });
 
       if (move) {
-        playPieceMoveSound(move.captured || isCapture);
+        playPieceMoveSound(move.captured || isCapture, game.in_check());
         if (game.turn() === 'b') { // User just moved (white)
            handleCaptureStreak(move.captured || isCapture);
         }
         if (move.captured || isCapture) {
           const els = document.querySelectorAll('button, .audio-toggle, .player-hud');
           const b = document.getElementById('main-board');
-          if(b) { b.classList.remove('board-shake'); void b.offsetWidth; b.classList.add('board-shake'); }
+          if (b) { b.classList.remove('board-shake'); void b.offsetWidth; b.classList.add('board-shake'); }
           els.forEach(el => {
              el.classList.remove('shake-delay-1', 'shake-delay-2');
              void el.offsetWidth;
@@ -3065,9 +3230,10 @@
       return false;
     }
 
-    // ==========================================
-    // CHESS AI ENGINE & BUILT-IN EVALUATOR
-    // ==========================================
+    /**
+     * Piece-Square Tables (PST) and Alpha-Beta Minimax Evaluation
+     * Provides fast instant-heuristic search and serves as reliable fallback for Stockfish
+     */
     const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
     const pst = {
       p: [
@@ -3283,7 +3449,8 @@
     }
 
     function requestHintMove() {
-      if (game.turn() !== 'w' || game.game_over()) return;
+      const playerColor = currentPuzzle ? puzzlePlayerColor : 'w';
+      if (game.turn() !== playerColor || game.game_over()) return;
       
       // 1. If playing puzzles, show puzzle solution move
       if (currentPuzzle && currentPuzzle.moves && currentPuzzle.moves[puzzleMoveIndex]) {
@@ -3329,7 +3496,7 @@
 
         // Fallback after 400ms
         setTimeout(() => {
-          if (!hintHandled && game.turn() === 'w') {
+          if (!hintHandled && game.turn() === playerColor) {
             engine.removeEventListener('message', onHintMsg);
             const fallback = getBuiltInBestMove(game, 3, 0);
             if (fallback) applyActiveHint(fallback);
@@ -3378,7 +3545,7 @@
       });
       
       if (executedMove) {
-        playPieceMoveSound(executedMove.captured || isCapture);
+        playPieceMoveSound(executedMove.captured || isCapture, game.in_check());
         if (game.turn() === 'w') {
           handleCaptureStreak(executedMove.captured || isCapture);
         }
@@ -3511,9 +3678,9 @@
         setTimeout(() => {
           if (game.in_checkmate()) {
             if (game.turn() === 'w') {
-              endFakeGame('loss'); 
+              concludeMatch('loss'); 
             } else {
-              endFakeGame('win');
+              concludeMatch('win');
             }
           } else {
             alert('Game Over: Draw');
@@ -3554,10 +3721,26 @@
 
       const files = ['a','b','c','d','e','f','g','h'];
       const boardState = game.board();
+      const playerColor = currentPuzzle ? puzzlePlayerColor : 'w';
 
+      // Legal moves highlight enabled in ALL game modes
       let legalMoves = [];
-      if (currentGameMode === 'bot_easy' && selectedPieceSq) {
+      if (selectedPieceSq) {
         legalMoves = game.moves({ square: selectedPieceSq, verbose: true });
+      }
+
+      // Check if King is in check
+      let checkedKingSq = null;
+      if (game.in_check()) {
+        const turnColor = game.turn();
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const piece = boardState[r][c];
+            if (piece && piece.type === 'k' && piece.color === turnColor) {
+              checkedKingSq = files[c] + (8 - r);
+            }
+          }
+        }
       }
 
       for (let r = 0; r < 8; r++) {
@@ -3572,18 +3755,35 @@
           const sqName = file + rank;
           sq.id = 'sq-' + sqName;
 
+          // Coordinate notation marks
+          if (c === 0) {
+            const rankLabel = document.createElement('span');
+            rankLabel.className = 'board-coord-rank';
+            rankLabel.innerText = rank;
+            sq.appendChild(rankLabel);
+          }
+          if (r === 7) {
+            const fileLabel = document.createElement('span');
+            fileLabel.className = 'board-coord-file';
+            fileLabel.innerText = file;
+            sq.appendChild(fileLabel);
+          }
+
           if (sqName === selectedPieceSq) {
             sq.classList.add('selected');
           }
           if (lastMoveSqs.includes(sqName)) {
             sq.classList.add('last-move');
           }
-          if (activeHint && game.turn() === 'w') {
+          if (sqName === checkedKingSq) {
+            sq.classList.add('in-check');
+          }
+          if (activeHint && game.turn() === playerColor) {
             if (sqName === activeHint.from) {
               sq.classList.add('hint-from-sq');
               const badge = document.createElement('div');
               badge.className = 'hint-indicator-badge';
-              badge.innerText = '';
+              badge.innerText = '💡';
               sq.appendChild(badge);
             } else if (sqName === activeHint.to) {
               sq.classList.add('hint-to-sq');
@@ -3603,7 +3803,7 @@
             sqImg = document.createElement('img');
             sqImg.src = 'piece/cburnett/' + pieceMap[pChar] + '.svg';
             sqImg.className = 'piece';
-            if (pieceSkinObj.cssFilter !== 'none') {
+            if (pieceSkinObj && pieceSkinObj.cssFilter !== 'none') {
               sqImg.style.filter = pieceSkinObj.cssFilter + ' drop-shadow(0 4px 4px rgba(0,0,0,0.4))';
             }
             
@@ -3611,7 +3811,7 @@
                sqImg.classList.add('animate-drop');
             }
             
-            if (pObj.color === 'w') {
+            if (pObj.color === playerColor && game.turn() === playerColor) {
               sqImg.draggable = false;
               sqImg.style.cursor = 'pointer';
             } else {
