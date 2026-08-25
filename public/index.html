@@ -1919,11 +1919,11 @@
 
     // Tier System
     function getTier(elo) {
-      if (elo < 1200) return { name: 'Bronze', img: 'bronze-medal.png', color: '#cd7f32' };
-      if (elo < 1500) return { name: 'Silver', img: 'silver-medal.png', color: '#c0c0c0' };
-      if (elo < 1800) return { name: 'Gold', img: 'gold-medal.png', color: '#ffd700' };
-      if (elo < 2200) return { name: 'Platinum', img: 'platinum.png', color: '#e5e4e2' };
-      return { name: 'Diamond', img: 'diamond.png', color: '#b9f2ff' };
+      if (elo < 1200) return { name: 'Bronze', img: 'bronze.svg', color: '#cd7f32' };
+      if (elo < 1500) return { name: 'Silver', img: 'silver.svg', color: '#c0c0c0' };
+      if (elo < 1800) return { name: 'Gold', img: 'gold.svg', color: '#ffd700' };
+      if (elo < 2200) return { name: 'Platinum', img: 'platinum.svg', color: '#e5e4e2' };
+      return { name: 'Diamond', img: 'diamond.svg', color: '#b9f2ff' };
     }
 
     function formatRating(elo) {
