@@ -1477,10 +1477,10 @@
             </button>
             <div class="menu-icon-row">
               <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle btn-icon-round" onclick="toggleBulletMode()">
-                <img id="img-bullet-toggle" src="images/Misc/clock.png" style="width: 40px; height: 40px; filter: invert(1); opacity: 0.5; pointer-events: none;">
+                <img id="img-bullet-toggle" src="images/Misc/clock.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 0.5; pointer-events: none;">
               </button>
               <button id="btn-audio-menu" class="btn-game btn-icon-round" onclick="toggleAudio()">
-                <img id="img-audio-menu" src="images/Misc/volume-up.png" style="width: 40px; height: 40px; filter: invert(1); opacity: 1; pointer-events: none;">
+                <img id="img-audio-menu" src="images/Misc/volume-up.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
               </button>
             </div>
           </div>
@@ -3091,10 +3091,10 @@
         btnMenu.style.boxShadow = audioOn ? '0 8px 0 #1a7a6e, 0 15px 20px rgba(0,0,0,0.4)' : '0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4)';
       }
       if(imgMenu) {
-        imgMenu.src = audioOn ? "images/Misc/volume-up.png" : "images/Misc/mute.png";
+        imgMenu.src = audioOn ? "images/Misc/volume-up.svg" : "images/Misc/mute.svg";
         imgMenu.style.opacity = audioOn ? '1' : '0.5';
-        imgMenu.style.width = audioOn ? '40px' : '26px';
-        imgMenu.style.height = audioOn ? '40px' : '26px';
+        imgMenu.style.width = '42px';
+        imgMenu.style.height = '42px';
       }
       const btnGame = document.getElementById('btn-audio-game');
       if(btnGame) btnGame.innerText = audioOn ? 'Sound: ON' : 'Sound: OFF';

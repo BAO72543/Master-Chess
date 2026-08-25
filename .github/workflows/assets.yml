@@ -64,7 +64,7 @@ jobs:
         run: |
           mkdir -p assets/public
           mv public/compiled public/css public/hashed public/npm assets/public/
-          cp -p LICENSE COPYING.md README.md assets/
+          cp -p LICENSE README.md assets/
           git log -n 1 --pretty=oneline > assets/commit.txt
       - name: Tar assets
         run: cd assets && tar --zstd -cvpf ../assets.tar.zst . && cd -
