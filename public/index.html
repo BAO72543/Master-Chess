@@ -1636,46 +1636,6 @@
     }
     .emote-chip:active { transform: scale(0.96); }
 
-    /* Puzzle Info Bar */
-    #puzzle-info-bar {
-      width: 100%;
-      max-width: 560px;
-      background: linear-gradient(135deg, rgba(20, 20, 35, 0.92), rgba(35, 35, 60, 0.92));
-      border: 2px solid #38f9d7;
-      border-radius: 12px;
-      padding: 6px 12px;
-      margin-bottom: 6px;
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 15px rgba(56, 249, 215, 0.25);
-      z-index: 15;
-      box-sizing: border-box;
-    }
-    #puzzle-title-text {
-      color: #fff;
-      font-weight: 800;
-      font-size: clamp(12px, 1.5vmin, 15px);
-    }
-    #puzzle-turn-text {
-      color: #ffd700;
-      font-size: clamp(10px, 1.3vmin, 13px);
-      font-weight: 700;
-    }
-    .btn-puzzle-next {
-      background: #2f6b55;
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
-      border-radius: 8px;
-      padding: 4px 10px;
-      color: #fff;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-
     /* Hints */
     @keyframes hint-pulse-gold {
       0% { box-shadow: inset 0 0 0 3px #ffd700, 0 0 15px rgba(255, 215, 0, 0.7); background-color: rgba(255, 215, 0, 0.45) !important; }
@@ -1737,6 +1697,47 @@
       pointer-events: none;
       backdrop-filter: blur(8px);
       white-space: nowrap;
+    }
+
+    /* Puzzle Wrong Move Notification Banner */
+    #puzzle-wrong-banner {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translate(-50%, -10px);
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.96), rgba(153, 27, 27, 0.96));
+      border: 2px solid #ff4d4f;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 77, 79, 0.5);
+      color: #ffffff;
+      padding: 7px 18px;
+      border-radius: 24px;
+      font-size: clamp(11px, 1.4vmin, 13.5px);
+      font-weight: 800;
+      z-index: 125;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    #puzzle-wrong-banner.show {
+      display: flex;
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    /* Wrong move square flash animation */
+    @keyframes wrong-sq-pulse {
+      0% { box-shadow: inset 0 0 0 3px #ff4757, 0 0 15px rgba(255, 71, 87, 0.8); background-color: rgba(255, 71, 87, 0.45) !important; }
+      50% { box-shadow: inset 0 0 0 4px #fff, 0 0 25px rgba(255, 71, 87, 0.95); background-color: rgba(255, 71, 87, 0.6) !important; }
+      100% { box-shadow: inset 0 0 0 3px #ff4757, 0 0 15px rgba(255, 71, 87, 0.8); background-color: rgba(255, 71, 87, 0.45) !important; }
+    }
+    .board-sq.wrong-move-flash {
+      animation: wrong-sq-pulse 0.6s ease-in-out !important;
+      z-index: 12 !important;
     }
 
     /* =========================================================================
@@ -2143,16 +2144,10 @@
             <div id="opp-speech-bubble" class="speech-bubble speech-bubble-top" style="display: none;">Good game! 🤝</div>
           </div>
 
-          <!-- Chess Board & Puzzle Info -->
+          <!-- Chess Board & Notifications -->
           <div style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <div id="puzzle-info-bar">
-              <div>
-                <div id="puzzle-title-text">Tactics Trainer</div>
-                <div id="puzzle-turn-text">Find the winning move</div>
-              </div>
-              <button class="btn-puzzle-next" onclick="nextPuzzle()">Next ❯</button>
-            </div>
             <div id="hint-notification-banner"> Hint: <span id="hint-banner-text" style="color: #ffd700; margin-left: 4px;"></span></div>
+            <div id="puzzle-wrong-banner">❌ <span id="puzzle-wrong-text">Not the right move — try an alternative!</span></div>
             <div class="board-wrapper" id="main-board">
               <!-- Rendered via JS -->
             </div>
@@ -3328,23 +3323,63 @@
     let currentPuzzle = null;
     let puzzleMoveIndex = 0;
     let puzzlePlayerColor = 'w';
+    let puzzleFeedbackTimer = null;
+
+    function showPuzzleWrongMoveFeedback(msg, fromSq, toSq) {
+      clearTimeout(puzzleFeedbackTimer);
+      
+      const banner = document.getElementById('puzzle-wrong-banner');
+      const textEl = document.getElementById('puzzle-wrong-text');
+      if (banner && textEl) {
+        textEl.innerText = msg;
+        banner.style.display = 'flex';
+        banner.classList.remove('show');
+        void banner.offsetWidth;
+        banner.classList.add('show');
+      }
+
+      if (fromSq) {
+        const sqEl = document.getElementById('sq-' + fromSq);
+        if (sqEl) {
+          sqEl.classList.remove('wrong-move-flash');
+          void sqEl.offsetWidth;
+          sqEl.classList.add('wrong-move-flash');
+        }
+      }
+      if (toSq) {
+        const sqEl = document.getElementById('sq-' + toSq);
+        if (sqEl) {
+          sqEl.classList.remove('wrong-move-flash');
+          void sqEl.offsetWidth;
+          sqEl.classList.add('wrong-move-flash');
+        }
+      }
+
+      puzzleFeedbackTimer = setTimeout(() => {
+        hidePuzzleFeedback();
+      }, 2500);
+    }
+
+    function hidePuzzleFeedback() {
+      clearTimeout(puzzleFeedbackTimer);
+      const banner = document.getElementById('puzzle-wrong-banner');
+      if (banner) {
+        banner.classList.remove('show');
+        setTimeout(() => {
+          if (!banner.classList.contains('show')) banner.style.display = 'none';
+        }, 250);
+      }
+    }
 
     function loadPuzzle(puzzle) {
+      hidePuzzleFeedback();
       currentPuzzle = puzzle;
       puzzleMoveIndex = 0;
       game.load(puzzle.fen);
       puzzlePlayerColor = game.turn();
       
-      const isWhite = puzzlePlayerColor === 'w';
       document.getElementById('opp-name-top').innerText = 'Tactics Trainer';
       document.getElementById('opp-rating-top').innerText = puzzle.title;
-      
-      const infoBar = document.getElementById('puzzle-info-bar');
-      if (infoBar) {
-        infoBar.style.display = 'flex';
-        document.getElementById('puzzle-title-text').innerText = puzzle.title;
-        document.getElementById('puzzle-turn-text').innerText = `${isWhite ? '⚪ White' : '⚫ Black'} to Move · ${puzzle.theme}`;
-      }
       
       switchScreen('game-screen');
       setTimeout(() => renderBoard('main-board'), 100);
@@ -3353,13 +3388,38 @@
       updateHintButtonUI();
     }
 
+    function handlePuzzleSolved() {
+      safePlayAudio(audioVictory);
+      playConfettiPop();
+      if (typeof confetti !== 'undefined') {
+        confetti({
+          particleCount: 25,
+          spread: 50,
+          origin: { y: 0.5 },
+          colors: ['#ffd700', '#38f9d7', '#4facfe', '#ffffff'],
+          zIndex: 150,
+          disableForReducedMotion: true
+        });
+      }
+      userProfile.wins = (userProfile.wins || 0) + 1;
+      saveProgress();
+      if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
+        bridge.platform.sendMessage("level_completed");
+      }
+      setTimeout(() => {
+        nextPuzzle();
+      }, 1000);
+    }
+
     function nextPuzzle() {
+      hidePuzzleFeedback();
       const remaining = puzzleList.filter(p => p !== currentPuzzle);
       const nextP = remaining[Math.floor(Math.random() * remaining.length)] || puzzleList[0];
       loadPuzzle(nextP);
     }
 
     function startGame(mode) {
+      hidePuzzleFeedback();
       game.reset();
       lastMoveSqs = [];
       selectedPieceSq = null;
@@ -3370,9 +3430,6 @@
       puzzlePlayerColor = 'w';
       hintsUsed = 0;
       clearActiveHint();
-
-      const infoBar = document.getElementById('puzzle-info-bar');
-      if (infoBar) infoBar.style.display = 'none';
 
       if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
         bridge.platform.sendMessage("level_started");
@@ -4180,6 +4237,7 @@
           const promo = expectedMoveStr.length > 4 ? expectedMoveStr[4] : 'q';
           const move = game.move({ from: fromSq, to: toSq, promotion: promo });
           if (move) {
+            hidePuzzleFeedback();
             puzzleMoveIndex++;
             lastMoveSqs = [fromSq, toSq];
             playPieceMoveSound(move.captured, game.in_check());
@@ -4187,10 +4245,7 @@
             updateMoveHistory();
             
             if (puzzleMoveIndex >= currentPuzzle.moves.length) {
-              setTimeout(() => {
-                playConfettiPop();
-                concludeMatch('win');
-              }, 400);
+              setTimeout(handlePuzzleSolved, 300);
             } else {
               // Bot's forced reply
               setTimeout(() => {
@@ -4206,10 +4261,7 @@
                 updateMoveHistory();
                 
                 if (puzzleMoveIndex >= currentPuzzle.moves.length) {
-                  setTimeout(() => {
-                    playConfettiPop();
-                    concludeMatch('win');
-                  }, 400);
+                  setTimeout(handlePuzzleSolved, 300);
                 }
               }, 400);
             }
@@ -4223,10 +4275,20 @@
           return false;
         }
         
-        // Incorrect move
+        // Incorrect move in puzzle mode
         const b = document.getElementById('main-board');
         if (b) { b.classList.remove('board-shake'); void b.offsetWidth; b.classList.add('board-shake'); }
         playTick();
+
+        // Check if the move is a legal chess move or illegal
+        const legalMoves = game.moves({ verbose: true });
+        const isLegalChessMove = legalMoves.some(m => m.from === fromSq && m.to === toSq);
+        
+        if (isLegalChessMove) {
+          showPuzzleWrongMoveFeedback("Not the right move — try an alternative!", fromSq, toSq);
+        } else {
+          showPuzzleWrongMoveFeedback("Illegal move for this piece. Try again!", fromSq, toSq);
+        }
         return false;
       }
 
