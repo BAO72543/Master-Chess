@@ -543,18 +543,19 @@
     .game-logo {
       z-index: 10;
       text-align: center;
-      margin-bottom: 28px;
+      margin-top: -10px;
+      margin-bottom: 8px;
       animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      padding: 22px 52px;
-      border-radius: 26px;
+      padding: 26px 64px;
+      border-radius: 28px;
       background: #252b42;
-      border: 3px solid rgba(255, 255, 255, 0.25);
-      border-bottom: 8px solid #161a28;
-      box-shadow: 0 10px 0 #121522;
+      border: 3.5px solid rgba(255, 255, 255, 0.28);
+      border-bottom: 9px solid #161a28;
+      box-shadow: 0 12px 0 #121522;
     }
     .game-logo h1 {
       font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 58px;
+      font-size: 64px;
       font-weight: 900;
       color: #ffffff;
       text-transform: uppercase;
@@ -565,11 +566,55 @@
     .game-logo span {
       font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       display: block;
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 800;
       color: #ffd700;
-      letter-spacing: 9px;
+      letter-spacing: 10px;
       margin-top: 6px;
+    }
+
+    /* Player Name Input Box below Logo */
+    .player-name-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 340px;
+      margin-bottom: 4px;
+      z-index: 10;
+    }
+    .player-name-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 4px;
+    }
+    .player-name-input {
+      width: 100%;
+      background: rgba(15, 17, 30, 0.75);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 10px 16px;
+      color: #ffd700;
+      font-family: 'SupremeSpike', 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      text-align: center;
+      outline: none;
+      box-sizing: border-box;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s ease;
+    }
+    .player-name-input:focus {
+      border-color: #4facfe;
+      box-shadow: 0 0 16px rgba(79, 172, 254, 0.5);
+      background: rgba(21, 24, 42, 0.9);
+    }
+    .player-name-input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 600;
     }
 
     @keyframes bounceIn {
@@ -1929,6 +1974,12 @@
             <span>CHESS</span>
           </div>
 
+          <!-- Player Name Input Box -->
+          <div class="player-name-box">
+            <span class="player-name-label">PLAYER NAME</span>
+            <input id="player-name-input" type="text" class="player-name-input" placeholder="Enter Your Name" maxlength="15" oninput="onPlayerNameChange(this.value)" onchange="onPlayerNameChange(this.value)">
+          </div>
+
           <div class="bot-mode">
             <h3 class="mode-heading">Bot Mode</h3>
             <div class="bot-buttons">
@@ -2822,6 +2873,16 @@
       playConfettiPop();
     }
 
+    function onPlayerNameChange(val) {
+      if (!userProfile) return;
+      const clean = String(val || '').trim();
+      userProfile.name = clean || 'Guest';
+      saveProgress();
+      const nameEl = document.getElementById('user-name-bottom');
+      if (nameEl) nameEl.innerText = formatDisplayName(userProfile.name);
+      renderLeaderboard();
+    }
+
     function updateProfileUI() {
       const nameEl = document.getElementById('user-name-bottom');
       if (nameEl) nameEl.innerText = formatDisplayName(userProfile.name);
@@ -2829,6 +2890,12 @@
       if (ratingEl) ratingEl.innerHTML = formatRating(userProfile.rating);
       const winCountEl = document.getElementById('skin-wins-count');
       if (winCountEl) winCountEl.innerText = userProfile.wins || 0;
+      
+      const inputEl = document.getElementById('player-name-input');
+      if (inputEl && document.activeElement !== inputEl) {
+        inputEl.value = userProfile.name || '';
+      }
+      
       renderStreakUI();
     }
 
