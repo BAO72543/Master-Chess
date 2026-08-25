@@ -854,6 +854,50 @@
       font-size: 20px;
     }
 
+    /* Square Ad Card below Other Modes */
+    .square-ad-card {
+      margin-top: 14px;
+      background: rgba(15, 17, 30, 0.65);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .ad-card-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .square-ad-slot {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-width: 250px;
+      max-height: 250px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .square-ad-content {
+      text-align: center;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
     /* Compact panel sizing on short screens */
     @media (max-height: 650px) {
       .menu-lb, .menu-right {
@@ -1531,6 +1575,27 @@
       letter-spacing: 0.5px;
     }
 
+    /* Bottom Continuous Ad Banner Bar (Standard 320x50 / 468x50 Banner Slot) */
+    .bottom-ad-banner {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(96%, 468px);
+      height: 48px;
+      background: rgba(12, 14, 26, 0.94);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-bottom: none;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 100;
+      pointer-events: none;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.6);
+    }
+
     .btn-ad-reward {
       background: #8a6a2a !important;
       box-shadow: none !important;
@@ -1634,6 +1699,7 @@
       justify-content: flex-end;
       align-items: center;
       z-index: 10;
+      margin-bottom: 54px;
     }
 
     /* Pause Menu Overlay */
@@ -1813,11 +1879,17 @@
           </button>
 
           <div class="menu-icon-row">
-            <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle btn-icon-round" onclick="toggleBulletMode()">
+            <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle btn-icon-round" onclick="toggleBulletMode()" title="Toggle Bullet Mode">
               <img id="img-bullet-toggle" src="images/Misc/clock.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 0.5; pointer-events: none;">
             </button>
-            <button id="btn-audio-menu" class="btn-game btn-icon-round" onclick="toggleAudio()">
+            <button id="btn-audio-menu" class="btn-game btn-icon-round" onclick="toggleAudio()" title="Toggle Audio">
               <img id="img-audio-menu" src="images/Misc/volume-up.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
+            </button>
+            <button id="btn-gift-menu" class="btn-game btn-icon-round" onclick="openGiftModal()" title="Free Points Ad">
+              <img id="img-gift-menu" src="images/Misc/gift.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
+            </button>
+            <button id="btn-reset-menu" class="btn-game btn-icon-round" onclick="openResetModal()" title="Reset All Progress">
+              <img id="img-reset-menu" src="images/Misc/reset.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
             </button>
           </div>
         </div>
@@ -1832,6 +1904,22 @@
             <button class="btn-game btn-tertiary menu-main-btn" onclick="startGame('puzzles')">
               Puzzles
             </button>
+          </div>
+
+          <!-- Square Ad Box below Other Modes -->
+          <div class="square-ad-card">
+            <div class="ad-card-header">
+              <span class="ad-badge" style="font-size: 10px; padding: 2px 6px;">AD</span>
+              <span style="font-size: 12px; color: #a0aec0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Advertisement</span>
+            </div>
+            <div id="square-ad-slot" class="square-ad-slot">
+              <div class="square-ad-content">
+                <div style="font-size: 28px; margin-bottom: 6px;">♟️</div>
+                <div style="font-size: 15px; font-weight: 800; color: #ffd700; letter-spacing: 0.5px;">MASTER CHESS PRO</div>
+                <div style="font-size: 12px; color: #cbd5e0; margin-top: 4px;">Play 1v1 & Win Rewards</div>
+                <div style="margin-top: 10px; padding: 6px 14px; background: rgba(79,172,254,0.2); border: 1px solid #4facfe; border-radius: 8px; font-size: 11px; font-weight: 700; color: #4facfe; text-transform: uppercase; letter-spacing: 1px;">PLAY NOW</div>
+              </div>
+            </div>
           </div>
         </aside>
       </div>
@@ -1980,6 +2068,53 @@
         <button id="btn-rematch" class="btn-game btn-tertiary pulse" style="font-size: 20px; padding: 12px 30px; width: 100%; margin-bottom: 20px; display: none;" onclick="rematchGame()">Play Again</button>
         <button class="btn-game" style="font-size: 20px; padding: 12px 30px; width: 100%;" onclick="closeEndgameModal()">Main Menu</button>
       </div>
+    </div>
+
+    <!-- Gift Points Modal -->
+    <div id="gift-modal" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:350; flex-direction:column; align-items:center; justify-content:center;">
+      <div style="background: #191930; border: 3px solid rgba(255,255,255,0.25); border-bottom: 6px solid #161a28; box-shadow: 0 10px 0 #121522; border-radius: 24px; padding: 32px 28px; text-align: center; width: 90%; max-width: 380px; color: #fff;">
+        <div style="margin-bottom: 16px;">
+          <img src="images/Misc/gift.svg" style="width: 52px; height: 52px; filter: invert(1); opacity: 0.9;">
+        </div>
+        <h3 style="color: #ffd700; font-size: 24px; font-weight: 800; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Free Points</h3>
+        <p id="gift-modal-text" style="color: #e2e8f0; font-size: 15px; line-height: 1.4; margin-bottom: 20px;">Do you want to watch an ad for 10 points?</p>
+        <div id="gift-cooldown-container" style="display: none; background: rgba(255,71,87,0.15); border: 1.5px solid #ff4757; border-radius: 12px; padding: 10px 14px; margin-bottom: 20px;">
+          <span style="color: #ff4757; font-size: 14px; font-weight: 700;">Cooldown: </span>
+          <span id="gift-cooldown-timer" style="color: #ffffff; font-size: 16px; font-weight: 800; font-family: monospace;">03:00</span>
+        </div>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <button id="btn-watch-gift-ad" class="btn-game btn-ad-reward" style="font-size: 15px; padding: 12px 18px; flex: 1;" onclick="watchGiftAd()">
+            <span class="ad-badge">AD</span> Watch Ad
+          </button>
+          <button class="btn-game btn-secondary" style="font-size: 15px; padding: 12px 18px; flex: 1;" onclick="closeGiftModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reset Progress Modal -->
+    <div id="reset-modal" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:350; flex-direction:column; align-items:center; justify-content:center;">
+      <div style="background: #191930; border: 3px solid rgba(255,71,87,0.5); border-bottom: 6px solid #161a28; box-shadow: 0 10px 0 #121522; border-radius: 24px; padding: 32px 28px; text-align: center; width: 90%; max-width: 380px; color: #fff;">
+        <div style="margin-bottom: 16px;">
+          <img src="images/Misc/reset.svg" style="width: 52px; height: 52px; filter: invert(1); opacity: 0.9;">
+        </div>
+        <h3 style="color: #ff4757; font-size: 24px; font-weight: 800; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Reset Progress</h3>
+        <p style="color: #e2e8f0; font-size: 15px; line-height: 1.4; margin-bottom: 24px;">Do you want to reset all progress? Points will revert to default (800 ELO).</p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <div style="flex: 1; position: relative;">
+            <button id="btn-hold-reset" class="btn-game" style="background: #8e1b26; border-color: #ff4757; font-size: 13.5px; padding: 12px 6px; width: 100%; position: relative; overflow: hidden; user-select: none; touch-action: manipulation;" onmousedown="startResetHold(event)" onmouseup="stopResetHold()" onmouseleave="stopResetHold()" ontouchstart="startResetHold(event)" ontouchend="stopResetHold()" ontouchcancel="stopResetHold()">
+              <div id="reset-progress-fill" style="position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: #ff4757; opacity: 0.6; pointer-events: none;"></div>
+              <span id="reset-btn-text" style="position: relative; z-index: 2;">Hold 3s to Reset</span>
+            </button>
+          </div>
+          <button class="btn-game btn-secondary" style="font-size: 14px; padding: 12px 14px; flex: 1;" onclick="closeResetModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Continuous Bottom Ad Banner Container -->
+    <div id="bottom-ad-banner" class="bottom-ad-banner">
+      <span class="ad-badge" style="font-size: 9px; padding: 1px 5px;">AD</span>
+      <span style="font-size: 11.5px; color: #a0aec0; letter-spacing: 0.5px;">Continuous Banner Advertisement</span>
     </div>
 
   </div>
@@ -2346,6 +2481,15 @@
         renderBoard('main-board');
         const pm = document.getElementById('pause-menu');
         if (pm && pm.classList.contains('active')) togglePause();
+      } else if (placement === 'gift_points') {
+        userProfile.rating = (userProfile.rating || 800) + 10;
+        userProfile.lastGiftAdTime = Date.now();
+        saveProgress();
+        const userRatingEl = document.getElementById('user-rating-bottom');
+        if (userRatingEl) userRatingEl.innerHTML = formatRating(userProfile.rating);
+        renderLeaderboard();
+        closeGiftModal();
+        playConfettiPop();
       } else if (placement && placement.startsWith('skin_')) {
         const parts = placement.split('_');
         const type = parts[1]; // 'boardTheme' or 'pieceSet'
@@ -2644,13 +2788,9 @@
         applyDebugMode();
       }
 
-      // Control Banner Ad depending on screen
+      // Keep Banner Ad continuously shown across screens
       if (typeof bridge !== 'undefined' && bridge.advertisement && bridge.advertisement.isBannerSupported) {
-        if (screenId === 'menu-screen') {
-          bridge.advertisement.showBanner();
-        } else {
-          bridge.advertisement.hideBanner();
-        }
+        bridge.advertisement.showBanner();
       }
     }
 
@@ -3349,7 +3489,7 @@
           startClocks();
         }
         if (typeof bridge !== 'undefined' && bridge.advertisement && bridge.advertisement.isBannerSupported) {
-          bridge.advertisement.hideBanner();
+          bridge.advertisement.showBanner();
         }
         if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
           bridge.platform.sendMessage("level_resumed");
@@ -3416,6 +3556,148 @@
       } else {
         grantReward(placementId);
       }
+    }
+
+    // Gift Ad Reward & 3-minute Cooldown System
+    const GIFT_COOLDOWN_MS = 3 * 60 * 1000;
+    let giftTimerInterval = null;
+
+    function getGiftCooldownRemaining() {
+      const lastTime = userProfile ? (userProfile.lastGiftAdTime || 0) : 0;
+      const elapsed = Date.now() - lastTime;
+      return Math.max(0, GIFT_COOLDOWN_MS - elapsed);
+    }
+
+    function updateGiftModalUI() {
+      const remaining = getGiftCooldownRemaining();
+      const textEl = document.getElementById('gift-modal-text');
+      const containerEl = document.getElementById('gift-cooldown-container');
+      const timerEl = document.getElementById('gift-cooldown-timer');
+      const btnWatch = document.getElementById('btn-watch-gift-ad');
+
+      if (remaining > 0) {
+        if (textEl) textEl.innerText = "You already claimed your reward! Please wait for the cooldown to watch another ad for 10 points.";
+        if (containerEl) containerEl.style.display = 'block';
+        if (timerEl) {
+          const totalSec = Math.ceil(remaining / 1000);
+          const m = Math.floor(totalSec / 60);
+          const s = totalSec % 60;
+          timerEl.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+        if (btnWatch) {
+          btnWatch.style.opacity = '0.5';
+          btnWatch.style.pointerEvents = 'none';
+        }
+      } else {
+        if (textEl) textEl.innerText = "Do you want to watch an ad for 10 points?";
+        if (containerEl) containerEl.style.display = 'none';
+        if (btnWatch) {
+          btnWatch.style.opacity = '1';
+          btnWatch.style.pointerEvents = 'auto';
+        }
+        if (giftTimerInterval) {
+          clearInterval(giftTimerInterval);
+          giftTimerInterval = null;
+        }
+      }
+    }
+
+    function openGiftModal() {
+      updateGiftModalUI();
+      const remaining = getGiftCooldownRemaining();
+      if (remaining > 0) {
+        if (giftTimerInterval) clearInterval(giftTimerInterval);
+        giftTimerInterval = setInterval(() => {
+          updateGiftModalUI();
+        }, 1000);
+      }
+      const modal = document.getElementById('gift-modal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeGiftModal() {
+      if (giftTimerInterval) {
+        clearInterval(giftTimerInterval);
+        giftTimerInterval = null;
+      }
+      const modal = document.getElementById('gift-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function watchGiftAd() {
+      if (getGiftCooldownRemaining() > 0) {
+        updateGiftModalUI();
+        return;
+      }
+      requestReward('gift_points');
+    }
+
+    // Reset Progress System (3-Second Hold to Confirm)
+    let holdResetTimer = null;
+    let holdStartTime = 0;
+
+    function openResetModal() {
+      stopResetHold();
+      const modal = document.getElementById('reset-modal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeResetModal() {
+      stopResetHold();
+      const modal = document.getElementById('reset-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function startResetHold(e) {
+      if (e && e.cancelable) e.preventDefault();
+      if (holdResetTimer) cancelAnimationFrame(holdResetTimer);
+      holdStartTime = Date.now();
+
+      const fillEl = document.getElementById('reset-progress-fill');
+      const textEl = document.getElementById('reset-btn-text');
+
+      function updateHold() {
+        const elapsed = Date.now() - holdStartTime;
+        const percent = Math.min(100, (elapsed / 3000) * 100);
+        if (fillEl) fillEl.style.width = percent + '%';
+
+        const remSec = Math.max(1, Math.ceil((3000 - elapsed) / 1000));
+        if (textEl) textEl.innerText = `Holding... (${remSec}s)`;
+
+        if (elapsed >= 3000) {
+          cancelAnimationFrame(holdResetTimer);
+          holdResetTimer = null;
+          executeProgressReset();
+        } else {
+          holdResetTimer = requestAnimationFrame(updateHold);
+        }
+      }
+
+      holdResetTimer = requestAnimationFrame(updateHold);
+    }
+
+    function stopResetHold() {
+      if (holdResetTimer) {
+        cancelAnimationFrame(holdResetTimer);
+        holdResetTimer = null;
+      }
+      const fillEl = document.getElementById('reset-progress-fill');
+      const textEl = document.getElementById('reset-btn-text');
+      if (fillEl) fillEl.style.width = '0%';
+      if (textEl) textEl.innerText = 'Hold 3s to Reset';
+    }
+
+    function executeProgressReset() {
+      createDefaultProfile();
+      saveProgress();
+
+      const userRatingEl = document.getElementById('user-rating-bottom');
+      if (userRatingEl) userRatingEl.innerHTML = formatRating(userProfile.rating);
+
+      renderLeaderboard();
+      updateProfileUI();
+      closeResetModal();
+      playConfettiPop();
     }
 
     let audioOn = true;
