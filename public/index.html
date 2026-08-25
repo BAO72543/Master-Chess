@@ -709,7 +709,7 @@
       border: 1.5px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
       padding: clamp(5px, 0.8vh, 8px);
-      display: flex;
+      display: none; /* Hidden by default until SDK serves a real ad */
       flex-direction: column;
       align-items: center;
       box-sizing: border-box;
@@ -737,35 +737,6 @@
       overflow: hidden;
       box-sizing: border-box;
       padding: 4px;
-    }
-    .square-ad-content {
-      text-align: center;
-      padding: 2px 4px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .square-ad-content div:nth-child(1) {
-      font-size: clamp(16px, 2.2vh, 22px) !important;
-      margin-bottom: 2px !important;
-    }
-    .square-ad-content div:nth-child(2) {
-      font-size: clamp(11.5px, 1.4vmin, 13px) !important;
-      font-weight: 800;
-      color: #ffd700;
-      letter-spacing: 0.5px;
-    }
-    .square-ad-content div:nth-child(3) {
-      font-size: clamp(9.5px, 1.1vmin, 11px) !important;
-      color: #cbd5e0;
-      margin-top: 1px !important;
-    }
-    .square-ad-content div:nth-child(4) {
-      margin-top: 4px !important;
-      padding: 3px 10px !important;
-      border-radius: 6px !important;
-      font-size: 9.5px !important;
     }
 
     /* =========================================================================
@@ -2104,20 +2075,13 @@
             </button>
           </div>
 
-          <!-- Square Ad Box below Other Modes -->
-          <div class="square-ad-card">
+          <!-- Square Ad Box below Other Modes (Rendered dynamically by Playgama SDK) -->
+          <div class="square-ad-card" id="sidebar-ad-card" style="display: none;">
             <div class="ad-card-header">
               <span class="ad-badge" style="font-size: 10px; padding: 2px 6px;">AD</span>
               <span style="font-size: 12px; color: #a0aec0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">Advertisement</span>
             </div>
-            <div id="square-ad-slot" class="square-ad-slot">
-              <div class="square-ad-content">
-                <div style="font-size: 28px; margin-bottom: 6px;">♟️</div>
-                <div style="font-size: 15px; font-weight: 800; color: #ffd700; letter-spacing: 0.5px;">MASTER CHESS PRO</div>
-                <div style="font-size: 12px; color: #cbd5e0; margin-top: 4px;">Play 1v1 & Win Rewards</div>
-                <div style="margin-top: 10px; padding: 6px 14px; background: rgba(79,172,254,0.2); border: 1px solid #4facfe; border-radius: 8px; font-size: 11px; font-weight: 700; color: #4facfe; text-transform: uppercase; letter-spacing: 1px;">PLAY NOW</div>
-              </div>
-            </div>
+            <div id="square-ad-slot" class="square-ad-slot" onclick="handleSidebarAdClick()"></div>
           </div>
         </aside>
       </div>
@@ -2317,11 +2281,8 @@
       </div>
     </div>
 
-    <!-- Continuous Bottom Ad Banner Container -->
-    <div id="bottom-ad-banner" class="bottom-ad-banner">
-      <span class="ad-badge" style="font-size: 9px; padding: 1px 5px;">AD</span>
-      <span style="font-size: 11.5px; color: #a0aec0; letter-spacing: 0.5px;">Continuous Banner Advertisement</span>
-    </div>
+    <!-- Real Banner Overlay handled dynamically by Playgama Bridge SDK -->
+    <div id="bottom-ad-banner" class="bottom-ad-banner" style="display: none;"></div>
 
   </div>
 
@@ -2363,13 +2324,15 @@
           audioOn = false;
         }
 
-        // Initialize user after SDK is ready
+        // Initialize user and ad subsystems after SDK is ready
         initUser();
+        initAdBlockDetection();
         applyDebugMode();
       })
       .catch(error => {
         console.error("Playgama Bridge SDK initialization failed:", error);
         initUser();
+        initAdBlockDetection();
         applyDebugMode();
       });
 
@@ -2978,8 +2941,92 @@
       userProfile.lastStreakClaimDate = '';
     }
 
+    let isAdBlockActive = false;
+
+    function initAdBlockDetection() {
+      if (typeof bridge !== 'undefined' && bridge.advertisement && typeof bridge.advertisement.checkAdBlock === 'function') {
+        bridge.advertisement.checkAdBlock()
+          .then(hasAdBlock => {
+            console.log("Playgama AdBlock check result:", hasAdBlock);
+            isAdBlockActive = !!hasAdBlock;
+            updateAdBlockUI(isAdBlockActive);
+          })
+          .catch(err => {
+            console.warn("Playgama AdBlock check error:", err);
+          });
+      }
+    }
+
+    function updateAdBlockUI(adBlockDetected) {
+      const sidebarAd = document.getElementById('sidebar-ad-card');
+      if (sidebarAd) {
+        if (adBlockDetected) {
+          console.log("AdBlock active: hiding sidebar ad frame.");
+          sidebarAd.style.display = 'none';
+        }
+      }
+    }
+
+    function updateSidebarAdDisplay(state) {
+      const sidebarAd = document.getElementById('sidebar-ad-card');
+      if (!sidebarAd) return;
+      if (isAdBlockActive) {
+        sidebarAd.style.display = 'none';
+        return;
+      }
+      if (typeof bridge !== 'undefined' && bridge.advertisement) {
+        if (state === 'shown') {
+          sidebarAd.style.display = 'flex';
+        } else if (state === 'hidden' || state === 'failed') {
+          sidebarAd.style.display = 'none';
+        }
+      } else {
+        sidebarAd.style.display = 'none';
+      }
+    }
+
+    function handleSidebarAdClick() {
+      if (typeof bridge !== 'undefined' && bridge.advertisement) {
+        if (bridge.advertisement.isInterstitialSupported) {
+          bridge.advertisement.showInterstitial();
+        } else if (typeof bridge.advertisement.showRewarded === 'function') {
+          bridge.advertisement.showRewarded('sponsor_ad');
+        }
+      }
+    }
+
+    function showGameBanner(placement = 'main_menu', position = 'bottom') {
+      if (typeof bridge === 'undefined' || !bridge.advertisement) return;
+      if (isAdBlockActive) return;
+
+      try {
+        if (bridge.advertisement.isAdvancedBannersSupported) {
+          bridge.advertisement.showAdvancedBanners(placement);
+        } else if (bridge.advertisement.isBannerSupported) {
+          bridge.advertisement.showBanner(position, placement);
+        }
+      } catch (e) {
+        console.warn("showGameBanner error:", e);
+      }
+    }
+
+    function hideGameBanner() {
+      updateSidebarAdDisplay('hidden');
+      if (typeof bridge === 'undefined' || !bridge.advertisement) return;
+
+      try {
+        if (bridge.advertisement.isAdvancedBannersSupported) {
+          bridge.advertisement.hideAdvancedBanners();
+        } else if (bridge.advertisement.isBannerSupported) {
+          bridge.advertisement.hideBanner();
+        }
+      } catch (e) {
+        console.warn("hideGameBanner error:", e);
+      }
+    }
+
     function initUser() {
-      // Configure Interstitial Pacing and Rewarded Ads logic
+      // Configure Interstitial Pacing, Rewarded Ads, and Banner event logic
       if (typeof bridge !== 'undefined' && bridge.advertisement) {
         if (typeof bridge.advertisement.setMinimumDelayBetweenInterstitial === 'function') {
           bridge.advertisement.setMinimumDelayBetweenInterstitial(120);
@@ -3007,6 +3054,18 @@
             setAdAudioMute(false);
             currentRequestedPlacement = null;
           }
+        });
+
+        if (bridge.EVENT_NAME && bridge.EVENT_NAME.BANNER_STATE_CHANGED) {
+          bridge.advertisement.on(bridge.EVENT_NAME.BANNER_STATE_CHANGED, state => {
+            console.log("Playgama Banner State:", state);
+            updateSidebarAdDisplay(state);
+          });
+        }
+
+        bridge.advertisement.on('advanced_banners_state_changed', state => {
+          console.log("Playgama Advanced Banners State:", state);
+          updateSidebarAdDisplay(state);
         });
       }
 
@@ -3169,11 +3228,9 @@
 
       if (screenId === 'game-screen') {
         applyDebugMode();
-      }
-
-      // Keep Banner Ad continuously shown across screens
-      if (typeof bridge !== 'undefined' && bridge.advertisement && bridge.advertisement.isBannerSupported) {
-        bridge.advertisement.showBanner();
+        hideGameBanner();
+      } else {
+        showGameBanner('main_menu', 'bottom');
       }
     }
 
@@ -3718,6 +3775,7 @@
       }
       
       modal.style.display = 'flex';
+      showGameBanner('game_over', 'bottom');
       
       if (result === 'win' && typeof confetti !== 'undefined') {
         window.confettiActive = true;
@@ -3782,6 +3840,7 @@
         window.confettiActive = false;
         confetti.reset();
       }
+      hideGameBanner();
       document.getElementById('endgame-modal').style.display = 'none';
       startGame(lastActiveGameMode);
     }
@@ -3799,7 +3858,7 @@
       document.getElementById('pause-menu').classList.remove('active');
       
       // Show interstitial ad when returning to menu
-      if (bridge.advertisement.isInterstitialSupported) {
+      if (typeof bridge !== 'undefined' && bridge.advertisement && bridge.advertisement.isInterstitialSupported) {
         bridge.advertisement.showInterstitial();
       }
 
@@ -3933,9 +3992,7 @@
         if (bulletModeActive) {
           startClocks();
         }
-        if (typeof bridge !== 'undefined' && bridge.advertisement && bridge.advertisement.isBannerSupported) {
-          bridge.advertisement.showBanner();
-        }
+        hideGameBanner();
         if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
           bridge.platform.sendMessage("level_resumed");
         }
@@ -3961,9 +4018,7 @@
           document.getElementById('btn-ad-undo').style.display = 'none';
         }
 
-        if (typeof bridge !== 'undefined' && bridge.advertisement && bridge.advertisement.isBannerSupported) {
-          bridge.advertisement.showBanner();
-        }
+        showGameBanner('pause_menu', 'bottom');
         if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
           bridge.platform.sendMessage("level_paused");
         }
