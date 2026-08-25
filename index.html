@@ -2179,6 +2179,7 @@
             <button id="btn-ingame-hint" class="btn-game btn-ad-reward" onclick="requestReward('hint')"><span class="ad-badge">AD</span> Hint (<span id="ingame-hints-left">3</span>)</button>
             <button id="btn-audio-game" class="btn-game btn-tertiary" onclick="toggleAudio()">Sound: ON</button>
             <button id="btn-test-win" class="btn-game btn-tertiary" style="display: none;" onclick="concludeMatch('win')">Test Win</button>
+            <button id="btn-test-interstitial" class="btn-game btn-ad-reward" style="display: none;" onclick="triggerInterstitialAd('test_placement')"><span class="ad-badge">AD</span> Test Interstitial</button>
             <button class="btn-game btn-secondary" onclick="concludeMatch('loss')">
               <img src="public/images/resign.svg" style="width: 13px; height: 13px; vertical-align: -2px; margin-right: 2px;">
               Resign
@@ -2372,6 +2373,10 @@
       if (winBtn) {
         winBtn.style.display = isDebugMode ? 'block' : 'none';
       }
+      const adBtn = document.getElementById('btn-test-interstitial');
+      if (adBtn) {
+        adBtn.style.display = isDebugMode ? 'block' : 'none';
+      }
     }
 
     // Console Debug Helpers (accessible via F12 console)
@@ -2379,6 +2384,9 @@
       hintsUsed = Math.max(0, hintsUsed - 1);
       requestHintMove();
       console.log("Debug Hint Triggered! Active Hint:", activeHint);
+    };
+    window.testInterstitial = function(placement = 'test_placement') {
+      triggerInterstitialAd(placement);
     };
     window.debugEngine = function() {
       console.log("♟️ Stockfish Engine:", engine, "Ready:", engineReady);
@@ -2985,10 +2993,30 @@
       }
     }
 
+    function triggerInterstitialAd(placement = 'game_over') {
+      if (typeof bridge === 'undefined' || !bridge.advertisement) {
+        console.log("[Playgama] Bridge advertisement module is not available.");
+        return;
+      }
+
+      console.log(`[Playgama] Requesting Interstitial Ad (placement: ${placement}, isSupported: ${bridge.advertisement.isInterstitialSupported})`);
+      
+      try {
+        if (bridge.advertisement.isInterstitialSupported) {
+          bridge.advertisement.showInterstitial(placement);
+        } else {
+          console.log("[Playgama] Interstitial ad is not supported on this platform/mock.");
+        }
+      } catch (err) {
+        console.warn("[Playgama] showInterstitial error:", err);
+      }
+    }
+    window.triggerInterstitialAd = triggerInterstitialAd;
+
     function handleSidebarAdClick() {
       if (typeof bridge !== 'undefined' && bridge.advertisement) {
         if (bridge.advertisement.isInterstitialSupported) {
-          bridge.advertisement.showInterstitial();
+          triggerInterstitialAd('sidebar_click');
         } else if (typeof bridge.advertisement.showRewarded === 'function') {
           bridge.advertisement.showRewarded('sponsor_ad');
         }
@@ -3029,10 +3057,16 @@
       // Configure Interstitial Pacing, Rewarded Ads, and Banner event logic
       if (typeof bridge !== 'undefined' && bridge.advertisement) {
         if (typeof bridge.advertisement.setMinimumDelayBetweenInterstitial === 'function') {
-          bridge.advertisement.setMinimumDelayBetweenInterstitial(120);
+          const delay = isDebugMode ? 0 : 30;
+          bridge.advertisement.setMinimumDelayBetweenInterstitial(delay);
+        }
+
+        if (bridge.advertisement.interstitialState === 'opened' || bridge.advertisement.interstitialState === 'loading') {
+          setAdAudioMute(true);
         }
 
         bridge.advertisement.on(bridge.EVENT_NAME.INTERSTITIAL_STATE_CHANGED, state => {
+          console.log("Playgama Interstitial Ad state:", state);
           if (state === 'opened' || state === 'loading') {
             setAdAudioMute(true);
           } else if (state === 'closed' || state === 'failed') {
@@ -3656,9 +3690,7 @@
       const newTier = getTier(newRating);
       
       // Show interstitial ad on game over
-      if (typeof bridge !== 'undefined' && bridge.advertisement && bridge.advertisement.isInterstitialSupported) {
-        bridge.advertisement.showInterstitial();
-      }
+      triggerInterstitialAd('game_over');
 
       if (typeof bridge !== 'undefined' && bridge.platform && typeof bridge.platform.sendMessage === 'function') {
         bridge.platform.sendMessage(result === 'win' ? "level_completed" : "level_failed");
@@ -3858,9 +3890,7 @@
       document.getElementById('pause-menu').classList.remove('active');
       
       // Show interstitial ad when returning to menu
-      if (typeof bridge !== 'undefined' && bridge.advertisement && bridge.advertisement.isInterstitialSupported) {
-        bridge.advertisement.showInterstitial();
-      }
+      triggerInterstitialAd('return_to_menu');
 
       switchScreen('menu-screen');
     }
