@@ -1707,6 +1707,86 @@
       box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.6);
     }
 
+    /* Speech Bubble & Quick Emote Reaction System */
+    .speech-bubble {
+      position: absolute;
+      background: #191930;
+      border: 2px solid #ffd700;
+      border-radius: 14px;
+      padding: 6px 14px;
+      color: #ffffff;
+      font-family: 'SupremeSpike', 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      z-index: 150;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .speech-bubble-top {
+      top: 56px;
+      left: 70px;
+    }
+    .speech-bubble-top::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 20px;
+      border-width: 0 8px 8px 8px;
+      border-style: solid;
+      border-color: transparent transparent #ffd700 transparent;
+    }
+    .speech-bubble-bottom {
+      bottom: 56px;
+      right: 20px;
+    }
+    .speech-bubble-bottom::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      right: 20px;
+      border-width: 8px 8px 0 8px;
+      border-style: solid;
+      border-color: #ffd700 transparent transparent transparent;
+    }
+
+    /* Emote Picker Popover */
+    .emote-popover {
+      position: absolute;
+      bottom: 54px;
+      right: 10px;
+      background: #191930;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 16px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 200;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+    }
+    .emote-chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 8px 14px;
+      color: #ffffff;
+      font-family: 'SupremeSpike', 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .emote-chip:hover {
+      background: rgba(255, 215, 0, 0.2);
+      border-color: #ffd700;
+      color: #ffd700;
+    }
+    .emote-chip:active {
+      transform: scale(0.96);
+    }
+
     .btn-ad-reward {
       background: #8a6a2a !important;
       box-shadow: none !important;
@@ -2099,11 +2179,11 @@
       <div class="screen-content">
         <div class="main-column">
           <!-- Top HUD (Opponent) -->
-          <div class="hud-top">
+          <div class="hud-top" style="position: relative;">
             <button class="btn-back" onclick="togglePause()">☰</button>
             <div class="player-hud" style="flex-grow: 1;">
               <div class="player-avatar">
-                <img src="images/robot.svg" style="width: 24px; height: 24px; filter: drop-shadow(0 0 4px rgba(255,71,87,0.6));">
+                <img src="images/robot.svg" style="width: 24px; height: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));">
               </div>
               <div class="player-info">
                 <span class="player-name" id="opp-name-top">Grandmaster Bot</span>
@@ -2111,6 +2191,8 @@
               </div>
             </div>
             <div id="opp-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 14px; color: #ff4757; font-size: 22px; font-weight: 900; border: 2px solid #ff4757; min-width: 75px; text-align: center;">01:00</div>
+            <!-- Opponent Speech Bubble -->
+            <div id="opp-speech-bubble" class="speech-bubble speech-bubble-top" style="display: none;">Good game! 🤝</div>
           </div>
 
           <!-- Chess Board & Puzzle Info -->
@@ -2129,7 +2211,10 @@
           </div>
 
           <!-- Bottom HUD (Player) -->
-          <div class="hud-bottom">
+          <div class="hud-bottom" style="position: relative;">
+            <button id="btn-in-match-emote" class="btn-game btn-icon-round" onclick="toggleEmotePicker()" title="Send Quick Emote" style="width: 38px; height: 38px; min-height: 38px; padding: 0; font-size: 18px; margin-right: 6px; flex-shrink: 0;">
+              💬
+            </button>
             <div id="user-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 14px; color: #38f9d7; font-size: 22px; font-weight: 900; border: 2px solid #38f9d7; min-width: 75px; text-align: center;">01:00</div>
             <div class="player-hud" style="flex-grow: 1;">
               <div class="player-info" style="text-align: right;">
@@ -2137,8 +2222,17 @@
                 <span class="player-score" id="user-rating-bottom">Beginner</span>
               </div>
               <div class="player-avatar">
-                <img src="images/avatar.svg" style="width: 24px; height: 24px; filter: drop-shadow(0 0 4px rgba(56,249,215,0.6));">
+                <img src="images/avatar.svg" style="width: 24px; height: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));">
               </div>
+            </div>
+            <!-- Player Speech Bubble -->
+            <div id="user-speech-bubble" class="speech-bubble speech-bubble-bottom" style="display: none;">Well Played! 👏</div>
+            <!-- Emote Picker Popover -->
+            <div id="emote-picker-popover" class="emote-popover" style="display: none;">
+              <button class="emote-chip" onclick="sendEmote('Well Played! 👏')">👏 Well Played!</button>
+              <button class="emote-chip" onclick="sendEmote('Brilliant! 💡')">💡 Brilliant!</button>
+              <button class="emote-chip" onclick="sendEmote('Oops! 😅')">😅 Oops!</button>
+              <button class="emote-chip" onclick="sendEmote('Good Game! 🤝')">🤝 Good Game!</button>
             </div>
           </div>
         </div>
@@ -3875,6 +3969,58 @@
         bridge.advertisement.showRewarded(placementId);
       } else {
         grantReward(placementId);
+      }
+    }
+
+    // In-Match Quick Emotes & Bot Reactions System
+    let userBubbleTimer = null;
+    let oppBubbleTimer = null;
+
+    function toggleEmotePicker() {
+      const popover = document.getElementById('emote-picker-popover');
+      if (!popover) return;
+      popover.style.display = (popover.style.display === 'none' || !popover.style.display) ? 'flex' : 'none';
+    }
+
+    function showSpeechBubble(target, text) {
+      const bubble = document.getElementById(target === 'user' ? 'user-speech-bubble' : 'opp-speech-bubble');
+      if (!bubble) return;
+
+      bubble.innerText = text;
+      bubble.style.display = 'block';
+
+      if (target === 'user') {
+        if (userBubbleTimer) clearTimeout(userBubbleTimer);
+        userBubbleTimer = setTimeout(() => {
+          bubble.style.display = 'none';
+        }, 2500);
+      } else {
+        if (oppBubbleTimer) clearTimeout(oppBubbleTimer);
+        oppBubbleTimer = setTimeout(() => {
+          bubble.style.display = 'none';
+        }, 2500);
+      }
+    }
+
+    function sendEmote(text) {
+      toggleEmotePicker();
+      showSpeechBubble('user', text);
+      playConfettiPop();
+
+      // Bot reacts to player emote after ~1s delay in Bot Mode
+      if (currentGameMode && currentGameMode.startsWith('bot_')) {
+        setTimeout(() => {
+          const replies = [
+            "Good game! 🤝",
+            "Well played! 👏",
+            "Nice tactic! 💡",
+            "Keep focusing! ♟️",
+            "Great match! ⚔️"
+          ];
+          const randomReply = replies[Math.floor(Math.random() * replies.length)];
+          showSpeechBubble('opp', randomReply);
+          playConfettiPop();
+        }, 1100);
       }
     }
 
