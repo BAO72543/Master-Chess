@@ -613,27 +613,29 @@
       background: rgba(0, 0, 0, 0.42);
       border: 1.5px solid rgba(255, 255, 255, 0.1);
       border-radius: 18px;
-      padding: clamp(12px, 1.5vh, 18px);
+      padding: clamp(10px, 1.4vh, 16px);
       height: auto;
-      max-height: min(84dvh, 660px);
+      max-height: min(88dvh, 660px);
       box-sizing: border-box;
       color: #ffffff;
       min-width: 0;
-      overflow-y: auto;
+      overflow: hidden;
+      justify-content: flex-start;
+      gap: clamp(10px, 1.8vh, 16px);
     }
 
     .other-mode-buttons {
       display: flex;
       flex-direction: column;
-      gap: clamp(8px, 1.2vh, 14px);
+      gap: clamp(10px, 1.6vh, 14px);
       justify-content: center;
       width: 100%;
       flex-shrink: 0;
     }
     .other-mode-buttons .menu-main-btn {
-      min-height: clamp(44px, 5.5vh, 62px);
-      font-size: clamp(14px, 1.7vmin, 18px);
-      border-radius: 14px;
+      min-height: clamp(36px, 4.6vh, 48px);
+      font-size: clamp(12.5px, 1.5vmin, 15px);
+      border-radius: 12px;
       width: 100%;
     }
 
@@ -642,8 +644,8 @@
       background: rgba(15, 17, 30, 0.65);
       border: 1.5px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
-      padding: clamp(8px, 1.2vh, 12px);
-      margin-bottom: clamp(8px, 1.2vh, 14px);
+      padding: clamp(6px, 1vh, 10px);
+      margin-bottom: 0;
       display: flex;
       flex-direction: column;
       box-sizing: border-box;
@@ -654,26 +656,26 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: clamp(6px, 0.8vh, 10px);
+      margin-bottom: clamp(4px, 0.6vh, 6px);
     }
     .streak-days-track {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 3px;
       width: 100%;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .streak-day-item {
       background: rgba(0, 0, 0, 0.35);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 6px;
-      padding: clamp(3px, 0.6vh, 6px) 1px;
+      padding: clamp(2px, 0.5vh, 4px) 1px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: clamp(8px, 1.1vmin, 10px);
+      font-size: clamp(7.5px, 1vmin, 9.5px);
       transition: all 0.15s ease;
     }
     .streak-day-item.claimed {
@@ -692,40 +694,39 @@
     }
     .streak-day-item .day-num {
       font-weight: 800;
-      font-size: clamp(8px, 1.1vmin, 10px);
+      font-size: clamp(7.5px, 1vmin, 9.5px);
     }
     .streak-day-item .day-val {
       font-weight: 900;
-      font-size: clamp(9px, 1.2vmin, 11px);
+      font-size: clamp(8.5px, 1.1vmin, 10.5px);
       margin-top: 1px;
     }
 
     /* Square Ad Card */
     .square-ad-card {
-      margin-top: clamp(8px, 1.2vh, 14px);
+      margin-top: 0;
       background: rgba(15, 17, 30, 0.65);
       border: 1.5px solid rgba(255, 255, 255, 0.12);
       border-radius: 14px;
-      padding: clamp(8px, 1.2vh, 12px);
+      padding: clamp(5px, 0.8vh, 8px);
       display: flex;
       flex-direction: column;
       align-items: center;
       box-sizing: border-box;
       width: 100%;
-      flex-shrink: 0;
+      flex-shrink: 1;
+      min-height: 0;
     }
     .ad-card-header {
       width: 100%;
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 6px;
+      gap: 5px;
+      margin-bottom: 3px;
     }
     .square-ad-slot {
       width: 100%;
-      aspect-ratio: 1 / 1;
-      max-width: 220px;
-      max-height: 220px;
+      max-height: clamp(80px, 12vh, 120px);
       background: rgba(0, 0, 0, 0.35);
       border: 1px dashed rgba(255, 255, 255, 0.2);
       border-radius: 10px;
@@ -735,14 +736,36 @@
       position: relative;
       overflow: hidden;
       box-sizing: border-box;
+      padding: 4px;
     }
     .square-ad-content {
       text-align: center;
-      padding: 8px;
+      padding: 2px 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+    }
+    .square-ad-content div:nth-child(1) {
+      font-size: clamp(16px, 2.2vh, 22px) !important;
+      margin-bottom: 2px !important;
+    }
+    .square-ad-content div:nth-child(2) {
+      font-size: clamp(11.5px, 1.4vmin, 13px) !important;
+      font-weight: 800;
+      color: #ffd700;
+      letter-spacing: 0.5px;
+    }
+    .square-ad-content div:nth-child(3) {
+      font-size: clamp(9.5px, 1.1vmin, 11px) !important;
+      color: #cbd5e0;
+      margin-top: 1px !important;
+    }
+    .square-ad-content div:nth-child(4) {
+      margin-top: 4px !important;
+      padding: 3px 10px !important;
+      border-radius: 6px !important;
+      font-size: 9.5px !important;
     }
 
     /* =========================================================================
@@ -1251,13 +1274,16 @@
       flex-shrink: 0;
     }
     .match-controls .btn-game {
-      flex: 1 1 0;
+      flex: 1;
       min-width: 0;
-      padding: 8px 4px !important;
-      font-size: 11px !important;
+      padding: 10px 4px !important;
+      font-size: clamp(10.5px, 1.4vmin, 12px) !important;
       border-radius: 10px !important;
       white-space: nowrap !important;
       gap: 2px !important;
+    }
+    #btn-ingame-hint {
+      flex: 1.5 1 0 !important;
     }
 
     /* Show side panels on landscape widescreen */
@@ -3224,61 +3250,55 @@
 
     const puzzleList = [
       {
-        title: "Back Rank Checkmate",
+        title: "Back-Rank Checkmate",
         theme: "Mate in 1 · White to Move",
-        fen: "6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1",
-        moves: ["e1e8"]
+        fen: "6k1/5ppp/8/8/8/8/5PPP/1R4K1 w - - 0 1",
+        moves: ["b1b8"]
       },
       {
-        title: "Scholar's Attack",
+        title: "Scholar's Mate",
         theme: "Mate in 1 · White to Move",
-        fen: "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+        fen: "r1bqkb1r/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1",
         moves: ["h5f7"]
       },
       {
         title: "Fool's Mate",
         theme: "Mate in 1 · Black to Move",
-        fen: "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
+        fen: "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 1",
         moves: ["d8h4"]
       },
       {
         title: "Arabian Checkmate",
         theme: "Mate in 1 · White to Move",
-        fen: "7k/5R2/5N2/8/8/8/8/4K3 w - - 0 1",
-        moves: ["f7h7"]
+        fen: "7k/R7/5N2/8/8/8/8/4K3 w - - 0 1",
+        moves: ["a7h7"]
       },
       {
-        title: "Smothered Knight Mate",
+        title: "Black Back-Rank Mate",
+        theme: "Mate in 1 · Black to Move",
+        fen: "1r4k1/5ppp/8/8/8/8/5PPP/6K1 b - - 0 1",
+        moves: ["b8b1"]
+      },
+      {
+        title: "Anastasia's Mate",
         theme: "Mate in 1 · White to Move",
-        fen: "6nk/7p/7N/8/8/8/8/4K3 w - - 0 1",
-        moves: ["h6f7"]
+        fen: "7k/4N1pp/8/8/8/8/8/R6K w - - 0 1",
+        moves: ["a1a8"]
       },
       {
-        title: "Black Back-Rank Finish",
-        theme: "Mate in 1 · Black to Move",
-        fen: "4r1k1/5ppp/8/8/8/8/5PPP/R5K1 b - - 0 1",
-        moves: ["e8e1"]
+        title: "Epaulette Checkmate",
+        theme: "Mate in 1 · White to Move",
+        fen: "3rkr2/8/8/8/8/8/8/4Q1K1 w - - 0 1",
+        moves: ["e1e6"]
       },
       {
-        title: "Black Smothered Finish",
-        theme: "Mate in 1 · Black to Move",
-        fen: "4k3/8/8/8/8/7n/7P/6NK b - - 0 1",
-        moves: ["h3f2"]
+        title: "Corridor Queen Mate",
+        theme: "Mate in 1 · White to Move",
+        fen: "1k6/8/1K6/8/8/8/8/3Q4 w - - 0 1",
+        moves: ["d1d8"]
       },
       {
-        title: "Queen Skewer Win",
-        theme: "Win Rook · White to Move",
-        fen: "8/8/8/3k4/8/8/1B6/r3K3 w - - 0 1",
-        moves: ["b2a1"]
-      },
-      {
-        title: "Black Queen Back Rank",
-        theme: "Mate in 1 · Black to Move",
-        fen: "6k1/5ppp/8/8/8/8/5PPP/q3K3 b - - 0 1",
-        moves: ["a1e1"]
-      },
-      {
-        title: "Double Rook Escalator",
+        title: "Double Rook Ladder",
         theme: "Mate in 1 · White to Move",
         fen: "7k/R7/1R6/8/8/8/8/4K3 w - - 0 1",
         moves: ["b6b8"]
@@ -3290,34 +3310,40 @@
         moves: ["b3b1"]
       },
       {
-        title: "Damiano's Checkmate",
+        title: "Swallow's Tail Mate",
         theme: "Mate in 1 · White to Move",
-        fen: "5rk1/5ppp/8/8/8/8/5QPP/6K1 w - - 0 1",
-        moves: ["f2f7"]
+        fen: "3rkr2/8/8/4Q3/8/8/8/6K1 w - - 0 1",
+        moves: ["e5e6"]
       },
       {
-        title: "Morphy's Mate",
+        title: "Opera House Mate",
         theme: "Mate in 1 · White to Move",
-        fen: "5rk1/5Rpp/8/8/8/8/1B4PP/6K1 w - - 0 1",
-        moves: ["f7g7"]
+        fen: "3k4/3P4/3K4/8/8/8/8/7R w - - 0 1",
+        moves: ["h1h8"]
       },
       {
-        title: "Epaulette Checkmate",
-        theme: "Mate in 1 · White to Move",
-        fen: "3rkr2/8/8/8/8/8/8/4Q1K1 w - - 0 1",
-        moves: ["e1e6"]
-      },
-      {
-        title: "Discovered Attack",
+        title: "Black Corner Mate",
         theme: "Mate in 1 · Black to Move",
-        fen: "3r2k1/5ppp/8/8/8/8/5PPP/3R2K1 b - - 0 1",
-        moves: ["d8d1"]
+        fen: "8/8/8/8/8/8/7r/6kK b - - 0 1",
+        moves: ["h2h1"]
       },
       {
-        title: "Corridor Queen Mate",
+        title: "Queen & Helper Mate",
         theme: "Mate in 1 · White to Move",
-        fen: "1k6/8/1K6/8/8/8/8/3Q4 w - - 0 1",
-        moves: ["d1d8"]
+        fen: "6k1/5p1p/6p1/8/8/8/1B4PP/4Q1K1 w - - 0 1",
+        moves: ["e1e8"]
+      },
+      {
+        title: "Black Anastasia's Mate",
+        theme: "Mate in 1 · Black to Move",
+        fen: "r6k/8/8/8/8/8/4n1PP/7K b - - 0 1",
+        moves: ["a8a1"]
+      },
+      {
+        title: "Black Queen & Bishop Mate",
+        theme: "Mate in 1 · Black to Move",
+        fen: "4q1k1/1b4pp/8/8/8/6P1/5P1P/6K1 b - - 0 1",
+        moves: ["e8e1"]
       }
     ];
     let currentPuzzle = null;
