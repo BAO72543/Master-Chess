@@ -22,6 +22,12 @@
   
   <style>
     /* CSS Reset and Font Setup */
+    @font-face {
+      font-family: 'SupremeSpike';
+      src: url('assets/supreme-spike-font/SupremeSpike-KVO8D.otf') format('opentype');
+      font-display: swap;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -52,7 +58,7 @@
       background-color: #161625;
       background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%) no-repeat center center fixed;
       background-size: cover;
-      font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'SupremeSpike', 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -137,17 +143,16 @@
     }
 
     .btn-bullet-toggle {
-      background: linear-gradient(to bottom, #7f8c8d 0%, #95a5a6 100%);
-      box-shadow: 0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4);
+      background: #3d4548;
+    }
+    .btn-bullet-toggle:hover {
+      background: #495356;
     }
     .btn-bullet-toggle.active {
-      background: linear-gradient(to bottom, #ff4757 0%, #ff6b81 100%) !important;
-      box-shadow: 0 8px 0 #cf2a2a, 0 15px 20px rgba(255, 71, 87, 0.4) !important;
-      animation: pulseGlow 1.5s infinite alternate;
+      background: #8e3a44 !important;
     }
-    @keyframes pulseGlow {
-      0% { box-shadow: 0 8px 0 #cf2a2a, 0 15px 20px rgba(255, 71, 87, 0.4); }
-      100% { box-shadow: 0 8px 0 #cf2a2a, 0 15px 30px rgba(255, 71, 87, 0.8); }
+    .btn-bullet-toggle.active:hover {
+      background: #a24450 !important;
     }
 
     .pulse {
@@ -196,12 +201,13 @@
       border: 2px solid rgba(255, 255, 255, 0.08);
       border-radius: 20px;
       backdrop-filter: blur(8px);
-      padding: 24px;
+      padding: 20px 16px;
       width: 320px;
       height: min(80vh, 600px);
       box-shadow: 0 20px 40px rgba(0,0,0,0.6);
       color: #fff;
       z-index: 10;
+      box-sizing: border-box;
     }
 
     .side-panel h3 {
@@ -225,14 +231,47 @@
     }
     .lb-item {
       display: flex;
+      align-items: center;
       justify-content: space-between;
       background: rgba(255, 255, 255, 0.05);
-      padding: 12px 16px;
+      padding: 9px 12px;
       border-radius: 8px;
-      font-size: 14px;
-      font-weight: bold;
+      font-size: 13px;
+      font-weight: 500;
+      color: #ffffff;
+      gap: 8px;
+      min-width: 0;
     }
-    .lb-score { color: #4facfe; }
+    .lb-item > span:first-child {
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+      font-weight: 600;
+    }
+    .lb-score {
+      color: #8fc4ff;
+      white-space: nowrap;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .lb-score img,
+    .lb-tier-icon {
+      height: 1.2em;
+      width: auto;
+      max-height: 1.2em;
+      vertical-align: -0.18em;
+      margin-right: 4px;
+      display: inline-block;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    }
 
     /* Move History Styles */
     .move-list {
@@ -247,21 +286,48 @@
     }
     .move-row {
       display: flex;
-      padding: 8px 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-family: monospace;
-      font-size: 16px;
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 4px;
     }
     .move-row:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
-    .move-num { width: 40px; color: #888; }
-    .move-white { flex: 1; color: #fff; font-weight: bold; }
-    .move-black { flex: 1; color: #aaa; font-weight: bold; }
+    .move-num { width: 40px; color: #888; font-weight: 400; }
+    .move-white { flex: 1; color: #fff; font-weight: 600; }
+    .move-black { flex: 1; color: #aaa; font-weight: 400; }
 
     .match-controls {
       display: flex;
-      gap: 10px;
+      gap: 6px;
+      width: 100%;
+      box-sizing: border-box;
     }
-    .match-controls .btn-game { flex: 1; }
+    .match-controls .btn-game {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 8px 3px !important;
+      font-family: 'SupremeSpike', 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.5px !important;
+      text-transform: none !important;
+      border-radius: 10px !important;
+      white-space: nowrap !important;
+      overflow: hidden;
+      gap: 3px !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .match-controls .ad-badge {
+      font-family: 'SupremeSpike', 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
+      font-size: 9px !important;
+      font-weight: 700 !important;
+      padding: 1px 3px !important;
+      margin-right: 1px !important;
+      border-radius: 4px !important;
+      letter-spacing: 0 !important;
+    }
 
     /* Show side panels only on wide landscape displays */
     @media (min-width: 960px) and (min-aspect-ratio: 1.25) {
@@ -306,8 +372,8 @@
       align-items: center !important;
       gap: 6px !important;
       cursor: pointer !important;
-      box-shadow: 0 4px 0 #d97745, 0 8px 12px rgba(0,0,0,0.3) !important;
-      border: 3px solid #fff !important;
+      box-shadow: none !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
       min-width: 100px !important;
       margin: 0 !important;
       flex-shrink: 0;
@@ -479,31 +545,31 @@
       text-align: center;
       margin-bottom: 28px;
       animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      background: rgba(0, 0, 0, 0.45);
-      padding: 16px 36px;
-      border-radius: 22px;
-      border: 2px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      padding: 22px 52px;
+      border-radius: 26px;
+      background: #252b42;
+      border: 3px solid rgba(255, 255, 255, 0.25);
+      border-bottom: 8px solid #161a28;
+      box-shadow: 0 10px 0 #121522;
     }
     .game-logo h1 {
-      font-size: 48px;
+      font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 58px;
       font-weight: 900;
-      color: #fff;
+      color: #ffffff;
       text-transform: uppercase;
       letter-spacing: 3px;
-      text-shadow: 0 6px 0 #161625, 0 12px 20px rgba(0,0,0,0.8);
       margin: 0;
       line-height: 1;
     }
     .game-logo span {
+      font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       display: block;
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 800;
       color: #ffd700;
-      letter-spacing: 8px;
-      text-shadow: 0 3px 0 #996515, 0 6px 15px rgba(0,0,0,0.6);
-      margin-top: 5px;
+      letter-spacing: 9px;
+      margin-top: 6px;
     }
 
     @keyframes bounceIn {
@@ -566,11 +632,14 @@
     }
 
     .btn-customize {
-      background: linear-gradient(135deg, #e67e22, #d35400) !important;
-      box-shadow: 0 8px 0 #a04000, 0 15px 20px rgba(0,0,0,0.4) !important;
+      background: #7a5a2d !important;
+      border-color: #9a7a4a !important;
+    }
+    .btn-customize:hover {
+      background: #8a6a3a !important;
     }
     .btn-customize:active {
-      box-shadow: 0 0px 0 #a04000, 0 5px 10px rgba(0,0,0,0.4) !important;
+      background: #674c25 !important;
     }
 
     .menu-icon-row {
@@ -589,25 +658,25 @@
       padding: 0;
       margin: 0;
       border-radius: 24px;
-      border: 4px solid #fff;
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .btn-game {
-      background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
-      border: 4px solid #fff;
-      border-radius: 20px;
+      background: #333a54;
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 18px;
       padding: 18px 24px;
-      color: #fff;
-      font-size: 24px;
-      font-weight: 900;
+      color: #eef1f8;
+      font-size: 21px;
+      font-weight: 700;
       text-transform: uppercase;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      letter-spacing: 1.5px;
       cursor: pointer;
-      box-shadow: 0 8px 0 #0088cc, 0 15px 20px rgba(0,0,0,0.4);
-      transition: all 0.1s ease;
+      box-shadow: none;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -615,29 +684,253 @@
     }
 
     .btn-game:hover {
-      transform: translateY(-2px) scale(1.02);
-      filter: brightness(1.15);
+      background: #3d4565;
+      transform: translateY(-1px);
     }
 
     .btn-game:active {
-      transform: translateY(8px) scale(1) !important;
-      box-shadow: 0 0px 0 #0088cc, 0 5px 10px rgba(0,0,0,0.4);
+      background: #2a3048;
+      transform: translateY(0);
+      box-shadow: none;
     }
 
     .btn-secondary {
-      background: linear-gradient(to bottom, #f6d365 0%, #fda085 100%);
-      box-shadow: 0 8px 0 #d97745, 0 15px 20px rgba(0,0,0,0.4);
+      background: #345a8c;
+      border-color: #4a7ab0;
+    }
+    .btn-secondary:hover {
+      background: #406a9e;
     }
     .btn-secondary:active {
-      box-shadow: 0 0px 0 #d97745, 0 5px 10px rgba(0,0,0,0.4);
+      background: #294970;
     }
-    
+
     .btn-tertiary {
-      background: linear-gradient(to bottom, #43e97b 0%, #38f9d7 100%);
-      box-shadow: 0 8px 0 #28b463, 0 15px 20px rgba(0,0,0,0.4);
+      background: #2f6b55;
+      border-color: #47907a;
+    }
+    .btn-tertiary:hover {
+      background: #3a7d64;
     }
     .btn-tertiary:active {
-      box-shadow: 0 0px 0 #28b463, 0 5px 10px rgba(0,0,0,0.4);
+      background: #255844;
+    }
+
+    /* ===================== Main Menu 3-Column Layout ===================== */
+    .menu-layout {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 1180px;
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(215px, 265px) 1fr minmax(235px, 285px);
+      grid-template-areas: "lb center right";
+      align-items: center;
+      justify-items: stretch;
+      gap: 26px;
+      padding: 16px;
+      box-sizing: border-box;
+      margin: 0 auto;
+    }
+
+    /* Shared panel look (flat, glassy light) */
+    .menu-panel-title {
+      margin: 0 0 14px 0;
+      font-size: 19px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #ffd700;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding-bottom: 12px;
+    }
+
+    /* LEADERBOARD (left) */
+    .menu-lb {
+      grid-area: lb;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.42);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 18px;
+      height: min(72vh, 520px);
+      box-sizing: border-box;
+      box-shadow: none;
+      color: #ffffff;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .menu-lb .leaderboard-list {
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* CENTER: logo + bot mode */
+    .menu-center {
+      grid-area: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 22px;
+      min-width: 0;
+    }
+    .menu-center .game-logo {
+      margin-bottom: 2px;
+    }
+    .menu-center .menu-icon-row {
+      flex: 0 0 auto;
+    }
+
+    .mode-heading {
+      margin: 0 0 14px 0;
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: #cdd3e6;
+      text-align: center;
+    }
+    .bot-mode {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 460px;
+    }
+    .bot-buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      width: 100%;
+    }
+    .bot-buttons .btn-game {
+      flex: 1;
+      padding: 18px 12px;
+      font-size: 19px;
+      min-width: 0;
+    }
+
+    .menu-center-custom {
+      width: 100%;
+      max-width: 460px;
+      flex: 0 0 auto;
+      min-height: 54px;
+      max-height: 66px;
+      font-size: 20px;
+      padding: 12px 16px;
+    }
+
+    /* RIGHT: other modes */
+    .menu-right {
+      grid-area: right;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.42);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 20px;
+      height: auto;
+      box-sizing: border-box;
+      box-shadow: none;
+      color: #ffffff;
+      min-width: 0;
+    }
+    .other-mode-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      justify-content: center;
+      flex: 1;
+      width: 100%;
+    }
+    .other-mode-buttons .menu-main-btn {
+      min-height: 58px;
+      max-height: 74px;
+      font-size: 20px;
+    }
+
+    /* Compact panel sizing on short screens */
+    @media (max-height: 650px) {
+      .menu-lb, .menu-right {
+        height: auto;
+        max-height: 78vh;
+        padding: 14px;
+      }
+      .menu-lb {
+        height: min(82vh, 460px);
+      }
+      .menu-right {
+        height: auto;
+      }
+      .bot-buttons .btn-game {
+        padding: 12px 10px;
+        font-size: 16px;
+      }
+      .menu-layout {
+        gap: 18px;
+        padding: 10px;
+      }
+    }
+
+    /* Tablet / narrow: leaderboard stays left, center + modes stack on right */
+    @media (max-width: 900px) {
+      .menu-layout {
+        grid-template-columns: 185px 1fr;
+        grid-template-areas:
+          "lb center"
+          "lb right";
+        gap: 18px;
+      }
+      .menu-lb, .menu-right {
+        height: auto;
+        padding: 14px;
+      }
+      .menu-lb {
+        height: 100%;
+        min-height: 0;
+      }
+      .menu-center {
+        justify-content: center;
+        gap: 14px;
+      }
+      .mode-heading {
+        font-size: 18px;
+      }
+      .bot-buttons .btn-game {
+        padding: 12px 8px;
+        font-size: 15px;
+      }
+      .other-mode-buttons .menu-main-btn {
+        min-height: 52px;
+        max-height: 66px;
+        font-size: 16px;
+      }
+    }
+
+    /* Phones: single column, leaderboard moves to a compact top strip */
+    @media (max-width: 620px) {
+      .menu-layout {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "lb"
+          "center"
+          "right";
+        gap: 14px;
+        padding: 10px;
+      }
+      .menu-lb {
+        height: auto;
+        max-height: 200px;
+        order: 0;
+      }
+      .menu-lb .leaderboard-list {
+        max-height: 150px;
+      }
     }
 
 
@@ -721,14 +1014,14 @@
     }
 
     .btn-back {
-      background: linear-gradient(to bottom, #747d8c 0%, #2f3542 100%) !important;
-      box-shadow: 0 4px 0 #1e222b, 0 8px 10px rgba(0,0,0,0.3) !important;
+      background: #3d4565 !important;
+      box-shadow: none !important;
       padding: 8px 14px !important;
       font-size: 14px !important;
       font-weight: 800;
       text-transform: uppercase;
       border-radius: 12px !important;
-      border: 3px solid #fff !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
       margin: 0;
       color: #fff;
       cursor: pointer;
@@ -737,9 +1030,13 @@
       justify-content: center;
       transition: all 0.1s ease;
     }
+    .btn-back:hover {
+      background: #47527a !important;
+    }
     .btn-back:active {
-      transform: translateY(4px) !important;
-      box-shadow: 0 0px 0 #1e222b, 0 4px 5px rgba(0,0,0,0.3) !important;
+      background: #2f3550 !important;
+      transform: translateY(0) !important;
+      box-shadow: none !important;
     }
 
     .player-hud {
@@ -783,6 +1080,19 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      display: inline-flex;
+      align-items: center;
+    }
+    .player-score img,
+    .match-rating img,
+    #endgame-elo img {
+      height: 1.2em;
+      width: auto;
+      max-height: 1.2em;
+      vertical-align: -0.18em;
+      margin-right: 4px;
+      display: inline-block;
+      object-fit: contain;
     }
 
     /* Mobile Balanced Spacing & Vertical Utilization */
@@ -796,15 +1106,15 @@
       }
       .game-logo {
         margin-bottom: 20px;
-        padding: 14px 28px;
-        border-radius: 20px;
+        padding: 18px 36px;
+        border-radius: 22px;
       }
       .game-logo h1 {
-        font-size: 42px;
+        font-size: 50px;
       }
       .game-logo span {
-        font-size: 18px;
-        letter-spacing: 6px;
+        font-size: 22px;
+        letter-spacing: 8px;
       }
       .menu-buttons {
         gap: 14px;
@@ -899,17 +1209,17 @@
       }
       .game-logo {
         margin-bottom: 24px;
-        padding: 24px 60px;
-        border-radius: 30px;
-        max-width: 580px;
+        padding: 28px 64px;
+        border-radius: 32px;
+        max-width: 620px;
         width: 100%;
       }
       .game-logo h1 {
-        font-size: 68px;
+        font-size: 76px;
       }
       .game-logo span {
-        font-size: 30px;
-        letter-spacing: 12px;
+        font-size: 34px;
+        letter-spacing: 14px;
       }
       .menu-buttons {
         max-width: 580px;
@@ -928,13 +1238,13 @@
       }
       .menu-main-btn {
         min-height: 80px;
-        max-height: 100px;
+        max-height: 104px;
         font-size: 28px;
-        border-radius: 26px;
+        border-radius: 24px;
       }
       .menu-icon-row {
-        min-height: 95px;
-        max-height: 120px;
+        min-height: 90px;
+        max-height: 115px;
         gap: 36px;
       }
       .btn-icon-round {
@@ -976,8 +1286,6 @@
       .player-avatar {
         width: 48px !important;
         height: 48px !important;
-        font-size: 26px !important;
-        line-height: 48px !important;
       }
       .player-name {
         font-size: 19px !important;
@@ -986,14 +1294,13 @@
         font-size: 14px !important;
       }
       .btn-back {
-        padding: 12px 24px !important;
-        font-size: 26px !important;
-        border-radius: 20px !important;
+        padding: 12px 20px !important;
+        font-size: 18px !important;
+        border-radius: 16px !important;
       }
       .game-timer {
-        font-size: 26px !important;
-        padding: 10px 22px !important;
-        min-width: 95px !important;
+        font-size: 28px !important;
+        padding: 12px 24px !important;
         border-radius: 18px !important;
       }
       .board-wrapper {
@@ -1182,7 +1489,7 @@
       pointer-events: none;
       z-index: 10;
       user-select: none;
-      font-family: monospace;
+      font-family: 'SupremeSpike', 'Outfit', sans-serif;
     }
     .board-coord-file {
       position: absolute;
@@ -1195,7 +1502,7 @@
       pointer-events: none;
       z-index: 10;
       user-select: none;
-      font-family: monospace;
+      font-family: 'SupremeSpike', 'Outfit', sans-serif;
     }
     .board-sq.light .board-coord-rank,
     .board-sq.light .board-coord-file {
@@ -1211,7 +1518,7 @@
       display: inline-flex;
       align-items: center;
       gap: 3px;
-      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      background: #caa63a;
       color: #1a1a2e;
       font-size: 11px;
       font-weight: 900;
@@ -1219,18 +1526,34 @@
       border-radius: 6px;
       margin-right: 5px;
       vertical-align: middle;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      box-shadow: none;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
     .btn-ad-reward {
-      background: linear-gradient(135deg, #f1c40f, #e67e22) !important;
-      box-shadow: 0 6px 0 #a04000, 0 12px 18px rgba(0,0,0,0.4) !important;
-      border: 3px solid #fff !important;
+      background: #8a6a2a !important;
+      box-shadow: none !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+    }
+    .btn-ad-reward:hover {
+      background: #9c7a32 !important;
     }
     .btn-ad-reward:active {
-      box-shadow: 0 0 0 #a04000, 0 4px 8px rgba(0,0,0,0.4) !important;
+      background: #74581f !important;
+      box-shadow: none !important;
+    }
+
+    .btn-skin-ad {
+      background: #8a6a2a !important;
+      box-shadow: none !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+    }
+    .btn-skin-ad:hover {
+      background: #9c7a32 !important;
+    }
+    .btn-skin-ad:active {
+      background: #74581f !important;
     }
 
     /* Puzzle Info Bar */
@@ -1259,22 +1582,26 @@
       font-weight: 700;
     }
     .btn-puzzle-next {
-      background: linear-gradient(to bottom, #43e97b 0%, #38f9d7 100%);
-      box-shadow: 0 3px 0 #28b463;
-      border: 2px solid #fff;
+      background: #2f6b55;
+      box-shadow: none;
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
       border-radius: 10px;
       padding: 5px 12px;
-      color: #1a1a2e;
+      color: #fff;
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      transition: transform 0.1s;
+      transition: background 0.15s ease;
+    }
+    .btn-puzzle-next:hover {
+      background: #3a7d64;
     }
     .btn-puzzle-next:active {
-      transform: translateY(2px);
+      background: #255844;
+      transform: translateY(0);
     }
 
     /* Game Juice Animations */
@@ -1332,7 +1659,7 @@
     }
     .pause-box {
       background: #2e2e4f;
-      border: 4px solid #fff;
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
       border-radius: 20px;
       padding: 30px;
       display: flex;
@@ -1452,49 +1779,61 @@
     <!-- Main Menu Screen -->
     <div id="menu-screen" class="screen active">
       <div class="bg-pieces"></div>
-      
-      <div class="screen-content">
-        <div class="main-column">
+
+      <div class="menu-layout">
+        <!-- LEFT: Leaderboard (small but visible) -->
+        <aside class="menu-panel menu-lb">
+          <h3 class="menu-panel-title">
+            <img src="images/trophy.svg" style="width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px;">
+            Leaderboard
+          </h3>
+          <div class="leaderboard-list" id="lb-list-container">
+            <!-- Rendered via JS -->
+          </div>
+        </aside>
+
+        <!-- CENTER: Logo + Bot Mode -->
+        <div class="menu-center">
           <div class="game-logo" onclick="handleLogoClick()" style="cursor: pointer;" title="Master Chess">
             <h1>Master</h1>
             <span>CHESS</span>
           </div>
 
-          <div class="menu-buttons">
-            <div class="menu-bot-row">
-              <button class="btn-game" onclick="startGame('bot_easy')">Easy Bot</button>
-              <button class="btn-game" onclick="startGame('bot_medium')">Med Bot</button>
-              <button class="btn-game" onclick="startGame('bot_hard')">Hard Bot</button>
+          <div class="bot-mode">
+            <h3 class="mode-heading">Bot Mode</h3>
+            <div class="bot-buttons">
+              <button class="btn-game" onclick="startGame('bot_easy')">Easy</button>
+              <button class="btn-game" onclick="startGame('bot_medium')">Medium</button>
+              <button class="btn-game" onclick="startGame('bot_hard')">Hard</button>
             </div>
+          </div>
+
+          <button class="btn-game btn-customize menu-center-custom" onclick="openCustomization()">
+            Customize
+          </button>
+
+          <div class="menu-icon-row">
+            <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle btn-icon-round" onclick="toggleBulletMode()">
+              <img id="img-bullet-toggle" src="images/Misc/clock.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 0.5; pointer-events: none;">
+            </button>
+            <button id="btn-audio-menu" class="btn-game btn-icon-round" onclick="toggleAudio()">
+              <img id="img-audio-menu" src="images/Misc/volume-up.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: Other Modes -->
+        <aside class="menu-right">
+          <h3 class="menu-panel-title">Other Modes</h3>
+          <div class="other-mode-buttons">
             <button class="btn-game btn-secondary menu-main-btn" onclick="startGame('online')">
               Multiplayer
             </button>
             <button class="btn-game btn-tertiary menu-main-btn" onclick="startGame('puzzles')">
               Puzzles
             </button>
-            <button class="btn-game btn-customize menu-main-btn" onclick="openCustomization()">
-              Customize
-            </button>
-            <div class="menu-icon-row">
-              <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle btn-icon-round" onclick="toggleBulletMode()">
-                <img id="img-bullet-toggle" src="images/Misc/clock.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 0.5; pointer-events: none;">
-              </button>
-              <button id="btn-audio-menu" class="btn-game btn-icon-round" onclick="toggleAudio()">
-                <img id="img-audio-menu" src="images/Misc/volume-up.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
-              </button>
-            </div>
           </div>
-        </div>
-
-        <div class="side-panel leaderboard-panel">
-          <h3>
-            <img src="images/trophy.svg" style="width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));">
-            Leaderboard
-          </h3>
-          <div class="leaderboard-list" id="lb-list-container">
-            <!-- Rendered via JS -->
-          </div>
-        </div>
+        </aside>
       </div>
     </div>
 
@@ -1540,7 +1879,7 @@
                 <span class="player-score" id="opp-rating-top">Level 10</span>
               </div>
             </div>
-            <div id="opp-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 14px; color: #ff4757; font-family: monospace; font-size: 22px; font-weight: 900; border: 2px solid #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.5); min-width: 75px; text-align: center;">01:00</div>
+            <div id="opp-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 14px; color: #ff4757; font-size: 22px; font-weight: 900; border: 2px solid #ff4757; min-width: 75px; text-align: center;">01:00</div>
           </div>
 
           <!-- Chess Board & Puzzle Info -->
@@ -1560,7 +1899,7 @@
 
           <!-- Bottom HUD (Player) -->
           <div class="hud-bottom">
-            <div id="user-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 14px; color: #38f9d7; font-family: monospace; font-size: 22px; font-weight: 900; border: 2px solid #38f9d7; text-shadow: 0 0 10px rgba(56,249,215,0.5); min-width: 75px; text-align: center;">01:00</div>
+            <div id="user-timer" class="game-timer" style="display: none; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 14px; color: #38f9d7; font-size: 22px; font-weight: 900; border: 2px solid #38f9d7; min-width: 75px; text-align: center;">01:00</div>
             <div class="player-hud" style="flex-grow: 1;">
               <div class="player-info" style="text-align: right;">
                 <span class="player-name" id="user-name-bottom">You</span>
@@ -1579,11 +1918,11 @@
             <!-- Rendered via JS -->
           </div>
           <div class="match-controls">
-            <button id="btn-ingame-hint" class="btn-game btn-ad-reward" style="font-size: 13px; padding: 8px;" onclick="requestReward('hint')"><span class="ad-badge">AD</span> Hint (<span id="ingame-hints-left">3</span>)</button>
-            <button id="btn-audio-game" class="btn-game btn-tertiary" style="font-size: 13px; padding: 8px;" onclick="toggleAudio()">Sound: ON</button>
-            <button id="btn-test-win" class="btn-game btn-tertiary" style="font-size: 13px; padding: 8px; display: none;" onclick="concludeMatch('win')">Test Win</button>
-            <button class="btn-game btn-secondary" style="font-size: 13px; padding: 8px;" onclick="concludeMatch('loss')">
-              <img src="images/resign.svg" style="width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px;">
+            <button id="btn-ingame-hint" class="btn-game btn-ad-reward" onclick="requestReward('hint')"><span class="ad-badge">AD</span> Hint (<span id="ingame-hints-left">3</span>)</button>
+            <button id="btn-audio-game" class="btn-game btn-tertiary" onclick="toggleAudio()">Sound: ON</button>
+            <button id="btn-test-win" class="btn-game btn-tertiary" style="display: none;" onclick="concludeMatch('win')">Test Win</button>
+            <button class="btn-game btn-secondary" onclick="concludeMatch('loss')">
+              <img src="images/resign.svg" style="width: 13px; height: 13px; vertical-align: -2px; margin-right: 2px;">
               Resign
             </button>
           </div>
@@ -1635,7 +1974,7 @@
         <h2 id="endgame-title" style="color: #ffd700; font-size: 40px; margin-bottom: 20px; text-transform: uppercase; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">VICTORY</h2>
         <div style="margin-bottom: 30px;">
           <div id="endgame-rating-label" style="color: #e2e8f0; font-size: 18px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; text-shadow: 0 2px 6px rgba(0,0,0,0.6); margin-bottom: 10px;">Rating</div>
-          <div id="endgame-elo" style="color: #4facfe; font-size: 48px; font-weight: 900; font-family: monospace; text-shadow: 0 4px 10px rgba(0,0,0,0.6);">800</div>
+          <div id="endgame-elo" style="color: #4facfe; font-size: 48px; font-weight: 900; text-shadow: 0 2px 6px rgba(0,0,0,0.4);">800</div>
           <div id="endgame-diff" style="color: #38f9d7; font-size: 20px; font-weight: bold; margin-top: 5px; text-shadow: 0 2px 6px rgba(0,0,0,0.5);">+25</div>
         </div>
         <button id="btn-rematch" class="btn-game btn-tertiary pulse" style="font-size: 20px; padding: 12px 30px; width: 100%; margin-bottom: 20px; display: none;" onclick="rematchGame()">Play Again</button>
@@ -1924,7 +2263,7 @@
 
     function formatRating(elo) {
       const tier = getTier(elo);
-      return `<img src="images/tiers/${tier.img}" style="height: 1.2em; vertical-align: sub; margin-right: 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));" alt="${tier.name}"> ${elo}`;
+      return `<img class="lb-tier-icon" src="images/tiers/${tier.img}" style="height: 1.2em; width: auto; max-height: 1.2em; vertical-align: -0.18em; margin-right: 4px; display: inline-block; object-fit: contain;" alt="${tier.name}"> ${elo}`;
     }
 
     function formatDisplayName(name, maxLen = 11) {
@@ -2949,7 +3288,7 @@
             cursorStyle = 'pointer';
             clickAction = `onclick="unlockSkinWithAd('${type}', '${skin.id}')"`;
             badgeHtml = `
-              <button class="btn-game" style="font-size: 11px; padding: 6px 4px; background: linear-gradient(135deg, #f1c40f, #e67e22); box-shadow: 0 3px 0 #a04000; border: 2px solid #fff; border-radius: 8px; width: 100%;" onclick="event.stopPropagation(); unlockSkinWithAd('${type}', '${skin.id}')">
+              <button class="btn-game btn-skin-ad" style="font-size: 11px; padding: 6px 4px; border-radius: 8px; width: 100%;" onclick="event.stopPropagation(); unlockSkinWithAd('${type}', '${skin.id}')">
                 Ad (${watched}/${adsReq})
               </button>
               <div style="color: #ffd700; font-size: 10px; margin-top: 2px;">or ${skin.winsReq} wins</div>
@@ -3084,7 +3423,7 @@
       const btnMenu = document.getElementById('btn-audio-menu');
       const imgMenu = document.getElementById('img-audio-menu');
       if(btnMenu) {
-        btnMenu.style.boxShadow = audioOn ? '0 8px 0 #1a7a6e, 0 15px 20px rgba(0,0,0,0.4)' : '0 8px 0 #5f6a6b, 0 15px 20px rgba(0,0,0,0.4)';
+        btnMenu.style.boxShadow = '';
       }
       if(imgMenu) {
         imgMenu.src = audioOn ? "images/Misc/volume-up.svg" : "images/Misc/mute.svg";
