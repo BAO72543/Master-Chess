@@ -2290,7 +2290,7 @@
 
   <script>
     // Initialize Playgama SDK
-    bridge.initialize()
+    bridge.initialize({ configFilePath: './playgama-bridge-config.json' })
       .then(() => {
         console.log("Playgama Bridge SDK initialized successfully.");
         
