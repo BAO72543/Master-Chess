@@ -756,7 +756,8 @@
       border: 1.5px solid rgba(255, 255, 255, 0.1);
       border-radius: 18px;
       padding: 18px;
-      height: min(72vh, 520px);
+      height: 100%;
+      min-height: 0;
       box-sizing: border-box;
       box-shadow: none;
       color: #ffffff;
@@ -852,6 +853,69 @@
       min-height: 58px;
       max-height: 74px;
       font-size: 20px;
+    }
+
+    /* Daily Streak Card */
+    .streak-card {
+      background: rgba(15, 17, 30, 0.65);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .streak-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .streak-days-track {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+    .streak-day-item {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 6px 2px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      transition: all 0.2s ease;
+    }
+    .streak-day-item.claimed {
+      background: rgba(56, 249, 215, 0.15);
+      border-color: #38f9d7;
+      color: #38f9d7;
+    }
+    .streak-day-item.today {
+      background: rgba(255, 215, 0, 0.25);
+      border-color: #ffd700;
+      color: #ffd700;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+      transform: scale(1.04);
+    }
+    .streak-day-item.locked {
+      opacity: 0.4;
+    }
+    .streak-day-item .day-num {
+      font-weight: 800;
+      font-size: 10px;
+    }
+    .streak-day-item .day-val {
+      font-weight: 900;
+      font-size: 11px;
+      margin-top: 2px;
     }
 
     /* Square Ad Card below Other Modes */
@@ -1894,8 +1958,34 @@
           </div>
         </div>
 
-        <!-- RIGHT: Other Modes -->
+        <!-- RIGHT: Streak, Other Modes, Ad -->
         <aside class="menu-right">
+          <!-- Daily Streak Box (above Other Modes) -->
+          <div class="streak-card">
+            <div class="streak-card-header">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <img src="images/Misc/streak.svg" style="width: 22px; height: 22px; vertical-align: middle;">
+                <span style="font-size: 15px; font-weight: 800; color: #ffd700; text-transform: uppercase; letter-spacing: 0.5px;">Daily Streak</span>
+              </div>
+              <span id="streak-count-badge" style="font-size: 12px; font-weight: 800; background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid #ff4757; padding: 2px 8px; border-radius: 10px;">Day 0/7</span>
+            </div>
+            
+            <!-- 7 Days Grid Track -->
+            <div id="streak-days-track" class="streak-days-track">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Dual Claim Action Row (1X & 2X Rewarded Ad) -->
+            <div style="display: flex; gap: 6px; margin-top: 8px; width: 100%;">
+              <button id="btn-claim-streak" class="btn-game btn-secondary" style="flex: 1; font-size: 12.5px; padding: 8px 4px; min-height: 44px;" onclick="claimDailyStreak(1)">
+                Claim +5
+              </button>
+              <button id="btn-claim-streak-2x" class="btn-game btn-ad-reward" style="flex: 1; font-size: 12.5px; padding: 8px 4px; min-height: 44px;" onclick="claimDailyStreak(2)">
+                <span class="ad-badge" style="font-size: 9px; padding: 1px 4px;">AD</span> 2X (+10)
+              </button>
+            </div>
+          </div>
+
           <h3 class="menu-panel-title">Other Modes</h3>
           <div class="other-mode-buttons">
             <button class="btn-game btn-secondary menu-main-btn" onclick="startGame('online')">
@@ -2490,6 +2580,8 @@
         renderLeaderboard();
         closeGiftModal();
         playConfettiPop();
+      } else if (placement === 'streak_2x') {
+        executeStreakClaim(2);
       } else if (placement && placement.startsWith('skin_')) {
         const parts = placement.split('_');
         const type = parts[1]; // 'boardTheme' or 'pieceSet'
@@ -2572,6 +2664,162 @@
       if (data.skinAdProgress && typeof data.skinAdProgress === 'object') {
         userProfile.skinAdProgress = data.skinAdProgress;
       }
+      if (typeof data.streakCount === 'number') userProfile.streakCount = data.streakCount;
+      if (data.lastStreakClaimDate) userProfile.lastStreakClaimDate = data.lastStreakClaimDate;
+    }
+
+    // Daily 7-Day Streak Reward System
+    const STREAK_REWARDS = [5, 10, 15, 20, 25, 30, 50];
+
+    function getTodayDateString() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getDaysBetweenDates(dateStr1, dateStr2) {
+      if (!dateStr1 || !dateStr2) return 999;
+      const d1 = new Date(dateStr1 + 'T00:00:00');
+      const d2 = new Date(dateStr2 + 'T00:00:00');
+      const diffMs = d2.getTime() - d1.getTime();
+      return Math.round(diffMs / (1000 * 60 * 60 * 24));
+    }
+
+    function checkAndUpdateStreakState() {
+      if (!userProfile) return;
+      const today = getTodayDateString();
+      const lastClaim = userProfile.lastStreakClaimDate || '';
+
+      if (!lastClaim) {
+        userProfile.streakCount = 0;
+      } else {
+        const diff = getDaysBetweenDates(lastClaim, today);
+        if (diff > 1) {
+          // Missed a day! Reset streak to 0
+          userProfile.streakCount = 0;
+        }
+      }
+      if (userProfile.streakCount > 7) {
+        userProfile.streakCount = 0;
+      }
+    }
+
+    function renderStreakUI() {
+      checkAndUpdateStreakState();
+      const today = getTodayDateString();
+      const lastClaim = userProfile.lastStreakClaimDate || '';
+      const claimedToday = (lastClaim === today);
+      const currentStreak = userProfile.streakCount || 0; // 0 to 7
+
+      let nextClaimDay = claimedToday ? (currentStreak % 7) + 1 : (currentStreak % 7) + 1;
+      let nextRewardVal = STREAK_REWARDS[nextClaimDay - 1];
+
+      const badgeEl = document.getElementById('streak-count-badge');
+      if (badgeEl) {
+        badgeEl.innerText = `Day ${currentStreak}/7`;
+      }
+
+      const trackEl = document.getElementById('streak-days-track');
+      if (trackEl) {
+        let html = '';
+        for (let i = 1; i <= 7; i++) {
+          const rewardVal = STREAK_REWARDS[i - 1];
+          let stateClass = 'locked';
+          let label = `+${rewardVal}`;
+
+          if (claimedToday) {
+            if (i <= currentStreak) {
+              stateClass = 'claimed';
+              label = '✓';
+            }
+          } else {
+            if (i <= currentStreak) {
+              stateClass = 'claimed';
+              label = '✓';
+            } else if (i === nextClaimDay) {
+              stateClass = 'today';
+              label = `+${rewardVal}`;
+            }
+          }
+
+          if (i === 7 && stateClass !== 'claimed' && stateClass !== 'today') {
+            label = `<img src="images/Misc/gift.svg" style="width:11px; height:11px; filter:invert(1); opacity:0.9; vertical-align:-1px;">+${rewardVal}`;
+          }
+
+          html += `
+            <div class="streak-day-item ${stateClass}">
+              <span class="day-num">D${i}</span>
+              <span class="day-val">${label}</span>
+            </div>
+          `;
+        }
+        trackEl.innerHTML = html;
+      }
+
+      const btn1 = document.getElementById('btn-claim-streak');
+      const btn2 = document.getElementById('btn-claim-streak-2x');
+
+      if (btn1 && btn2) {
+        if (claimedToday) {
+          btn1.innerText = 'Claimed Today ✓';
+          btn1.style.opacity = '0.5';
+          btn1.style.pointerEvents = 'none';
+          btn1.className = 'btn-game btn-secondary';
+          btn1.style.flex = '1 1 100%';
+
+          btn2.style.display = 'none';
+        } else {
+          btn1.innerText = `Claim +${nextRewardVal}`;
+          btn1.style.opacity = '1';
+          btn1.style.pointerEvents = 'auto';
+          btn1.className = 'btn-game btn-secondary';
+          btn1.style.flex = '1';
+
+          btn2.style.display = 'block';
+          btn2.style.opacity = '1';
+          btn2.style.pointerEvents = 'auto';
+          btn2.style.flex = '1';
+          btn2.innerHTML = `<span class="ad-badge" style="font-size:9px; padding:1px 4px;">AD</span> 2X (+${nextRewardVal * 2})`;
+        }
+      }
+    }
+
+    function claimDailyStreak(multiplier) {
+      checkAndUpdateStreakState();
+      const today = getTodayDateString();
+      const lastClaim = userProfile.lastStreakClaimDate || '';
+      if (lastClaim === today) return;
+
+      if (multiplier === 2) {
+        requestReward('streak_2x');
+        return;
+      }
+
+      executeStreakClaim(1);
+    }
+
+    function executeStreakClaim(multiplier) {
+      const today = getTodayDateString();
+      let currentStreak = userProfile.streakCount || 0;
+      let nextDay = (currentStreak % 7) + 1;
+
+      const baseVal = STREAK_REWARDS[nextDay - 1];
+      const rewardVal = baseVal * (multiplier || 1);
+
+      userProfile.rating = (userProfile.rating || 800) + rewardVal;
+      userProfile.streakCount = nextDay;
+      userProfile.lastStreakClaimDate = today;
+
+      saveProgress();
+
+      const userRatingEl = document.getElementById('user-rating-bottom');
+      if (userRatingEl) userRatingEl.innerHTML = formatRating(userProfile.rating);
+
+      renderLeaderboard();
+      renderStreakUI();
+      playConfettiPop();
     }
 
     function updateProfileUI() {
@@ -2581,6 +2829,7 @@
       if (ratingEl) ratingEl.innerHTML = formatRating(userProfile.rating);
       const winCountEl = document.getElementById('skin-wins-count');
       if (winCountEl) winCountEl.innerText = userProfile.wins || 0;
+      renderStreakUI();
     }
 
     function createDefaultProfile() {
@@ -2593,6 +2842,8 @@
       userProfile.boardTheme = 'classic';
       userProfile.unlockedSkins = ['classic'];
       userProfile.skinAdProgress = {};
+      userProfile.streakCount = 0;
+      userProfile.lastStreakClaimDate = '';
     }
 
     function initUser() {
@@ -3687,8 +3938,18 @@
       if (textEl) textEl.innerText = 'Hold 3s to Reset';
     }
 
+    function resetStreak() {
+      if (userProfile) {
+        userProfile.streakCount = 0;
+        userProfile.lastStreakClaimDate = '';
+        saveProgress();
+        renderStreakUI();
+      }
+    }
+
     function executeProgressReset() {
       createDefaultProfile();
+      resetStreak();
       saveProgress();
 
       const userRatingEl = document.getElementById('user-rating-bottom');
