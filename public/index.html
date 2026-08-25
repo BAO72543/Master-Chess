@@ -557,6 +557,17 @@
       border-radius: 14px;
     }
 
+    .menu-center-puzzle {
+      display: none;
+      width: 100%;
+      max-width: 440px;
+      flex-shrink: 0;
+      min-height: clamp(42px, 5.5vh, 56px);
+      font-size: clamp(15px, 1.8vmin, 19px);
+      padding: clamp(8px, 1.2vh, 12px) 16px;
+      border-radius: 14px;
+    }
+
     .menu-center-custom {
       width: 100%;
       max-width: 440px;
@@ -809,6 +820,16 @@
         min-height: 44px;
         border-radius: 14px;
       }
+      .menu-center-puzzle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        max-width: 360px !important;
+        min-height: 44px !important;
+        font-size: 15.5px !important;
+        border-radius: 14px !important;
+        margin: 0 !important;
+      }
       .menu-center-custom {
         max-width: 360px;
         min-height: 44px;
@@ -878,6 +899,16 @@
         padding: 4px 8px !important;
         font-size: 12px !important;
         min-height: 30px !important;
+        border-radius: 8px !important;
+      }
+      .menu-center-puzzle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        min-height: 30px !important;
+        max-height: 34px !important;
+        font-size: 12px !important;
+        padding: 4px 8px !important;
         border-radius: 8px !important;
       }
       .menu-center-custom {
@@ -1983,6 +2014,10 @@
               <button class="btn-game" onclick="startGame('bot_hard')">Hard</button>
             </div>
           </div>
+
+          <button class="btn-game btn-tertiary menu-center-puzzle" onclick="startGame('puzzles')">
+            Puzzles
+          </button>
 
           <button class="btn-game btn-customize menu-center-custom" onclick="openCustomization()">
             Customize
