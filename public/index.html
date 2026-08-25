@@ -1784,20 +1784,20 @@
       console.log("Debug Mode is now:", isDebugMode);
     };
 
-    // Audio Manager & SFX Controller (Using Human-Refined Audio Assets)
-    const audioMove = new Audio('sound/standard/Move.mp3');
-    const audioCapture = new Audio('sound/standard/Capture.mp3');
-    const audioCheck = new Audio('sound/sfx/Check.mp3');
-    const audioVictory = new Audio('sound/sfx/Victory.mp3');
-    const audioDefeat = new Audio('sound/sfx/Defeat.mp3');
-    const audioDraw = new Audio('sound/sfx/Draw.mp3');
-    const audioLowTime = new Audio('sound/sfx/LowTime.mp3');
-    const audioSelect = new Audio('sound/standard/Select.mp3');
-    const audioConfirm = new Audio('sound/standard/Confirmation.mp3');
-    const audioExplosion = new Audio('sound/standard/Explosion.mp3');
-    const audioGenericNotify = new Audio('sound/sfx/GenericNotify.mp3');
+    // Audio Manager & SFX Controller (Using Human-Refined Audio Assets from sound2)
+    const audioMove = new Audio('sound2/standard/Move.mp3');
+    const audioCapture = new Audio('sound2/standard/Capture.mp3');
+    const audioCheck = new Audio('sound2/sfx/Check.mp3');
+    const audioVictory = new Audio('sound2/sfx/Victory.mp3');
+    const audioDefeat = new Audio('sound2/sfx/Defeat.mp3');
+    const audioDraw = new Audio('sound2/sfx/Draw.mp3');
+    const audioHeartbeat = new Audio('sound2/sfx/Heartbeat.mp3');
+    const audioSelect = new Audio('sound2/standard/Select.mp3');
+    const audioConfirm = new Audio('sound2/standard/Confirmation.mp3');
+    const audioExplosion = new Audio('sound2/standard/Explosion.mp3');
+    const audioGenericNotify = new Audio('sound2/sfx/GenericNotify.mp3');
 
-    const allAudios = [audioMove, audioCapture, audioCheck, audioVictory, audioDefeat, audioDraw, audioLowTime, audioSelect, audioConfirm, audioExplosion, audioGenericNotify];
+    const allAudios = [audioMove, audioCapture, audioCheck, audioVictory, audioDefeat, audioDraw, audioHeartbeat, audioSelect, audioConfirm, audioExplosion, audioGenericNotify];
     
     let isAdPlaying = false;
     function setAdAudioMute(isMuted) {
@@ -1865,7 +1865,7 @@
       const now = Date.now();
       if (now - lastHeartbeatTime < 1000) return;
       lastHeartbeatTime = now;
-      safePlayAudio(audioLowTime);
+      safePlayAudio(audioHeartbeat);
     }
 
     // Streak Manager
