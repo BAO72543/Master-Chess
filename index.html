@@ -7,13 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
-  <script src="vendor/chess.min.js"></script>
+  <script src="public/vendor/chess.min.js"></script>
   <script>
     if (typeof Chess === 'undefined') {
       document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"><\/script>');
     }
   </script>
-  <script src="vendor/confetti.browser.min.js"></script>
+  <script src="public/vendor/confetti.browser.min.js"></script>
   <script>
     if (typeof confetti === 'undefined') {
       document.write('<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"><\/script>');
@@ -24,7 +24,7 @@
     /* CSS Reset and Font Setup */
     @font-face {
       font-family: 'SupremeSpike';
-      src: url('assets/supreme-spike-font/SupremeSpike-KVO8D.otf') format('opentype');
+      src: url('public/assets/supreme-spike-font/SupremeSpike-KVO8D.otf') format('opentype');
       font-display: swap;
     }
 
@@ -1983,7 +1983,7 @@
         <!-- LEFT: Leaderboard (small but visible) -->
         <aside class="menu-panel menu-lb">
           <h3 class="menu-panel-title">
-            <img src="images/trophy.svg" style="width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px;">
+            <img src="public/images/trophy.svg" style="width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px;">
             Leaderboard
           </h3>
           <div class="leaderboard-list" id="lb-list-container">
@@ -2023,16 +2023,16 @@
 
           <div class="menu-icon-row">
             <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle btn-icon-round" onclick="toggleBulletMode()" title="Toggle Bullet Mode">
-              <img id="img-bullet-toggle" src="images/Misc/clock.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 0.5; pointer-events: none;">
+              <img id="img-bullet-toggle" src="public/images/Misc/clock.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 0.5; pointer-events: none;">
             </button>
             <button id="btn-audio-menu" class="btn-game btn-icon-round" onclick="toggleAudio()" title="Toggle Audio">
-              <img id="img-audio-menu" src="images/Misc/volume-up.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
+              <img id="img-audio-menu" src="public/images/Misc/volume-up.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
             </button>
             <button id="btn-gift-menu" class="btn-game btn-icon-round" onclick="openGiftModal()" title="Free Points Ad">
-              <img id="img-gift-menu" src="images/Misc/gift.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
+              <img id="img-gift-menu" src="public/images/Misc/gift.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
             </button>
             <button id="btn-reset-menu" class="btn-game btn-icon-round" onclick="openResetModal()" title="Reset All Progress">
-              <img id="img-reset-menu" src="images/Misc/reset.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
+              <img id="img-reset-menu" src="public/images/Misc/reset.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
             </button>
           </div>
         </div>
@@ -2043,7 +2043,7 @@
           <div class="streak-card">
             <div class="streak-card-header">
               <div style="display: flex; align-items: center; gap: 6px;">
-                <img src="images/Misc/streak.svg" style="width: 22px; height: 22px; vertical-align: middle;">
+                <img src="public/images/Misc/streak.svg" style="width: 22px; height: 22px; vertical-align: middle;">
                 <span style="font-size: 15px; font-weight: 800; color: #ffd700; text-transform: uppercase; letter-spacing: 0.5px;">Daily Streak</span>
               </div>
               <span id="streak-count-badge" style="font-size: 12px; font-weight: 800; background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid #ff4757; padding: 2px 8px; border-radius: 10px;">Day 0/7</span>
@@ -2096,7 +2096,7 @@
         <div class="pairing-match" id="pairing-match" style="display: none;">
           <div class="match-player">
             <div class="player-avatar">
-              <img src="images/avatar.svg" style="width: 26px; height: 26px; filter: drop-shadow(0 0 4px rgba(56,249,215,0.6));">
+              <img src="public/images/avatar.svg" style="width: 26px; height: 26px; filter: drop-shadow(0 0 4px rgba(56,249,215,0.6));">
             </div>
             <span id="match-user-name">You</span>
             <span class="match-rating" id="match-user-rating">800</span>
@@ -2104,7 +2104,7 @@
           <div class="match-vs">VS</div>
           <div class="match-player">
             <div class="player-avatar">
-              <img src="images/robot.svg" style="width: 26px; height: 26px; filter: drop-shadow(0 0 4px rgba(255,71,87,0.6));">
+              <img src="public/images/robot.svg" style="width: 26px; height: 26px; filter: drop-shadow(0 0 4px rgba(255,71,87,0.6));">
             </div>
             <span id="match-opp-name">Opponent</span>
             <span class="match-rating" id="match-opp-rating">800</span>
@@ -2122,7 +2122,7 @@
             <button class="btn-back" onclick="togglePause()">☰</button>
             <div class="player-hud" style="flex-grow: 1;">
               <div class="player-avatar">
-                <img src="images/robot.svg" style="width: 24px; height: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));">
+                <img src="public/images/robot.svg" style="width: 24px; height: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));">
               </div>
               <div class="player-info">
                 <span class="player-name" id="opp-name-top">Grandmaster Bot</span>
@@ -2155,7 +2155,7 @@
                 <span class="player-score" id="user-rating-bottom">Beginner</span>
               </div>
               <div class="player-avatar">
-                <img src="images/avatar.svg" style="width: 24px; height: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));">
+                <img src="public/images/avatar.svg" style="width: 24px; height: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));">
               </div>
             </div>
             <!-- Player Speech Bubble -->
@@ -2180,7 +2180,7 @@
             <button id="btn-audio-game" class="btn-game btn-tertiary" onclick="toggleAudio()">Sound: ON</button>
             <button id="btn-test-win" class="btn-game btn-tertiary" style="display: none;" onclick="concludeMatch('win')">Test Win</button>
             <button class="btn-game btn-secondary" onclick="concludeMatch('loss')">
-              <img src="images/resign.svg" style="width: 13px; height: 13px; vertical-align: -2px; margin-right: 2px;">
+              <img src="public/images/resign.svg" style="width: 13px; height: 13px; vertical-align: -2px; margin-right: 2px;">
               Resign
             </button>
           </div>
@@ -2205,7 +2205,7 @@
     <!-- Tier Rank-Up Overlay -->
     <div id="rankup-overlay" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:500; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;">
       <div id="rankup-stone" style="position: absolute; transition: transform 0.05s; display: flex; align-items: center; justify-content: center;">
-        <img src="images/rock.svg" style="width: 160px; height: 160px; filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));">
+        <img src="public/images/rock.svg" style="width: 160px; height: 160px; filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));">
       </div>
       <div id="rankup-badge" style="position: absolute; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.1); background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%); transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
       <h1 id="rankup-text" style="color: #fff; font-size: 45px; text-transform: uppercase; margin-top: 250px; opacity: 0; transition: opacity 0.5s; text-shadow: 0 0 20px rgba(255,255,255,0.8); font-style: italic;">Rank Up!</h1>
@@ -2244,7 +2244,7 @@
     <div id="gift-modal">
       <div class="gift-box">
         <div style="margin-bottom: clamp(10px, 1.5vh, 16px);">
-          <img src="images/Misc/gift.svg" style="width: clamp(38px, 5.5vmin, 50px); height: clamp(38px, 5.5vmin, 50px); filter: invert(1); opacity: 0.9;">
+          <img src="public/images/Misc/gift.svg" style="width: clamp(38px, 5.5vmin, 50px); height: clamp(38px, 5.5vmin, 50px); filter: invert(1); opacity: 0.9;">
         </div>
         <h3 style="color: #ffd700; font-size: clamp(18px, 2.8vmin, 24px); font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Free Points</h3>
         <p id="gift-modal-text" style="color: #e2e8f0; font-size: clamp(13px, 1.5vmin, 15px); line-height: 1.4; margin-bottom: clamp(12px, 2vh, 18px);">Do you want to watch an ad for 10 points?</p>
@@ -2265,7 +2265,7 @@
     <div id="reset-modal">
       <div class="reset-box">
         <div style="margin-bottom: clamp(10px, 1.5vh, 16px);">
-          <img src="images/Misc/reset.svg" style="width: clamp(38px, 5.5vmin, 50px); height: clamp(38px, 5.5vmin, 50px); filter: invert(1); opacity: 0.9;">
+          <img src="public/images/Misc/reset.svg" style="width: clamp(38px, 5.5vmin, 50px); height: clamp(38px, 5.5vmin, 50px); filter: invert(1); opacity: 0.9;">
         </div>
         <h3 style="color: #ff4757; font-size: clamp(18px, 2.8vmin, 24px); font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Reset Progress</h3>
         <p style="color: #e2e8f0; font-size: clamp(13px, 1.5vmin, 15px); line-height: 1.4; margin-bottom: clamp(14px, 2vh, 20px);">Do you want to reset all progress? Points will revert to default (800 ELO).</p>
@@ -2424,17 +2424,17 @@
     };
 
     // Audio Manager & SFX Controller (Using Human-Refined Audio Assets from sound2)
-    const audioMove = new Audio('sound2/standard/Move.mp3');
-    const audioCapture = new Audio('sound2/standard/Capture.mp3');
-    const audioCheck = new Audio('sound2/sfx/Check.mp3');
-    const audioVictory = new Audio('sound2/sfx/Victory.mp3');
-    const audioDefeat = new Audio('sound2/sfx/Defeat.mp3');
-    const audioDraw = new Audio('sound2/sfx/Draw.mp3');
-    const audioHeartbeat = new Audio('sound2/sfx/Heartbeat.mp3');
-    const audioSelect = new Audio('sound2/standard/Select.mp3');
-    const audioConfirm = new Audio('sound2/standard/Confirmation.mp3');
-    const audioExplosion = new Audio('sound2/standard/Explosion.mp3');
-    const audioGenericNotify = new Audio('sound2/sfx/GenericNotify.mp3');
+    const audioMove = new Audio('public/sound2/standard/Move.mp3');
+    const audioCapture = new Audio('public/sound2/standard/Capture.mp3');
+    const audioCheck = new Audio('public/sound2/sfx/Check.mp3');
+    const audioVictory = new Audio('public/sound2/sfx/Victory.mp3');
+    const audioDefeat = new Audio('public/sound2/sfx/Defeat.mp3');
+    const audioDraw = new Audio('public/sound2/sfx/Draw.mp3');
+    const audioHeartbeat = new Audio('public/sound2/sfx/Heartbeat.mp3');
+    const audioSelect = new Audio('public/sound2/standard/Select.mp3');
+    const audioConfirm = new Audio('public/sound2/standard/Confirmation.mp3');
+    const audioExplosion = new Audio('public/sound2/standard/Explosion.mp3');
+    const audioGenericNotify = new Audio('public/sound2/sfx/GenericNotify.mp3');
 
     const allAudios = [audioMove, audioCapture, audioCheck, audioVictory, audioDefeat, audioDraw, audioHeartbeat, audioSelect, audioConfirm, audioExplosion, audioGenericNotify];
     
@@ -2567,7 +2567,7 @@
 
     function formatRating(elo) {
       const tier = getTier(elo);
-      return `<img class="lb-tier-icon" src="images/tiers/${tier.img}" style="height: 1.2em; width: auto; max-height: 1.2em; vertical-align: -0.18em; margin-right: 4px; display: inline-block; object-fit: contain;" alt="${tier.name}"> ${elo}`;
+      return `<img class="lb-tier-icon" src="public/images/tiers/${tier.img}" style="height: 1.2em; width: auto; max-height: 1.2em; vertical-align: -0.18em; margin-right: 4px; display: inline-block; object-fit: contain;" alt="${tier.name}"> ${elo}`;
     }
 
     function formatDisplayName(name, maxLen = 11) {
@@ -2824,7 +2824,7 @@
           }
 
           if (i === 7 && stateClass !== 'claimed' && stateClass !== 'today') {
-            label = `<img src="images/Misc/gift.svg" style="width:11px; height:11px; filter:invert(1); opacity:0.9; vertical-align:-1px;">+${rewardVal}`;
+            label = `<img src="public/images/Misc/gift.svg" style="width:11px; height:11px; filter:invert(1); opacity:0.9; vertical-align:-1px;">+${rewardVal}`;
           }
 
           html += `
@@ -3680,7 +3680,7 @@
       const text = document.getElementById('rankup-text');
       const tierText = document.getElementById('rankup-tier-text');
       
-      badge.innerHTML = `<img src="images/tiers/${tier.img}" style="width: 160px; height: 160px; object-fit: contain;">`;
+      badge.innerHTML = `<img src="public/images/tiers/${tier.img}" style="width: 160px; height: 160px; object-fit: contain;">`;
       tierText.innerText = tier.name + ' Tier';
       tierText.style.color = tier.color;
       
@@ -3912,7 +3912,7 @@
               ? (skin.cssFilter === 'none' ? 'drop-shadow(0 4px 4px rgba(0,0,0,0.5))' : skin.cssFilter + ' drop-shadow(0 4px 4px rgba(0,0,0,0.5))')
               : (isNextToUnlock ? skin.cssFilter + ' opacity(0.75) drop-shadow(0 2px 4px rgba(0,0,0,0.5))' : 'grayscale(100%) opacity(0.3)');
             previewContent = `
-              <img src="piece/cburnett/wK.svg" style="width: 50px; height: 50px; filter: ${filterStr}; display: block;">
+              <img src="public/piece/cburnett/wK.svg" style="width: 50px; height: 50px; filter: ${filterStr}; display: block;">
             `;
           }
 
@@ -4270,7 +4270,7 @@
         btnMenu.style.boxShadow = '';
       }
       if(imgMenu) {
-        imgMenu.src = audioOn ? "images/Misc/volume-up.svg" : "images/Misc/mute.svg";
+        imgMenu.src = audioOn ? "public/images/Misc/volume-up.svg" : "public/images/Misc/mute.svg";
         imgMenu.style.opacity = audioOn ? '1' : '0.5';
         imgMenu.style.width = '42px';
         imgMenu.style.height = '42px';
@@ -4580,7 +4580,7 @@
     let hintsUsed = 0;
     
     try {
-      engine = new Worker('npm/stockfish.js/stockfish.js');
+      engine = new Worker('public/npm/stockfish.js/stockfish.js');
       engine.onmessage = function(event) {
         const line = event.data;
         if (typeof line === 'string' && (line.includes('uciok') || line.startsWith('id name') || line.startsWith('Stockfish'))) {
@@ -4985,7 +4985,7 @@
             const pieceSkinObj = SKIN_DATA.pieces.find(p => p.id === currentPieceSetId) || SKIN_DATA.pieces[0];
             
             sqImg = document.createElement('img');
-            sqImg.src = 'piece/cburnett/' + pieceMap[pChar] + '.svg';
+            sqImg.src = 'public/piece/cburnett/' + pieceMap[pChar] + '.svg';
             sqImg.className = 'piece';
             if (pieceSkinObj && pieceSkinObj.cssFilter !== 'none') {
               sqImg.style.filter = pieceSkinObj.cssFilter + ' drop-shadow(0 4px 4px rgba(0,0,0,0.4))';
