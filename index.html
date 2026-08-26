@@ -57,8 +57,6 @@
       margin: 0;
       padding: 0;
       background-color: #161625;
-      background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%) no-repeat center center fixed;
-      background-size: cover;
       overflow: hidden;
     }
 
@@ -71,8 +69,6 @@
       margin: 0;
       padding: 0;
       background-color: #161625;
-      background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%) no-repeat center center fixed;
-      background-size: cover;
       font-family: 'SupremeSpike', 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       overflow: hidden;
       display: flex;
@@ -115,7 +111,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%) no-repeat center center fixed;
+      background: radial-gradient(circle at center, #2e2e4f 0%, #161625 100%) no-repeat center center;
       background-size: cover;
       background-position: center;
       overflow: hidden;
@@ -162,7 +158,7 @@
     .screen.active {
       opacity: 1;
       pointer-events: auto;
-      transform: scale(1);
+      transform: none;
     }
 
     .screen.zoom-out-fade {
@@ -172,16 +168,23 @@
     }
 
     .btn-bullet-toggle {
-      background: #3d4548;
+      background: linear-gradient(180deg, #373f5c 0%, #252a3f 100%);
     }
-    .btn-bullet-toggle:hover {
-      background: #495356;
+    @media (hover: hover) and (pointer: fine) {
+      .btn-bullet-toggle:hover {
+        background: linear-gradient(180deg, #444e73 0%, #2e3550 100%);
+      }
     }
     .btn-bullet-toggle.active {
-      background: #8e3a44 !important;
+      background: linear-gradient(180deg, #a8323e 0%, #761d27 100%) !important;
+      border-color: rgba(255, 107, 129, 0.6) !important;
+      box-shadow: 0 4px 14px rgba(180, 40, 50, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
     }
-    .btn-bullet-toggle.active:hover {
-      background: #a24450 !important;
+    @media (hover: hover) and (pointer: fine) {
+      .btn-bullet-toggle.active:hover {
+        background: linear-gradient(180deg, #c03948 0%, #8c232e 100%) !important;
+        border-color: rgba(255, 107, 129, 0.8) !important;
+      }
     }
 
     .pulse {
@@ -192,112 +195,167 @@
       100% { transform: scale(1.05); }
     }
 
-    /* Floating Chess Pieces Background Effect */
-    .bg-pieces {
+    /* Floating Chess Pieces Background - 100% GPU Hardware Accelerated */
+    .bg-pieces-wrapper {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      overflow: hidden;
+      pointer-events: none;
       z-index: 0;
-      opacity: 0.08;
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="%23ffffff"/></svg>');
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .bg-pieces {
+      position: absolute;
+      top: -140px;
+      left: -140px;
+      width: calc(100% + 280px);
+      height: calc(100% + 280px);
+      z-index: 0;
+      opacity: 1;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 45 45"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="%23ffffff" fill-opacity="0.045"/></svg>');
       background-size: 140px;
-      background-position: center;
-      animation: floatBg 30s linear infinite;
+      background-position: 0 0;
+      background-repeat: repeat;
+      animation: floatBgGPU 35s linear infinite;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
       pointer-events: none;
     }
 
-    @keyframes floatBg {
-      0% { background-position: 0px 0px; }
-      100% { background-position: 140px 140px; }
+    @keyframes floatBgGPU {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        transform: translate3d(140px, 140px, 0);
+      }
     }
 
-    /* Generic Game Button Styles */
+    /* Generic Game Button Styles - Subtle, High-Contrast & Premium */
     .btn-game {
-      background: #333a54;
-      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      background: linear-gradient(180deg, #384160 0%, #262c44 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
       border-radius: 16px;
       padding: clamp(10px, 2vh, 18px) clamp(12px, 2vw, 24px);
-      color: #eef1f8;
+      color: #ffffff;
       font-size: clamp(14px, 2vmin, 20px);
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
       cursor: pointer;
-      box-shadow: none;
-      transition: background 0.15s ease, transform 0.1s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transition: background 0.15s ease, transform 0.1s ease, border-color 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       box-sizing: border-box;
       touch-action: manipulation;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+      -webkit-font-smoothing: antialiased;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     }
 
-    .btn-game:hover {
-      background: #3d4565;
-      transform: translateY(-1px);
+    @media (hover: hover) and (pointer: fine) {
+      .btn-game:hover {
+        background: linear-gradient(180deg, #444e73 0%, #2e3550 100%);
+        border-color: rgba(255, 255, 255, 0.55);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px) translateZ(0);
+      }
     }
 
     .btn-game:active {
-      background: #2a3048;
-      transform: translateY(0);
+      background: linear-gradient(180deg, #22263a 0%, #1a1e2f 100%);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(0, 0, 0, 0.3);
+      transform: translateY(0) translateZ(0);
     }
 
     .btn-secondary {
-      background: #345a8c;
-      border-color: #4a7ab0;
+      background: linear-gradient(180deg, #2a5d91 0%, #1c4167 100%);
+      border-color: rgba(99, 179, 237, 0.45);
+      box-shadow: 0 4px 14px rgba(10, 25, 45, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
-    .btn-secondary:hover {
-      background: #406a9e;
+    @media (hover: hover) and (pointer: fine) {
+      .btn-secondary:hover {
+        background: linear-gradient(180deg, #3570ad 0%, #234f7c 100%);
+        border-color: rgba(144, 205, 244, 0.7);
+        box-shadow: 0 6px 18px rgba(10, 25, 45, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
     }
     .btn-secondary:active {
-      background: #294970;
+      background: linear-gradient(180deg, #18385a 0%, #122942 100%);
     }
 
     .btn-tertiary {
-      background: #2f6b55;
-      border-color: #47907a;
+      background: linear-gradient(180deg, #287358 0%, #1b4e3c 100%);
+      border-color: rgba(72, 187, 120, 0.45);
+      box-shadow: 0 4px 14px rgba(8, 35, 25, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
-    .btn-tertiary:hover {
-      background: #3a7d64;
+    @media (hover: hover) and (pointer: fine) {
+      .btn-tertiary:hover {
+        background: linear-gradient(180deg, #318a6a 0%, #215e49 100%);
+        border-color: rgba(104, 211, 145, 0.7);
+        box-shadow: 0 6px 18px rgba(8, 35, 25, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
     }
     .btn-tertiary:active {
-      background: #255844;
+      background: linear-gradient(180deg, #164031 0%, #0f2c22 100%);
     }
 
     .btn-customize {
-      background: #7a5a2d !important;
-      border-color: #9a7a4a !important;
+      background: linear-gradient(180deg, #87622e 0%, #5f441e 100%) !important;
+      border-color: rgba(237, 187, 59, 0.5) !important;
+      box-shadow: 0 4px 14px rgba(45, 30, 10, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
     }
-    .btn-customize:hover {
-      background: #8a6a3a !important;
+    @media (hover: hover) and (pointer: fine) {
+      .btn-customize:hover {
+        background: linear-gradient(180deg, #9e7336 0%, #6f4f23 100%) !important;
+        border-color: rgba(246, 224, 94, 0.75) !important;
+        box-shadow: 0 6px 18px rgba(45, 30, 10, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      }
     }
     .btn-customize:active {
-      background: #674c25 !important;
+      background: linear-gradient(180deg, #503919 0%, #3a2811 100%) !important;
     }
 
     .btn-ad-reward {
-      background: #8a6a2a !important;
-      border-color: rgba(255, 255, 255, 0.4) !important;
+      background: linear-gradient(180deg, #916e25 0%, #684e18 100%) !important;
+      border-color: rgba(255, 215, 0, 0.45) !important;
+      box-shadow: 0 4px 14px rgba(45, 35, 10, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
     }
-    .btn-ad-reward:hover {
-      background: #9c7a32 !important;
+    @media (hover: hover) and (pointer: fine) {
+      .btn-ad-reward:hover {
+        background: linear-gradient(180deg, #a67f2b 0%, #795b1c 100%) !important;
+        border-color: rgba(255, 215, 0, 0.75) !important;
+        box-shadow: 0 6px 18px rgba(45, 35, 10, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      }
     }
     .btn-ad-reward:active {
-      background: #74581f !important;
+      background: linear-gradient(180deg, #584113 0%, #3e2e0d 100%) !important;
     }
 
     .btn-skin-ad {
-      background: #8a6a2a !important;
-      border-color: rgba(255, 255, 255, 0.4) !important;
+      background: linear-gradient(180deg, #916e25 0%, #684e18 100%) !important;
+      border-color: rgba(255, 215, 0, 0.45) !important;
+      box-shadow: 0 4px 14px rgba(45, 35, 10, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
     }
-    .btn-skin-ad:hover {
-      background: #9c7a32 !important;
+    @media (hover: hover) and (pointer: fine) {
+      .btn-skin-ad:hover {
+        background: linear-gradient(180deg, #a67f2b 0%, #795b1c 100%) !important;
+        border-color: rgba(255, 215, 0, 0.75) !important;
+        box-shadow: 0 6px 18px rgba(45, 35, 10, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      }
     }
     .btn-skin-ad:active {
-      background: #74581f !important;
+      background: linear-gradient(180deg, #584113 0%, #3e2e0d 100%) !important;
     }
 
     .ad-badge {
@@ -1082,13 +1140,14 @@
     }
 
     .btn-back {
-      background: #3d4565 !important;
+      background: linear-gradient(180deg, #3d4666 0%, #293047 100%) !important;
       padding: clamp(6px, 1vh, 10px) clamp(10px, 1.5vw, 16px) !important;
       font-size: clamp(13px, 1.6vmin, 16px) !important;
       font-weight: 800;
       text-transform: uppercase;
       border-radius: 12px !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
       margin: 0;
       color: #fff;
       cursor: pointer;
@@ -1096,13 +1155,21 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: background 0.1s ease;
+      transition: background 0.15s ease, transform 0.1s ease, filter 0.15s ease;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transform: translateZ(0);
     }
-    .btn-back:hover {
-      background: #47527a !important;
+    @media (hover: hover) and (pointer: fine) {
+      .btn-back:hover {
+        background: linear-gradient(180deg, #4a557c 0%, #323a57 100%) !important;
+        border-color: rgba(255, 255, 255, 0.55) !important;
+        transform: translateY(-1px) translateZ(0);
+      }
     }
     .btn-back:active {
-      background: #2f3550 !important;
+      background: linear-gradient(180deg, #22263a 0%, #1a1e2f 100%) !important;
+      transform: translateY(0) translateZ(0);
     }
 
     .player-hud {
@@ -1974,10 +2041,13 @@
 
   <div id="game-container">
     
+    <!-- Persistent Floating Chess Background (GPU Hardware Accelerated) -->
+    <div class="bg-pieces-wrapper">
+      <div class="bg-pieces"></div>
+    </div>
 
     <!-- Main Menu Screen -->
     <div id="menu-screen" class="screen active">
-      <div class="bg-pieces"></div>
 
       <div class="menu-layout">
         <!-- LEFT: Leaderboard (small but visible) -->
@@ -2023,16 +2093,16 @@
 
           <div class="menu-icon-row">
             <button id="btn-bullet-toggle" class="btn-game btn-bullet-toggle btn-icon-round" onclick="toggleBulletMode()" title="Toggle Bullet Mode">
-              <img id="img-bullet-toggle" src="public/images/Misc/clock.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 0.5; pointer-events: none;">
+              <img id="img-bullet-toggle" src="public/images/Misc/clock.svg" style="width: 42px; height: 42px; opacity: 0.5; pointer-events: none;">
             </button>
             <button id="btn-audio-menu" class="btn-game btn-icon-round" onclick="toggleAudio()" title="Toggle Audio">
-              <img id="img-audio-menu" src="public/images/Misc/volume-up.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
+              <img id="img-audio-menu" src="public/images/Misc/volume-up.svg" style="width: 42px; height: 42px; opacity: 1; pointer-events: none;">
             </button>
             <button id="btn-gift-menu" class="btn-game btn-icon-round" onclick="openGiftModal()" title="Free Points Ad">
-              <img id="img-gift-menu" src="public/images/Misc/gift.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
+              <img id="img-gift-menu" src="public/images/Misc/gift.svg" style="width: 42px; height: 42px; opacity: 1; pointer-events: none;">
             </button>
             <button id="btn-reset-menu" class="btn-game btn-icon-round" onclick="openResetModal()" title="Reset All Progress">
-              <img id="img-reset-menu" src="public/images/Misc/reset.svg" style="width: 42px; height: 42px; filter: invert(1); opacity: 1; pointer-events: none;">
+              <img id="img-reset-menu" src="public/images/Misc/reset.svg" style="width: 42px; height: 42px; opacity: 1; pointer-events: none;">
             </button>
           </div>
         </div>
@@ -2089,7 +2159,6 @@
 
     <!-- Matchmaking & Pairing Screen -->
     <div id="pairing-screen" class="screen" style="justify-content: center;">
-      <div class="bg-pieces"></div>
       <div class="pairing-container">
         <h2 id="pairing-status">Searching for Opponent...</h2>
         <div class="pairing-spinner" id="pairing-spinner"></div>
@@ -2246,7 +2315,7 @@
     <div id="gift-modal">
       <div class="gift-box">
         <div style="margin-bottom: clamp(10px, 1.5vh, 16px);">
-          <img src="public/images/Misc/gift.svg" style="width: clamp(38px, 5.5vmin, 50px); height: clamp(38px, 5.5vmin, 50px); filter: invert(1); opacity: 0.9;">
+          <img src="public/images/Misc/gift.svg" style="width: clamp(38px, 5.5vmin, 50px); height: clamp(38px, 5.5vmin, 50px); opacity: 0.9;">
         </div>
         <h3 style="color: #ffd700; font-size: clamp(18px, 2.8vmin, 24px); font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Free Points</h3>
         <p id="gift-modal-text" style="color: #e2e8f0; font-size: clamp(13px, 1.5vmin, 15px); line-height: 1.4; margin-bottom: clamp(12px, 2vh, 18px);">Do you want to watch an ad for 10 points?</p>
@@ -2267,7 +2336,7 @@
     <div id="reset-modal">
       <div class="reset-box">
         <div style="margin-bottom: clamp(10px, 1.5vh, 16px);">
-          <img src="public/images/Misc/reset.svg" style="width: clamp(38px, 5.5vmin, 50px); height: clamp(38px, 5.5vmin, 50px); filter: invert(1); opacity: 0.9;">
+          <img src="public/images/Misc/reset.svg" style="width: clamp(38px, 5.5vmin, 50px); height: clamp(38px, 5.5vmin, 50px); opacity: 0.9;">
         </div>
         <h3 style="color: #ff4757; font-size: clamp(18px, 2.8vmin, 24px); font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Reset Progress</h3>
         <p style="color: #e2e8f0; font-size: clamp(13px, 1.5vmin, 15px); line-height: 1.4; margin-bottom: clamp(14px, 2vh, 20px);">Do you want to reset all progress? Points will revert to default (800 ELO).</p>
@@ -2341,13 +2410,10 @@
 
     /**
      * Developer debugging mode controller
-     * Can be enabled via ?debug=true URL parameter or by tapping the game logo 5 times
+     * Disabled by default in production.
+     * Can be toggled manually via console (window.debugToggle()) or by tapping the game logo 5 times.
      */
-    let isDebugMode = (
-      window.location.search.includes('debug=true') || 
-      window.location.hash.includes('debug') ||
-      localStorage.getItem('chess_debug') === 'true'
-    );
+    let isDebugMode = false;
 
     let logoClickCount = 0;
     let logoClickTimer = null;
@@ -2844,7 +2910,7 @@
           }
 
           if (i === 7 && stateClass !== 'claimed' && stateClass !== 'today') {
-            label = `<img src="public/images/Misc/gift.svg" style="width:11px; height:11px; filter:invert(1); opacity:0.9; vertical-align:-1px;">+${rewardVal}`;
+            label = `<img src="public/images/Misc/gift.svg" style="width:11px; height:11px; opacity:0.9; vertical-align:-1px;">+${rewardVal}`;
           }
 
           html += `
