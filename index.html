@@ -387,23 +387,23 @@
       height: 100%;
     }
 
+    /* Main Menu Layout - Mobile-First Default (Clean, Centered, Focused) */
     .menu-layout {
       position: relative;
       z-index: 10;
       width: 100%;
-      max-width: 1240px;
+      max-width: 440px;
       height: 100%;
       max-height: 96dvh;
-      display: grid;
-      grid-template-columns: minmax(215px, 270px) minmax(320px, 480px) minmax(235px, 290px);
-      grid-template-areas: "lb center right";
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-items: stretch;
       justify-content: center;
-      gap: clamp(14px, 2vw, 26px);
       padding: clamp(8px, 1.5vw, 16px);
       box-sizing: border-box;
       margin: 0 auto;
+      gap: 0;
+      overflow: hidden;
     }
 
     .menu-panel-title {
@@ -419,10 +419,10 @@
       flex-shrink: 0;
     }
 
-    /* Leaderboard Panel (Left) */
+    /* Leaderboard Panel (Desktop Only) */
     .menu-lb {
       grid-area: lb;
-      display: flex;
+      display: none; /* Hidden by default on mobile */
       flex-direction: column;
       background: rgba(0, 0, 0, 0.42);
       border: 1.5px solid rgba(255, 255, 255, 0.1);
@@ -616,7 +616,9 @@
     }
 
     .menu-center-puzzle {
-      display: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       max-width: 440px;
       flex-shrink: 0;
@@ -663,10 +665,10 @@
       height: clamp(26px, 3.5vmin, 38px) !important;
     }
 
-    /* Right Panel (Streak, Other Modes, Ad) */
+    /* Right Panel (Desktop Only) */
     .menu-right {
       grid-area: right;
-      display: flex;
+      display: none; /* Hidden by default on mobile */
       flex-direction: column;
       background: rgba(0, 0, 0, 0.42);
       border: 1.5px solid rgba(255, 255, 255, 0.1);
@@ -801,108 +803,116 @@
        RESPONSIVE BREAKPOINTS (Tablets, Mobiles, Landscape)
        ========================================================================= */
 
-    /* Narrow Screens / Mobile / Portrait (max-width: 900px) */
-    @media (max-width: 900px) {
-      .menu-lb, .menu-right {
-        display: none !important;
-      }
-      #menu-screen {
-        padding: 12px 16px calc(14px + var(--sab)) 16px;
-      }
-      .menu-layout {
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        grid-template-columns: 1fr !important;
-        grid-template-areas: "center" !important;
-        gap: 0 !important;
-        padding: 4px !important;
-        height: 100% !important;
-        max-height: 96dvh !important;
-        max-width: 440px !important;
-        margin: 0 auto !important;
-        overflow: hidden !important;
-      }
-      .menu-center {
-        width: 100% !important;
-        max-width: 380px !important;
-        height: auto !important;
-        max-height: 96dvh !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: clamp(10px, 1.8vh, 14px) !important;
-      }
-      .game-logo {
-        padding: clamp(10px, 1.8vh, 18px) clamp(22px, 5vw, 42px);
-        border-radius: 20px;
-        margin: 0 0 2px 0;
-      }
-      .game-logo h1 {
-        font-size: clamp(34px, 7vmin, 46px);
-      }
-      .game-logo span {
-        font-size: clamp(15px, 3vmin, 20px);
-        letter-spacing: 7px;
-      }
-      .player-name-box {
-        max-width: 320px;
-        margin-bottom: 2px;
-      }
-      .player-name-input {
-        padding: 8px 14px;
-        font-size: 15px;
-        border-radius: 12px;
-      }
-      .bot-mode {
-        width: 100%;
-        max-width: 360px;
-        margin-bottom: 0;
-      }
-      .mode-heading {
-        font-size: 14px;
-        margin-bottom: 4px;
-      }
-      .bot-buttons {
-        gap: 6px;
-      }
-      .bot-buttons .btn-game {
-        padding: 10px 6px;
-        font-size: 14.5px;
-        min-height: 44px;
-        border-radius: 14px;
-      }
-      .menu-center-puzzle {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        max-width: 360px !important;
-        min-height: 44px !important;
-        font-size: 15.5px !important;
-        border-radius: 14px !important;
-        margin: 0 !important;
-      }
-      .menu-center-custom {
-        max-width: 360px;
-        min-height: 44px;
-        font-size: 15.5px;
-        border-radius: 14px;
-        margin: 0;
-      }
-      .menu-icon-row {
-        gap: 12px;
-        min-height: auto;
-        margin-top: 2px;
-      }
-      .btn-icon-round {
-        width: 52px;
-        height: 52px;
-        border-radius: 16px;
-      }
-      .btn-icon-round img {
-        width: 26px !important;
-        height: 26px !important;
-      }
+    /* 1. Phone Layout: ONLY phones have single-column (No Leaderboard, No Multiplayer) */
+    body.is-phone .menu-lb,
+    body.is-phone .menu-right {
+      display: none !important;
+    }
+    body.is-phone .menu-layout {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      max-width: 440px !important;
+    }
+    body.is-phone .menu-center-puzzle {
+      display: flex !important;
+    }
+
+    /* 2. Tablet Portrait (Vertical): Center on Top, Leaderboard & Multiplayer/Streak on Bottom */
+    body.is-tablet.is-portrait .menu-layout,
+    body:not(.is-phone).is-portrait .menu-layout {
+      display: grid !important;
+      grid-template-columns: minmax(240px, 1fr) minmax(240px, 1fr) !important;
+      grid-template-rows: auto minmax(240px, 1fr) !important;
+      grid-template-areas:
+        "center center"
+        "lb right" !important;
+      max-width: 860px !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 98dvh !important;
+      gap: clamp(8px, 1.5vh, 16px) clamp(10px, 2vw, 20px) !important;
+      padding: clamp(6px, 1.2vh, 14px) !important;
+      justify-content: center !important;
+      align-items: stretch !important;
+      overflow: hidden !important;
+    }
+
+    body.is-tablet.is-portrait .menu-center,
+    body:not(.is-phone).is-portrait .menu-center {
+      grid-area: center !important;
+      width: 100% !important;
+      max-width: 480px !important;
+      margin: 0 auto !important;
+      gap: clamp(6px, 1vh, 10px) !important;
+    }
+
+    body.is-tablet.is-portrait .game-logo,
+    body:not(.is-phone).is-portrait .game-logo {
+      padding: clamp(6px, 1vh, 12px) clamp(16px, 3vw, 28px) !important;
+      margin-bottom: 0 !important;
+    }
+
+    body.is-tablet.is-portrait .menu-lb,
+    body:not(.is-phone).is-portrait .menu-lb {
+      grid-area: lb !important;
+      display: flex !important;
+      height: 100% !important;
+      max-height: clamp(230px, 36vh, 360px) !important;
+      min-height: 0 !important;
+    }
+
+    body.is-tablet.is-portrait .menu-right,
+    body:not(.is-phone).is-portrait .menu-right {
+      grid-area: right !important;
+      display: flex !important;
+      height: 100% !important;
+      max-height: clamp(230px, 36vh, 360px) !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+    }
+
+    body.is-tablet.is-portrait .menu-center-puzzle,
+    body:not(.is-phone).is-portrait .menu-center-puzzle {
+      display: none !important;
+    }
+
+    /* 3. Tablet Landscape (Horizontal) & Desktop: 3-Column Grid */
+    body.is-tablet.is-landscape .menu-layout,
+    body.is-desktop .menu-layout,
+    body:not(.is-phone).is-landscape .menu-layout {
+      display: grid !important;
+      grid-template-columns: minmax(215px, 270px) minmax(320px, 480px) minmax(235px, 290px) !important;
+      grid-template-areas: "lb center right" !important;
+      max-width: 1240px !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 96dvh !important;
+      gap: clamp(14px, 2vw, 26px) !important;
+      padding: clamp(8px, 1.5vw, 16px) !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    body.is-tablet.is-landscape .menu-lb,
+    body.is-desktop .menu-lb,
+    body:not(.is-phone).is-landscape .menu-lb {
+      grid-area: lb !important;
+      display: flex !important;
+    }
+
+    body.is-tablet.is-landscape .menu-right,
+    body.is-desktop .menu-right,
+    body:not(.is-phone).is-landscape .menu-right {
+      grid-area: right !important;
+      display: flex !important;
+    }
+
+    body.is-tablet.is-landscape .menu-center-puzzle,
+    body.is-desktop .menu-center-puzzle,
+    body:not(.is-phone).is-landscape .menu-center-puzzle {
+      display: none !important;
     }
 
     /* Mobile Landscape / Low Height Screens (height <= 520px) */
@@ -2358,9 +2368,52 @@
   </div>
 
   <script>
+    // Device & Platform Mode Detection (Distinguish Phones vs Tablets vs Desktops)
+    function updateDevicePlatformClass() {
+      const bridgeDeviceType = (typeof bridge !== 'undefined' && bridge.device && bridge.device.type) ? bridge.device.type : null;
+      const ua = navigator.userAgent || '';
+      const isMobileUa = /android|iphone|ipod|windows phone/i.test(ua);
+      const isTabletUa = /ipad|tablet|(android(?!.*mobile))/i.test(ua);
+      const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 1);
+      
+      const minDim = Math.min(window.innerWidth, window.innerHeight);
+      const isLandscape = window.innerWidth >= window.innerHeight;
+      
+      // Phone condition:
+      // Small screen < 580px width or mobile phone device with min dimension < 580px
+      const isPhone = (bridgeDeviceType === 'mobile' && minDim < 580) ||
+                      (isMobileUa && !isTabletUa && minDim < 580) ||
+                      (window.innerWidth < 580);
+                      
+      // Tablet condition:
+      // Tablet SDK or touch device with min dimension >= 580px (e.g. Surface Pro, iPad, Android tablets)
+      const isTablet = !isPhone && (bridgeDeviceType === 'tablet' || isTabletUa || (isTouch && minDim >= 580) || (minDim >= 580 && window.innerWidth <= 1080));
+      
+      const isDesktop = !isPhone && !isTablet;
+
+      document.body.classList.remove('is-phone', 'is-tablet', 'is-desktop', 'is-portrait', 'is-landscape');
+      
+      if (isPhone) {
+        document.body.classList.add('is-phone');
+      } else if (isTablet) {
+        document.body.classList.add('is-tablet');
+      } else {
+        document.body.classList.add('is-desktop');
+      }
+
+      if (isLandscape) {
+        document.body.classList.add('is-landscape');
+      } else {
+        document.body.classList.add('is-portrait');
+      }
+    }
+    updateDevicePlatformClass();
+    window.addEventListener('resize', updateDevicePlatformClass);
+
     // Initialize Playgama SDK
     bridge.initialize({ configFilePath: './playgama-bridge-config.json' })
       .then(() => {
+        updateDevicePlatformClass();
         console.log("Playgama Bridge SDK initialized successfully.");
         
         // Listen to audio changes
