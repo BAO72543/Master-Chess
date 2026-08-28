@@ -5143,7 +5143,10 @@
               cursorStyle = 'not-allowed';
               clickAction = '';
               badgeHtml = `
-              <div style="color:#ff4757; font-size:11px; font-weight:900; text-transform: uppercase; letter-spacing: 0.5px;">Locked</div>
+              <div style="color:#ff4757; font-size:11px; font-weight:900; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <img src="public/images/lock.svg" style="width: 12px; height: 12px; vertical-align: middle;">
+                <span>Locked</span>
+              </div>
               <div style="color:#718096; font-size:9.5px; line-height:1.2; margin-top:2px;">Unlock previous first<br>or ${skin.winsReq} wins</div>
             `;
             }
@@ -6203,7 +6206,7 @@
                 sq.classList.add('hint-from-sq');
                 const badge = document.createElement('div');
                 badge.className = 'hint-indicator-badge';
-                badge.innerHTML = '<span style="color: #0d0f1e; font-size: 10px; font-weight: 900; line-height: 1; font-family: system-ui;">H</span>';
+                badge.innerHTML = '<img src="public/images/bulb.svg" style="width: 13px; height: 13px; display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));">';
                 sq.appendChild(badge);
               } else if (sqName === activeHint.to) {
                 sq.classList.add('hint-to-sq');
