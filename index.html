@@ -3215,21 +3215,13 @@
             if (isPaused) {
               setAdAudioMute(true);
               if (isInGame && pm && !pm.classList.contains('active')) {
-                pm.classList.add('active');
-                clearInterval(clockInterval);
+                togglePause();
               }
             } else {
               setAdAudioMute(false);
-              if (pm) {
-                if (isInGame && pm.classList.contains('active')) {
-                  pm.classList.remove('active');
-                  if (bulletModeActive && !game.game_over()) {
-                    startClocks();
-                  }
-                } else if (!isInGame) {
-                  pm.classList.remove('active');
-                  clearInterval(clockInterval);
-                }
+              if (!isInGame && pm) {
+                pm.classList.remove('active');
+                clearInterval(clockInterval);
               }
             }
           });
