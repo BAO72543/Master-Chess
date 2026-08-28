@@ -69,7 +69,7 @@
         "action": "show",
         "default": [{ "width": "100%", "height": "8%", "bottom": "0%", "left": "0%" }],
         "mobile:portrait": [{ "width": "100%", "height": "8%", "bottom": "0%", "left": "0%" }],
-        "desktop:landscape": [{ "width": "18%", "height": "16%", "bottom": "2%", "right": "2%" }]
+        "desktop:landscape": [{ "width": "100%", "height": "8%", "bottom": "0%", "left": "0%" }]
       },
       "level_started": {
         "action": "hide"
