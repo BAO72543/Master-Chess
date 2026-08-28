@@ -867,9 +867,10 @@
       }
       .square-ad-slot {
         width: 100%;
+        min-height: 64px;
         max-height: clamp(80px, 12vh, 120px);
-        background: rgba(0, 0, 0, 0.35);
-        border: 1px dashed rgba(255, 255, 255, 0.2);
+        background: linear-gradient(135deg, rgba(79, 172, 254, 0.15), rgba(0, 242, 254, 0.1));
+        border: 1px solid rgba(79, 172, 254, 0.4);
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -877,7 +878,14 @@
         position: relative;
         overflow: hidden;
         box-sizing: border-box;
-        padding: 4px;
+        padding: 6px 10px;
+        cursor: pointer;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      .square-ad-slot:hover {
+        transform: translateY(-2px);
+        border-color: rgba(79, 172, 254, 0.8);
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
       }
 
       /* =========================================================================
@@ -2518,7 +2526,41 @@
                   >Advertisement</span
                 >
               </div>
-              <div id="square-ad-slot" class="square-ad-slot" onclick="handleSidebarAdClick()"></div>
+              <div id="square-ad-slot" class="square-ad-slot" onclick="handleSidebarAdClick()">
+                <div style="display: flex; align-items: center; gap: 8px; width: 100%; pointer-events: none">
+                  <div style="font-size: 22px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))">🎁</div>
+                  <div style="display: flex; flex-direction: column; flex: 1; text-align: left">
+                    <span
+                      style="
+                        font-size: 11.5px;
+                        font-weight: 800;
+                        color: #ffd700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                      "
+                      >Sponsor Bonus</span
+                    >
+                    <span style="font-size: 11px; color: #e2e8f0; font-weight: 600"
+                      >Watch &amp; Earn <strong style="color: #38f9d7">+10 ELO</strong></span
+                    >
+                  </div>
+                  <div
+                    style="
+                      padding: 4px 8px;
+                      background: rgba(79, 172, 254, 0.3);
+                      border: 1px solid #4facfe;
+                      border-radius: 6px;
+                      font-size: 10.5px;
+                      font-weight: 800;
+                      color: #fff;
+                      text-transform: uppercase;
+                      letter-spacing: 0.5px;
+                    "
+                  >
+                    Claim
+                  </div>
+                </div>
+              </div>
             </div>
           </aside>
         </div>
@@ -3167,18 +3209,26 @@
           // Listen to pause changes
           bridge.platform.on(bridge.EVENT_NAME.PAUSE_STATE_CHANGED, isPaused => {
             const pm = document.getElementById('pause-menu');
+            const activeScreen = document.querySelector('.screen.active');
+            const isInGame = activeScreen && activeScreen.id === 'game-screen';
+
             if (isPaused) {
               setAdAudioMute(true);
-              if (pm && !pm.classList.contains('active')) {
+              if (isInGame && pm && !pm.classList.contains('active')) {
                 pm.classList.add('active');
                 clearInterval(clockInterval);
               }
             } else {
               setAdAudioMute(false);
-              if (pm && pm.classList.contains('active')) {
-                pm.classList.remove('active');
-                if (bulletModeActive) {
-                  startClocks();
+              if (pm) {
+                if (isInGame && pm.classList.contains('active')) {
+                  pm.classList.remove('active');
+                  if (bulletModeActive && !game.game_over()) {
+                    startClocks();
+                  }
+                } else if (!isInGame) {
+                  pm.classList.remove('active');
+                  clearInterval(clockInterval);
                 }
               }
             }
@@ -3648,8 +3698,24 @@
           const userRatingEl = document.getElementById('user-rating-bottom');
           if (userRatingEl) userRatingEl.innerHTML = formatRating(userProfile.rating);
           renderLeaderboard();
-          closeGiftModal();
+        } else if (placement === 'sponsor_ad') {
+          userProfile.rating = (userProfile.rating || 800) + 10;
+          saveProgress();
+          const userRatingEl = document.getElementById('user-rating-bottom');
+          if (userRatingEl) userRatingEl.innerHTML = formatRating(userProfile.rating);
+          renderLeaderboard();
           playConfettiPop();
+          safePlayAudio(audioVictory);
+          if (typeof confetti !== 'undefined') {
+            confetti({
+              particleCount: 30,
+              spread: 60,
+              origin: { y: 0.6 },
+              colors: ['#ffd700', '#38f9d7', '#4facfe', '#ffffff'],
+              zIndex: 150,
+              disableForReducedMotion: true,
+            });
+          }
         } else if (placement === 'streak_2x') {
           executeStreakClaim(2);
         } else if (placement && placement.startsWith('skin_')) {
@@ -3972,14 +4038,25 @@
           sidebarAd.style.display = 'none';
           return;
         }
+        const activeScreen = document.querySelector('.screen.active');
+        const isMenu = !activeScreen || activeScreen.id === 'menu-screen';
+
         if (typeof bridge !== 'undefined' && bridge.advertisement) {
           if (state === 'shown') {
-            sidebarAd.style.display = 'flex';
+            if (isMenu) sidebarAd.style.display = 'flex';
           } else if (state === 'hidden' || state === 'failed') {
-            sidebarAd.style.display = 'none';
+            if (!isMenu) {
+              sidebarAd.style.display = 'none';
+            } else {
+              sidebarAd.style.display = 'flex';
+            }
           }
         } else {
-          sidebarAd.style.display = 'none';
+          if (isMenu) {
+            sidebarAd.style.display = 'flex';
+          } else {
+            sidebarAd.style.display = 'none';
+          }
         }
       }
 
@@ -4006,13 +4083,7 @@
       window.triggerInterstitialAd = triggerInterstitialAd;
 
       function handleSidebarAdClick() {
-        if (typeof bridge !== 'undefined' && bridge.advertisement) {
-          if (bridge.advertisement.isInterstitialSupported) {
-            triggerInterstitialAd('sidebar_click');
-          } else if (typeof bridge.advertisement.showRewarded === 'function') {
-            bridge.advertisement.showRewarded('sponsor_ad');
-          }
-        }
+        requestReward('sponsor_ad');
       }
 
       function showGameBanner(placement = 'main_menu', position = 'bottom') {
@@ -4081,6 +4152,10 @@
               setAdAudioMute(true);
             } else if (state === 'closed' || state === 'failed') {
               setAdAudioMute(false);
+              const activeScreen = document.querySelector('.screen.active');
+              if (activeScreen && activeScreen.id === 'menu-screen') {
+                showGameBanner('main_menu', 'bottom');
+              }
             }
           });
 
@@ -4096,9 +4171,17 @@
               if (placement) {
                 grantReward(placement);
               }
+              const activeScreen = document.querySelector('.screen.active');
+              if (activeScreen && activeScreen.id === 'menu-screen') {
+                showGameBanner('main_menu', 'bottom');
+              }
             } else if (state === 'closed' || state === 'failed') {
               setAdAudioMute(false);
               currentRequestedPlacement = null;
+              const activeScreen = document.querySelector('.screen.active');
+              if (activeScreen && activeScreen.id === 'menu-screen') {
+                showGameBanner('main_menu', 'bottom');
+              }
             }
           });
 
@@ -4299,10 +4382,22 @@
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
 
+        const pm = document.getElementById('pause-menu');
+        if (pm && screenId !== 'game-screen') {
+          pm.classList.remove('active');
+        }
+
+        const sidebarAd = document.getElementById('sidebar-ad-card');
         if (screenId === 'game-screen') {
           applyDebugMode();
           hideGameBanner();
+          if (sidebarAd) sidebarAd.style.display = 'none';
+        } else if (screenId === 'menu-screen') {
+          clearInterval(clockInterval);
+          showGameBanner('main_menu', 'bottom');
+          if (sidebarAd && !isAdBlockActive) sidebarAd.style.display = 'flex';
         } else {
+          clearInterval(clockInterval);
           showGameBanner('main_menu', 'bottom');
         }
       }
@@ -4322,8 +4417,13 @@
 
       function startClocks() {
         clearInterval(clockInterval);
+        const activeScreen = document.querySelector('.screen.active');
+        if (!activeScreen || activeScreen.id !== 'game-screen' || game.game_over() || !bulletModeActive) {
+          return;
+        }
         clockInterval = setInterval(() => {
-          if (game.game_over()) {
+          const currentScreen = document.querySelector('.screen.active');
+          if (!currentScreen || currentScreen.id !== 'game-screen' || game.game_over()) {
             clearInterval(clockInterval);
             return;
           }
@@ -4531,6 +4631,10 @@
 
       function loadPuzzle(puzzle) {
         hidePuzzleFeedback();
+        clearActiveHint();
+        hintsUsed = 0;
+        lastMoveSqs = [];
+        selectedPieceSq = null;
         currentPuzzle = puzzle;
         puzzleMoveIndex = 0;
         game.load(puzzle.fen);
@@ -4547,6 +4651,7 @@
       }
 
       function handlePuzzleSolved() {
+        clearActiveHint();
         safePlayAudio(audioVictory);
         playConfettiPop();
         if (typeof confetti !== 'undefined') {
@@ -4575,6 +4680,8 @@
 
       function nextPuzzle() {
         hidePuzzleFeedback();
+        clearActiveHint();
+        hintsUsed = 0;
         const remaining = puzzleList.filter(p => p !== currentPuzzle);
         const nextP = remaining[Math.floor(Math.random() * remaining.length)] || puzzleList[0];
         loadPuzzle(nextP);
@@ -4689,6 +4796,7 @@
        * @param {'win'|'loss'|'draw'} result - Outcome of the match
        */
       function concludeMatch(result) {
+        clearActiveHint();
         const diff = currentOpponentRating - userProfile.rating;
         let winReward = 25;
         let lossPenalty = 20;
@@ -4922,7 +5030,7 @@
       }
 
       function rematchGame() {
-        if (typeof confetti !== 'undefined') {
+        if (typeof confetti !== 'undefined' && typeof confetti.reset === 'function') {
           window.confettiActive = false;
           confetti.reset();
         }
@@ -4936,7 +5044,7 @@
 
       function returnToMenu() {
         clearActiveHint();
-        if (typeof confetti !== 'undefined') {
+        if (typeof confetti !== 'undefined' && typeof confetti.reset === 'function') {
           window.confettiActive = false;
           confetti.reset();
         }
@@ -5424,6 +5532,7 @@
             const move = game.move({ from: fromSq, to: toSq, promotion: promo });
             if (move) {
               hidePuzzleFeedback();
+              clearActiveHint();
               puzzleMoveIndex++;
               lastMoveSqs = [fromSq, toSq];
               playPieceMoveSound(move.captured, game.in_check());
@@ -5695,6 +5804,12 @@
             if (!activeHint) banner.style.display = 'none';
           }, 300);
         }
+        document.querySelectorAll('.hint-from-sq, .hint-to-sq').forEach(sq => {
+          sq.classList.remove('hint-from-sq', 'hint-to-sq');
+        });
+        document.querySelectorAll('.hint-indicator-badge, .hint-target-marker').forEach(el => {
+          el.remove();
+        });
       }
 
       function getPieceDisplayName(type) {

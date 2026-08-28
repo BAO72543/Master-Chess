@@ -21,7 +21,28 @@
       ]
     },
     "rewarded": {
-      "disable": false
+      "disable": false,
+      "placementFallback": "sponsor_ad",
+      "placements": [
+        {
+          "id": "sponsor_ad"
+        },
+        {
+          "id": "hint"
+        },
+        {
+          "id": "extra_time"
+        },
+        {
+          "id": "undo_move"
+        },
+        {
+          "id": "gift_points"
+        },
+        {
+          "id": "streak_2x"
+        }
+      ]
     },
     "banner": {
       "disable": false,
