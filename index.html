@@ -38,6 +38,35 @@
         font-display: swap;
       }
 
+      /* Readable UI webfonts (Noto Sans + Roboto) - bundled locally in public/font */
+      @font-face {
+        font-family: 'Noto Sans';
+        font-display: swap;
+        font-weight: 100 900;
+        src: url('public/font/noto-sans-latin.woff2') format('woff2');
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+          U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Noto Sans';
+        font-display: swap;
+        font-weight: 100 900;
+        src: url('public/font/noto-sans-latin-ext.woff2') format('woff2');
+        unicode-range:
+          U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF,
+          U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+      }
+      @font-face {
+        font-family: Roboto;
+        font-display: swap;
+        font-weight: 100 900;
+        src: url('public/font/roboto-latin.woff2') format('woff2');
+        unicode-range:
+          U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+          U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+
       :root {
         --sat: env(safe-area-inset-top, 0px);
         --sab: env(safe-area-inset-bottom, 0px);
@@ -80,9 +109,7 @@
         padding: 0;
         background-color: #161625;
         font-family:
-          'SupremeSpike',
-          'Outfit',
-          'Plus Jakarta Sans',
+          'Noto Sans',
           -apple-system,
           BlinkMacSystemFont,
           'Segoe UI',
@@ -576,12 +603,8 @@
       }
       .game-logo h1 {
         font-family:
-          'Outfit',
-          'Plus Jakarta Sans',
-          -apple-system,
-          BlinkMacSystemFont,
-          'Segoe UI',
-          Roboto,
+          'SupremeSpike',
+          'Noto Sans',
           sans-serif;
         font-size: clamp(34px, 6vmin, 58px);
         font-weight: 900;
@@ -593,12 +616,8 @@
       }
       .game-logo span {
         font-family:
-          'Outfit',
-          'Plus Jakarta Sans',
-          -apple-system,
-          BlinkMacSystemFont,
-          'Segoe UI',
-          Roboto,
+          'SupremeSpike',
+          'Noto Sans',
           sans-serif;
         display: block;
         font-size: clamp(16px, 2.8vmin, 26px);
@@ -644,7 +663,7 @@
         border-radius: 12px;
         padding: clamp(6px, 1vh, 10px) 14px;
         color: #ffd700;
-        font-family: 'SupremeSpike', 'Outfit', sans-serif;
+        font-family: 'Noto Sans', Roboto, sans-serif;
         font-size: clamp(14px, 1.8vmin, 17px);
         font-weight: 800;
         text-align: center;
@@ -1477,6 +1496,7 @@
         grid-template-columns: repeat(8, 1fr);
         grid-template-rows: repeat(8, 1fr);
         position: relative;
+        isolation: isolate;
         margin: auto 0;
         box-sizing: border-box;
       }
@@ -1747,7 +1767,7 @@
         pointer-events: none;
         z-index: 10;
         user-select: none;
-        font-family: 'SupremeSpike', 'Outfit', sans-serif;
+        font-family: 'Noto Sans', Roboto, sans-serif;
       }
       .board-coord-file {
         position: absolute;
@@ -1760,7 +1780,7 @@
         pointer-events: none;
         z-index: 10;
         user-select: none;
-        font-family: 'SupremeSpike', 'Outfit', sans-serif;
+        font-family: 'Noto Sans', Roboto, sans-serif;
       }
       .board-sq.light .board-coord-rank,
       .board-sq.light .board-coord-file {
@@ -1851,7 +1871,7 @@
         border-radius: 14px;
         padding: 5px 12px;
         color: #ffffff;
-        font-family: 'SupremeSpike', 'Outfit', sans-serif;
+        font-family: 'Noto Sans', Roboto, sans-serif;
         font-size: clamp(11px, 1.4vmin, 13px);
         font-weight: 800;
         z-index: 150;
@@ -1909,7 +1929,7 @@
         border-radius: 8px;
         padding: 6px 12px;
         color: #ffffff;
-        font-family: 'SupremeSpike', 'Outfit', sans-serif;
+        font-family: 'Noto Sans', Roboto, sans-serif;
         font-size: clamp(11px, 1.4vmin, 13px);
         font-weight: 700;
         cursor: pointer;
@@ -2566,6 +2586,47 @@
             <!-- Top HUD (Opponent) -->
             <div class="hud-top" style="position: relative">
               <button class="btn-back" onclick="togglePause()">☰</button>
+              <!-- Floating In-Game Debug Bar (Only shown when Debug Mode is ON) -->
+              <div
+                id="debug-floating-bar"
+                style="
+                  display: none;
+                  align-items: center;
+                  gap: 4px;
+                  background: rgba(15, 17, 30, 0.95);
+                  border: 1px solid rgba(255, 215, 0, 0.5);
+                  border-radius: 12px;
+                  padding: 3px 6px;
+                  margin-left: 6px;
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                  z-index: 100;
+                "
+              >
+                <button
+                  class="btn-game"
+                  style="padding: 4px 8px; font-size: 11px; background: #2ed573; color: #fff; border-radius: 6px; font-weight: 800;"
+                  onclick="concludeMatch('win', 'Test Win')"
+                  title="Test Win"
+                >
+                  Win
+                </button>
+                <button
+                  class="btn-game"
+                  style="padding: 4px 8px; font-size: 11px; background: #ff4757; color: #fff; border-radius: 6px; font-weight: 800;"
+                  onclick="concludeMatch('loss', 'Test Loss')"
+                  title="Test Lose"
+                >
+                  Lose
+                </button>
+                <button
+                  class="btn-game"
+                  style="padding: 4px 8px; font-size: 11px; background: #ffa502; color: #fff; border-radius: 6px; font-weight: 800;"
+                  onclick="concludeMatch('draw', 'Stalemate')"
+                  title="Test Draw"
+                >
+                  Draw
+                </button>
+              </div>
               <div class="player-hud" style="flex-grow: 1">
                 <div class="player-avatar">
                   <img
@@ -2702,15 +2763,23 @@
               <button
                 id="btn-test-win"
                 class="btn-game btn-tertiary"
-                style="display: none"
+                style="display: none; border-color: #2ed573; color: #2ed573"
                 onclick="concludeMatch('win', 'Test Win')"
               >
                 Test Win
               </button>
               <button
+                id="btn-test-lose"
+                class="btn-game btn-tertiary"
+                style="display: none; border-color: #ff4757; color: #ff4757"
+                onclick="concludeMatch('loss', 'Test Loss')"
+              >
+                Test Lose
+              </button>
+              <button
                 id="btn-test-draw"
                 class="btn-game btn-tertiary"
-                style="display: none"
+                style="display: none; border-color: #ffa502; color: #ffa502"
                 onclick="concludeMatch('draw', 'Stalemate')"
               >
                 Test Draw
@@ -2750,6 +2819,82 @@
           <button class="btn-game" style="font-size: 20px; padding: 12px 20px" onclick="togglePause()">
             Resume
           </button>
+
+          <!-- Debug Match Outcomes (Visible in Pause Menu when Debug Mode is ON) -->
+          <div
+            id="pause-debug-options"
+            style="
+              display: none;
+              width: 100%;
+              flex-direction: column;
+              gap: 8px;
+              margin: 4px 0;
+              padding: 10px;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px dashed rgba(255, 215, 0, 0.4);
+              border-radius: 12px;
+            "
+          >
+            <div
+              style="
+                color: #ffd700;
+                font-size: 12px;
+                font-weight: 800;
+                text-align: center;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              "
+            >
+              🛠️ Debug Match Outcome
+            </div>
+            <div style="display: flex; gap: 6px; width: 100%">
+              <button
+                class="btn-game"
+                style="
+                  flex: 1;
+                  padding: 8px 4px;
+                  font-size: 13px;
+                  background: #2ed573;
+                  color: #fff;
+                  border-radius: 8px;
+                  font-weight: 800;
+                "
+                onclick="togglePause(); concludeMatch('win', 'Test Win');"
+              >
+                Win
+              </button>
+              <button
+                class="btn-game"
+                style="
+                  flex: 1;
+                  padding: 8px 4px;
+                  font-size: 13px;
+                  background: #ff4757;
+                  color: #fff;
+                  border-radius: 8px;
+                  font-weight: 800;
+                "
+                onclick="togglePause(); concludeMatch('loss', 'Test Loss');"
+              >
+                Lose
+              </button>
+              <button
+                class="btn-game"
+                style="
+                  flex: 1;
+                  padding: 8px 4px;
+                  font-size: 13px;
+                  background: #ffa502;
+                  color: #fff;
+                  border-radius: 8px;
+                  font-weight: 800;
+                "
+                onclick="togglePause(); concludeMatch('draw', 'Stalemate');"
+              >
+                Draw
+              </button>
+            </div>
+          </div>
 
           <button
             id="btn-ad-time"
@@ -3232,7 +3377,7 @@
        * Disabled by default in production.
        * Can be toggled manually via console (window.debugToggle()) or by tapping the game logo 5 times.
        */
-      let isDebugMode = false;
+      let isDebugMode = localStorage.getItem('chess_debug') === 'true';
 
       function showToast(message, duration = 2500) {
         let toast = document.getElementById('game-toast');
@@ -3307,6 +3452,10 @@
         if (winBtn) {
           winBtn.style.display = isDebugMode ? 'block' : 'none';
         }
+        const loseBtn = document.getElementById('btn-test-lose');
+        if (loseBtn) {
+          loseBtn.style.display = isDebugMode ? 'block' : 'none';
+        }
         const drawBtn = document.getElementById('btn-test-draw');
         if (drawBtn) {
           drawBtn.style.display = isDebugMode ? 'block' : 'none';
@@ -3319,9 +3468,23 @@
         if (bannerBtn) {
           bannerBtn.style.display = isDebugMode ? 'block' : 'none';
         }
+        const pauseDebug = document.getElementById('pause-debug-options');
+        if (pauseDebug) {
+          pauseDebug.style.display = isDebugMode ? 'flex' : 'none';
+        }
+        const floatingDebug = document.getElementById('debug-floating-bar');
+        if (floatingDebug) {
+          floatingDebug.style.display = isDebugMode ? 'flex' : 'none';
+        }
       }
 
       // Console Debug Helpers (accessible via F12 console)
+      window.debugWin = function (reason = 'Test Win') {
+        concludeMatch('win', reason);
+      };
+      window.debugLose = function (reason = 'Test Loss') {
+        concludeMatch('loss', reason);
+      };
       window.debugDraw = function (reason = 'Stalemate') {
         concludeMatch('draw', reason);
       };
@@ -4826,6 +4989,8 @@
       function concludeMatch(result, reason = '') {
         clearActiveHint();
         if (botMoveTimer) clearTimeout(botMoveTimer);
+        selectedPieceSq = null;
+        renderBoard('main-board');
         const diff = currentOpponentRating - userProfile.rating;
         let winReward = 25;
         let lossPenalty = 20;
