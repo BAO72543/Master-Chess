@@ -2703,9 +2703,17 @@
                 id="btn-test-win"
                 class="btn-game btn-tertiary"
                 style="display: none"
-                onclick="concludeMatch('win')"
+                onclick="concludeMatch('win', 'Test Win')"
               >
                 Test Win
+              </button>
+              <button
+                id="btn-test-draw"
+                class="btn-game btn-tertiary"
+                style="display: none"
+                onclick="concludeMatch('draw', 'Stalemate')"
+              >
+                Test Draw
               </button>
               <button
                 id="btn-test-interstitial"
@@ -2723,7 +2731,7 @@
               >
                 <span class="ad-badge">AD</span> Test Banner
               </button>
-              <button class="btn-game btn-secondary" onclick="concludeMatch('loss')">
+              <button class="btn-game btn-secondary" onclick="concludeMatch('loss', 'Resignation')">
                 <img
                   src="public/images/resign.svg"
                   style="width: 13px; height: 13px; vertical-align: -2px; margin-right: 2px"
@@ -2879,13 +2887,26 @@
             style="
               color: #ffd700;
               font-size: clamp(26px, 4.5vmin, 40px);
-              margin-bottom: clamp(12px, 2vh, 20px);
+              margin-bottom: clamp(6px, 1vh, 12px);
               text-transform: uppercase;
               text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             "
           >
             VICTORY
           </h2>
+          <div
+            id="endgame-reason"
+            style="
+              display: none;
+              color: #94a3b8;
+              font-size: clamp(12px, 1.5vmin, 15px);
+              font-weight: 700;
+              letter-spacing: 1.2px;
+              text-transform: uppercase;
+              margin-bottom: clamp(12px, 2vh, 20px);
+              text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            "
+          ></div>
           <div style="margin-bottom: clamp(16px, 3vh, 28px)">
             <div
               id="endgame-rating-label"
@@ -3213,6 +3234,51 @@
        */
       let isDebugMode = false;
 
+      function showToast(message, duration = 2500) {
+        let toast = document.getElementById('game-toast');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.id = 'game-toast';
+          toast.style.cssText = `
+            position: fixed;
+            top: clamp(16px, 3vh, 32px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(22, 22, 37, 0.95);
+            border: 1.5px solid rgba(79, 172, 254, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 20px;
+            font-size: clamp(13px, 1.6vmin, 16px);
+            font-weight: 700;
+            z-index: 100000;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            text-align: center;
+            max-width: 90vw;
+          `;
+          document.body.appendChild(toast);
+        }
+        toast.innerText = message;
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(-50%) translateY(-20px)';
+        }, duration);
+      }
+
+      // Safety override to ensure no native browser dialogs escape into the game view
+      window.alert = function (msg) {
+        console.warn('Native alert suppressed:', msg);
+        showToast(msg);
+      };
+
       let logoClickCount = 0;
       let logoClickTimer = null;
       function handleLogoClick() {
@@ -3227,10 +3293,10 @@
           isDebugMode = !isDebugMode;
           if (isDebugMode) {
             localStorage.setItem('chess_debug', 'true');
-            alert('Debug Mode ENABLED! (Test buttons are now visible in matches)');
+            showToast('Debug Mode ENABLED (Test buttons visible)');
           } else {
             localStorage.removeItem('chess_debug');
-            alert('Debug Mode DISABLED. (Clean production UI)');
+            showToast('Debug Mode DISABLED');
           }
           applyDebugMode();
         }
@@ -3240,6 +3306,10 @@
         const winBtn = document.getElementById('btn-test-win');
         if (winBtn) {
           winBtn.style.display = isDebugMode ? 'block' : 'none';
+        }
+        const drawBtn = document.getElementById('btn-test-draw');
+        if (drawBtn) {
+          drawBtn.style.display = isDebugMode ? 'block' : 'none';
         }
         const adBtn = document.getElementById('btn-test-interstitial');
         if (adBtn) {
@@ -3252,6 +3322,9 @@
       }
 
       // Console Debug Helpers (accessible via F12 console)
+      window.debugDraw = function (reason = 'Stalemate') {
+        concludeMatch('draw', reason);
+      };
       window.debugHint = function () {
         hintsUsed = Math.max(0, hintsUsed - 1);
         requestHintMove();
@@ -4388,13 +4461,13 @@
             }
             if (userTimeLeft <= 0) {
               clearInterval(clockInterval);
-              concludeMatch('loss');
+              concludeMatch('loss', 'Time Out');
             }
           } else {
             oppTimeLeft--;
             if (oppTimeLeft <= 0) {
               clearInterval(clockInterval);
-              concludeMatch('win');
+              concludeMatch('win', 'Time Out');
             }
           }
           updateClockDisplay();
@@ -4748,9 +4821,11 @@
       /**
        * Concludes the current game, computes ELO delta, records progression, and notifies the SDK
        * @param {'win'|'loss'|'draw'} result - Outcome of the match
+       * @param {string} [reason] - Outcome reason
        */
-      function concludeMatch(result) {
+      function concludeMatch(result, reason = '') {
         clearActiveHint();
+        if (botMoveTimer) clearTimeout(botMoveTimer);
         const diff = currentOpponentRating - userProfile.rating;
         let winReward = 25;
         let lossPenalty = 20;
@@ -4783,13 +4858,21 @@
           userProfile.rating += winReward;
           userProfile.wins = (userProfile.wins || 0) + 1;
           change = winReward;
+        } else if (result === 'draw') {
+          userProfile.draws = (userProfile.draws || 0) + 1;
+          if (currentGameMode === 'online') {
+            change = Math.max(-10, Math.min(10, Math.round(diff / 40)));
+            userProfile.rating = Math.max(0, oldRating + change);
+          } else {
+            change = 0;
+          }
         } else {
           userProfile.rating = Math.max(0, oldRating - lossPenalty);
           change = -lossPenalty;
         }
 
         const newRating = userProfile.rating;
-        const diffStr = (change > 0 ? '+' : '') + change;
+        const diffStr = change > 0 ? '+' + change : change === 0 ? '±0' : '' + change;
 
         // Save progress to both LocalStorage & Playgama Cloud Storage
         saveProgress();
@@ -4812,10 +4895,10 @@
 
         if (result === 'win' && newTier.name !== oldTier.name) {
           triggerRankUpAnimation(newTier, () => {
-            showEndgameModal(result, oldRating, newRating, diffStr);
+            showEndgameModal(result, oldRating, newRating, diffStr, reason);
           });
         } else {
-          showEndgameModal(result, oldRating, newRating, diffStr);
+          showEndgameModal(result, oldRating, newRating, diffStr, reason);
         }
       }
 
@@ -4881,24 +4964,43 @@
         }, 1500);
       }
 
-      function showEndgameModal(result, oldRating, newRating, diffStr) {
+      function showEndgameModal(result, oldRating, newRating, diffStr, reason = '') {
         const modal = document.getElementById('endgame-modal');
         const title = document.getElementById('endgame-title');
+        const reasonEl = document.getElementById('endgame-reason');
         const elo = document.getElementById('endgame-elo');
         const diffLabel = document.getElementById('endgame-diff');
         const ratingLabel = document.getElementById('endgame-rating-label');
         const rematchBtn = document.getElementById('btn-rematch');
 
-        title.innerText = result === 'win' ? 'VICTORY' : 'DEFEAT';
-        title.style.color = result === 'win' ? '#ffd700' : '#ff4757';
-        elo.innerText = newRating;
-        diffLabel.innerText = diffStr;
-        diffLabel.style.color = result === 'win' ? '#38f9d7' : '#ff4757';
-
         if (result === 'win') {
+          title.innerText = 'VICTORY';
+          title.style.color = '#ffd700';
+          diffLabel.style.color = '#38f9d7';
           safePlayAudio(audioVictory);
+        } else if (result === 'draw') {
+          title.innerText = 'DRAW';
+          title.style.color = '#4facfe';
+          diffLabel.style.color = diffStr.startsWith('+')
+            ? '#38f9d7'
+            : diffStr.startsWith('-')
+              ? '#ff4757'
+              : '#94a3b8';
+          safePlayAudio(audioDraw);
         } else {
+          title.innerText = 'DEFEAT';
+          title.style.color = '#ff4757';
+          diffLabel.style.color = '#ff4757';
           safePlayAudio(audioDefeat);
+        }
+
+        if (reasonEl) {
+          if (reason) {
+            reasonEl.innerText = reason;
+            reasonEl.style.display = 'block';
+          } else {
+            reasonEl.style.display = 'none';
+          }
         }
 
         if (currentGameMode === 'puzzles') {
@@ -6044,13 +6146,18 @@
           setTimeout(() => {
             if (game.in_checkmate()) {
               if (game.turn() === 'w') {
-                concludeMatch('loss');
+                concludeMatch('loss', 'Checkmate');
               } else {
-                concludeMatch('win');
+                concludeMatch('win', 'Checkmate');
               }
+            } else if (typeof game.in_stalemate === 'function' && game.in_stalemate()) {
+              concludeMatch('draw', 'Stalemate');
+            } else if (typeof game.in_threefold_repetition === 'function' && game.in_threefold_repetition()) {
+              concludeMatch('draw', 'Threefold Repetition');
+            } else if (typeof game.insufficient_material === 'function' && game.insufficient_material()) {
+              concludeMatch('draw', 'Insufficient Material');
             } else {
-              alert('Game Over: Draw');
-              returnToMenu();
+              concludeMatch('draw', '50-Move Rule');
             }
           }, 500);
         }
