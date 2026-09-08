@@ -3088,7 +3088,7 @@
                 text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
               "
             >
-              +25
+              +0
             </div>
           </div>
           <button
@@ -4182,6 +4182,8 @@
             : 'Guest ' + Math.floor(1000 + Math.random() * 9000);
         userProfile.rating = 800;
         userProfile.wins = 0;
+        userProfile.draws = 0;
+        userProfile.losses = 0;
         userProfile.pieceSet = 'classic';
         userProfile.boardTheme = 'classic';
         userProfile.unlockedSkins = ['classic'];
@@ -5025,19 +5027,15 @@
           change = winReward;
         } else if (result === 'draw') {
           userProfile.draws = (userProfile.draws || 0) + 1;
-          if (currentGameMode === 'online') {
-            change = Math.max(-10, Math.min(10, Math.round(diff / 40)));
-            userProfile.rating = Math.max(0, oldRating + change);
-          } else {
-            change = 0;
-          }
+          change = 0; // Strictly 0 points for draw in all modes
         } else {
+          userProfile.losses = (userProfile.losses || 0) + 1;
           userProfile.rating = Math.max(0, oldRating - lossPenalty);
           change = -lossPenalty;
         }
 
         const newRating = userProfile.rating;
-        const diffStr = change > 0 ? '+' + change : change === 0 ? '±0' : '' + change;
+        const diffStr = change > 0 ? '+' + change : change === 0 ? '+0' : '' + change;
 
         // Save progress to both LocalStorage & Playgama Cloud Storage
         saveProgress();
@@ -5138,24 +5136,24 @@
         const ratingLabel = document.getElementById('endgame-rating-label');
         const rematchBtn = document.getElementById('btn-rematch');
 
+        if (diffLabel) {
+          diffLabel.innerText = diffStr;
+        }
+
         if (result === 'win') {
           title.innerText = 'VICTORY';
           title.style.color = '#ffd700';
-          diffLabel.style.color = '#38f9d7';
+          if (diffLabel) diffLabel.style.color = '#38f9d7';
           safePlayAudio(audioVictory);
         } else if (result === 'draw') {
           title.innerText = 'DRAW';
           title.style.color = '#4facfe';
-          diffLabel.style.color = diffStr.startsWith('+')
-            ? '#38f9d7'
-            : diffStr.startsWith('-')
-              ? '#ff4757'
-              : '#94a3b8';
+          if (diffLabel) diffLabel.style.color = '#94a3b8';
           safePlayAudio(audioDraw);
         } else {
           title.innerText = 'DEFEAT';
           title.style.color = '#ff4757';
-          diffLabel.style.color = '#ff4757';
+          if (diffLabel) diffLabel.style.color = '#ff4757';
           safePlayAudio(audioDefeat);
         }
 
@@ -5225,24 +5223,29 @@
         }
 
         // Animate ELO
-        let currentDisplayRating = oldRating;
-        const ticks = 30; // Number of animation frames
-        const ratingStep = (newRating - oldRating) / ticks;
-        let frame = 0;
+        const ratingDiff = newRating - oldRating;
+        if (ratingDiff === 0) {
+          elo.innerHTML = formatRating(newRating);
+        } else {
+          let currentDisplayRating = oldRating;
+          const ticks = 30; // Number of animation frames
+          const ratingStep = ratingDiff / ticks;
+          let frame = 0;
 
-        function tickAnimation() {
-          if (frame < ticks) {
-            currentDisplayRating += ratingStep;
-            elo.innerHTML = formatRating(Math.round(currentDisplayRating));
-            playTick();
-            frame++;
-            requestAnimationFrame(tickAnimation);
-          } else {
-            elo.innerHTML = formatRating(newRating);
+          function tickAnimation() {
+            if (frame < ticks) {
+              currentDisplayRating += ratingStep;
+              elo.innerHTML = formatRating(Math.round(currentDisplayRating));
+              playTick();
+              frame++;
+              requestAnimationFrame(tickAnimation);
+            } else {
+              elo.innerHTML = formatRating(newRating);
+            }
           }
-        }
 
-        setTimeout(() => requestAnimationFrame(tickAnimation), 500); // short delay
+          setTimeout(() => requestAnimationFrame(tickAnimation), 500); // short delay
+        }
       }
 
       function closeEndgameModal() {
